@@ -30,7 +30,7 @@ export function resolveOptions({
 function removeUndefined({ overrides }: { overrides: AlertOptionOverrides }): AlertOptionOverrides {
   return Object.fromEntries(
     Object.entries(overrides).filter(([, value]: [string, unknown]) => value !== undefined),
-  ) as AlertOptionOverrides;
+  );
 }
 
 function simplify({ text }: { text: string }): string {
