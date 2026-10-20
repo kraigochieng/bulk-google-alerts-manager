@@ -41,3 +41,33 @@ export interface RowResult {
   readonly rssLink: string;
   readonly errorMessage: string;
 }
+
+export type RunKind = "create" | "delete";
+
+export type RunStatus =
+  | "idle"
+  | "ready"
+  | "running"
+  | "paused"
+  | "awaiting_captcha"
+  | "completed"
+  | "cancelled";
+
+/** One alert to create or to delete in a run, with its result so far. */
+export interface RunItem {
+  readonly id: number;
+  readonly query: string;
+  readonly options: AlertOptions | null;
+  readonly label: string;
+  readonly status: RowStatus;
+  readonly rssLink: string;
+  readonly errorMessage: string;
+}
+
+/** The whole state of a run. The panel saves it after every change. */
+export interface RunSnapshot {
+  readonly kind: RunKind;
+  readonly status: RunStatus;
+  readonly items: readonly RunItem[];
+  readonly notice: string;
+}
