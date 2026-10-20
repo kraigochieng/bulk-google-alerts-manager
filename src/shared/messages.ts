@@ -9,7 +9,7 @@ export type PanelRequest =
 
 /** Successful replies of the content script. */
 export type ContentSuccess =
-  | { readonly ok: true; readonly kind: "pong"; readonly pageUrl: string }
+  | { readonly ok: true; readonly kind: "pong"; readonly pageUrl: string; readonly hidden: boolean }
   | { readonly ok: true; readonly kind: "alerts"; readonly alerts: readonly LiveAlert[] }
   | { readonly ok: true; readonly kind: "created"; readonly feedUrl: string | null }
   | { readonly ok: true; readonly kind: "deleted" };
