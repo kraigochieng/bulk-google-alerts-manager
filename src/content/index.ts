@@ -25,7 +25,7 @@ function toFailure({ error }: { error: unknown }): ContentFailure {
 async function handleRequest({ request }: { request: PanelRequest }): Promise<ContentReply> {
   switch (request.kind) {
     case "ping":
-      return { ok: true, kind: "pong", pageUrl: window.location.href };
+      return { ok: true, kind: "pong", pageUrl: window.location.href, hidden: document.hidden };
     case "read_alerts":
       return { ok: true, kind: "alerts", alerts: await readAllAlerts() };
     case "create_alert":
