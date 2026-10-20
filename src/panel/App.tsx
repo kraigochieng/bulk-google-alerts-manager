@@ -10,15 +10,41 @@ import { openAlertsTab } from "src/panel/chrome-bridge";
 import { useAlertsTabStatus } from "src/panel/use-alerts-tab-status";
 import { useAutosave } from "src/panel/use-autosave";
 import { useRunController } from "src/panel/use-run-controller";
-import { CreateView } from "src/panel/views/create-view";
+import { switchViewParameters, readView } from "src/core/view-state";
+import type { ViewName } from "src/core/view-state";
+import { CreateView, ROWS_TABLE_SCHEMA } from "src/panel/views/create-view";
+import { ALERTS_TABLE_SCHEMA, DeleteView } from "src/panel/views/delete-view";
+import { RUN_TABLE_SCHEMA } from "src/panel/components/run-panel";
 import { loadSettings, saveSettings } from "src/storage/run-repository";
 
 /** Render the side panel: first-run notice, tab status, settings, and the active view. Holds the app state. */
 export function App(): JSX.Element {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [settingsLoaded, setSettingsLoaded] = useState<boolean>(false);
+  const [view, setView] = useState<ViewName>(() => readView({ parameters: new URLSearchParams(window.location.search) }));
   const tabStatus = useAlertsTabStatus();
   const controller = useRunController({ settings });
+
+  useEffect(() => {
+    const onPopState = (): void => {
+      setView(readView({ parameters: new URLSearchParams(window.location.search) }));
+    };
+    window.addEventListener("popstate", onPopState);
+    return (): void => {
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, []);
+
+  const changeView = useCallback((next: ViewName): void => {
+    const parameters: URLSearchParams = switchViewParameters({
+      parameters: new URLSearchParams(window.location.search),
+      view: next,
+      schemas: [ROWS_TABLE_SCHEMA, ALERTS_TABLE_SCHEMA, RUN_TABLE_SCHEMA],
+    });
+    const query: string = parameters.toString();
+    window.history.pushState(null, "", `${window.location.pathname}${query === "" ? "" : `?${query}`}`);
+    setView(next);
+  }, []);
 
   useEffect(() => {
     void loadSettings().then((saved: Settings) => {
@@ -66,7 +92,20 @@ export function App(): JSX.Element {
         <Banner tone="warning">The Alerts tab does not answer. Reload the Alerts tab, then try again.</Banner>
       )}
       <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
-      <CreateView settings={settings} controller={controller} />
+      <nav aria-label="Views" className="mt-3 flex gap-1 border-b border-gray-300 text-sm">
+        {(["create", "delete"] as const).map((name: ViewName) => (
+          <button
+            key={name}
+            type="button"
+            aria-current={view === name ? "page" : undefined}
+            onClick={() => { if (view !== name) changeView(name); }}
+            className={`rounded-t px-3 py-1 ${view === name ? "border border-b-white bg-white font-semibold" : "text-gray-600"}`}
+          >
+            {name === "create" ? "Bulk create" : "Bulk delete"}
+          </button>
+        ))}
+      </nav>
+      {view === "create" ? <CreateView settings={settings} controller={controller} /> : <DeleteView controller={controller} />}
     </main>
   );
 }
