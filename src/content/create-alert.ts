@@ -13,6 +13,26 @@ import {
 } from "src/shared/errors";
 import type { AlertOptions } from "src/shared/models";
 
+/**
+ * Cancel edit mode or old text in the create form with its close icon.
+ * Side effect: clicks the page. Does nothing when the Create button is already visible.
+ */
+async function resetFormIfNeeded(): Promise<void> {
+  if (findVisible({ selector: SELECTORS.createButton, scope: document }) !== null) {
+    return;
+  }
+  const closeIcon: HTMLElement | null = findVisible({ selector: SELECTORS.formCloseIcon, scope: document });
+  if (closeIcon === null) {
+    return;
+  }
+  syntheticClick({ element: closeIcon });
+  await waitFor<true>({
+    find: () => (findVisible({ selector: SELECTORS.formCloseIcon, scope: document }) === null ? true : null),
+    timeoutMilliseconds: TIMING.elementTimeoutMilliseconds,
+    onTimeout: () => new LayoutChangedError({ selectorName: SELECTORS.formCloseIcon }),
+  });
+}
+
 /** Put text in the query box the way typing does. Side effect: changes the page. */
 function typeQuery({ input, query }: { input: HTMLInputElement; query: string }): void {
   input.focus();
@@ -100,6 +120,7 @@ export async function createAlert({
   options: AlertOptions;
 }): Promise<string | null> {
   throwIfBotCheck();
+  await resetFormIfNeeded();
   const rowsBefore: Set<HTMLElement> = new Set(
     readAlertRowElements().map((row: AlertRowElement) => row.element),
   );

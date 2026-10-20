@@ -4,6 +4,7 @@ export const SELECTORS = {
   queryInput: "#create-alert-div .query_div input",
   showOptionsToggle: "#create-alert-div .show_options",
   createButton: "#create_alert",
+  formCloseIcon: "#create-alert-div .close_icon",
   frequencySelect: "#create-alert-div .frequency_select",
   sourceSelect: "#create-alert-div .source_select",
   languageSelect: "#create-alert-div .language_select",
