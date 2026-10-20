@@ -1,10 +1,15 @@
+import { useState } from "react";
 import type { JSX } from "react";
 
 import { countByStatus } from "src/core/run-machine";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema, TableState } from "src/core/table-state";
 import { Banner } from "src/panel/components/banner";
+import { ConfirmDialog } from "src/panel/components/confirm-dialog";
 import { DataTable } from "src/panel/components/data-table";
+import { Badge } from "src/panel/ui/badge";
+import { Button } from "src/panel/ui/button";
+import { Progress } from "src/panel/ui/progress";
 import type { HistoryMode } from "src/panel/use-table-url-state";
 import type { RunItem, RunSnapshot } from "src/shared/models";
 
@@ -62,6 +67,7 @@ export function RunPanel({
   tableState: TableState;
   onTableStateChange: (next: TableState, options: { history: HistoryMode }) => void;
 }): JSX.Element {
+  const [confirmingCancel, setConfirmingCancel] = useState<boolean>(false);
   const counts = countByStatus({ run });
   const total: number = run.items.length;
   const finished: number = total - counts.pending;
@@ -72,7 +78,7 @@ export function RunPanel({
       <h2 className="text-sm font-semibold">
         {isCreate ? "Create run" : "Delete run"}: {STATUS_TEXT[run.status]}
       </h2>
-      <progress value={finished} max={Math.max(total, 1)} className="mt-1 w-full" aria-label="Progress" />
+      <Progress value={(finished / Math.max(total, 1)) * 100} className="mt-2" aria-label="Progress" />
       <p className="text-xs">
         {String(finished)} of {String(total)} finished. {String(counts[isCreate ? "created" : "deleted"])} {isCreate ? "created" : "deleted"},{" "}
         {String(counts.skipped)} skipped, {String(counts.failed)} failed, {String(counts.pending)} pending.
@@ -81,37 +87,38 @@ export function RunPanel({
         <Banner tone="info">Keep the Alerts tab open and in the foreground. Browsers slow background tabs.</Banner>
       )}
       {run.notice !== "" && <Banner tone={run.status === "awaiting_captcha" ? "warning" : "error"}>{run.notice}</Banner>}
-      <div className="mt-2 flex flex-wrap gap-2 text-sm">
+      <div className="mt-2 flex flex-wrap gap-2">
         {run.status === "running" && (
-          <button type="button" onClick={onPause} className="rounded border px-2 py-1">Pause</button>
+          <Button type="button" variant="outline" size="sm" onClick={onPause}>Pause</Button>
         )}
         {run.status === "paused" && (
-          <button type="button" onClick={onResume} className="rounded bg-blue-600 px-2 py-1 text-white">Resume</button>
+          <Button type="button" size="sm" onClick={onResume}>Resume</Button>
         )}
         {run.status === "awaiting_captcha" && (
-          <button type="button" onClick={onResume} className="rounded bg-blue-600 px-2 py-1 text-white">I solved it, continue</button>
+          <Button type="button" size="sm" onClick={onResume}>I solved it, continue</Button>
         )}
         {(run.status === "running" || run.status === "paused" || run.status === "awaiting_captcha") && (
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm(`Cancel this ${isCreate ? "create" : "delete"} run? Finished rows stay finished.`)) onCancel();
-            }}
-            className="rounded border border-red-400 px-2 py-1 text-red-700"
-          >
+          <Button type="button" variant="outline" size="sm" className="border-red-400 text-red-700" onClick={() => { setConfirmingCancel(true); }}>
             Cancel run
-          </button>
+          </Button>
         )}
         {finishedStatus && counts.failed > 0 && (
-          <button type="button" onClick={onRetryFailed} className="rounded bg-blue-600 px-2 py-1 text-white">
-            Retry {String(counts.failed)} failed
-          </button>
+          <Button type="button" size="sm" onClick={onRetryFailed}>Retry {String(counts.failed)} failed</Button>
         )}
-        <button type="button" onClick={onExport} className="rounded border px-2 py-1">Export result CSV</button>
+        <Button type="button" variant="outline" size="sm" onClick={onExport}>Export result CSV</Button>
         {finishedStatus && (
-          <button type="button" onClick={onClose} className="rounded border px-2 py-1">Close results</button>
+          <Button type="button" variant="outline" size="sm" onClick={onClose}>Close results</Button>
         )}
       </div>
+      <ConfirmDialog
+        open={confirmingCancel}
+        title={`Cancel this ${isCreate ? "create" : "delete"} run?`}
+        description={`The run has ${String(total)} rows and ${String(counts.pending)} are still pending. Rows that are already finished stay finished.`}
+        confirmLabel="Cancel the run"
+        keepLabel="Keep running"
+        onConfirm={onCancel}
+        onOpenChange={setConfirmingCancel}
+      />
       <DataTable<RunItem, number>
         rows={run.items}
         columns={COLUMNS}
@@ -121,9 +128,9 @@ export function RunPanel({
           if (columnKey === "query") return item.query;
           return (
             <span>
-              <strong>{item.status}</strong>
+              <Badge variant={item.status === "failed" ? "destructive" : item.status === "pending" || item.status === "skipped" ? "secondary" : "default"}>{item.status}</Badge>
               {item.rssLink !== "" && (
-                <a href={item.rssLink} target="_blank" rel="noreferrer" className="ml-1 text-blue-700 underline">feed</a>
+                <a href={item.rssLink} target="_blank" rel="noreferrer" className="ml-1 text-primary underline">feed</a>
               )}
               {item.errorMessage !== "" && <span className="block text-red-700">{item.errorMessage}</span>}
             </span>
