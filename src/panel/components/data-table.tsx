@@ -1,9 +1,15 @@
+import { ChevronDown, ChevronUp, X } from "lucide-react";
 import type { JSX, ReactNode } from "react";
 
 import { DEFAULT_PAGE_SIZE, queryTable } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { SortDirection, TableSchema, TableState } from "src/core/table-state";
 import type { HistoryMode } from "src/panel/use-table-url-state";
+import { Button } from "src/panel/ui/button";
+import { Checkbox } from "src/panel/ui/checkbox";
+import { Input } from "src/panel/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "src/panel/ui/table";
 
 export interface RowSelection<Key extends string | number> {
   readonly selected: ReadonlySet<Key>;
@@ -58,8 +64,8 @@ export function DataTable<Row, Key extends string | number>({
   return (
     <div className="mt-2">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1">
-          <input
+        <div className="relative min-w-32 flex-1">
+          <Input
             type="search"
             aria-label="Search the table"
             placeholder="Search"
@@ -67,122 +73,116 @@ export function DataTable<Row, Key extends string | number>({
             onChange={(event) => {
               change({ search: event.target.value, page: 0 }, "replace");
             }}
-            className="w-full rounded border border-gray-300 px-2 py-1 pr-7 text-sm"
+            className="h-8 pr-8 text-sm"
           />
           {state.search !== "" && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               aria-label="Clear search"
               onClick={() => {
                 change({ search: "", page: 0 }, "replace");
               }}
-              className="absolute right-1 top-1 px-1 text-gray-500"
+              className="absolute right-0 top-0 size-8"
             >
-              ×
-            </button>
+              <X className="size-3" />
+            </Button>
           )}
         </div>
-        <select
-          aria-label="Filter the table"
+        <Select
           value={state.filter}
-          onChange={(event) => {
-            change({ filter: event.target.value, page: 0 }, "replace");
+          onValueChange={(value: string) => {
+            change({ filter: value, page: 0 }, "replace");
           }}
-          className="rounded border border-gray-300 px-2 py-1 text-sm"
         >
-          {schema.filters.map((filter: string) => (
-            <option key={filter} value={filter}>
-              {filterLabels[filter] ?? filter}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-8 w-40 text-xs" aria-label="Filter the table">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {schema.filters.map((filter: string) => (
+              <SelectItem key={filter} value={filter}>
+                {filterLabels[filter] ?? filter}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-      <div className="mt-1 text-xs text-gray-600">
+      <div className="mt-1 text-xs text-muted-foreground">
         {String(page.totalMatching)} of {String(rows.length)} rows
         {selection !== undefined && `, ${String(selection.selected.size)} selected`}
       </div>
-      <div className="mt-1 overflow-x-auto">
-        <table className="w-full border-collapse text-left text-xs">
-          <thead>
-            <tr className="border-b border-gray-300">
+      <div className="mt-1 rounded-md border">
+        <Table className="text-xs">
+          <TableHeader>
+            <TableRow>
               {selection !== undefined && (
-                <th className="w-6 py-1">
-                  <input
-                    type="checkbox"
+                <TableHead className="w-6 px-2">
+                  <Checkbox
                     aria-label="Select all matching rows"
                     checked={allSelected}
-                    onChange={(event) => {
-                      selection.onToggleMany(selectableKeys, event.target.checked);
+                    onCheckedChange={(checked) => {
+                      selection.onToggleMany(selectableKeys, checked === true);
                     }}
                   />
-                </th>
+                </TableHead>
               )}
               {columns.map((column: TableColumn<Row>) => (
-                <th key={column.key} className="py-1 pr-2">
-                  <button type="button" onClick={() => { toggleSort(column.key); }} className="font-semibold">
+                <TableHead key={column.key} className="h-8 px-2">
+                  <button type="button" onClick={() => { toggleSort(column.key); }} className="inline-flex items-center gap-0.5 font-semibold">
                     {column.label}
-                    {state.sortKey === column.key && (state.sortDirection === "asc" ? " ▲" : " ▼")}
+                    {state.sortKey === column.key &&
+                      (state.sortDirection === "asc" ? <ChevronUp className="size-3" aria-label="sorted ascending" /> : <ChevronDown className="size-3" aria-label="sorted descending" />)}
                   </button>
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {page.rows.length === 0 && (
-              <tr>
-                <td colSpan={columns.length + 1} className="py-3 text-center text-gray-500">
+              <TableRow>
+                <TableCell colSpan={columns.length + 1} className="py-3 text-center text-muted-foreground">
                   {emptyMessage}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
             {page.rows.map((row: Row) => {
               const key: Key = rowKey(row);
               return (
-                <tr key={key} className="border-b border-gray-100 align-top">
+                <TableRow key={key} className="align-top">
                   {selection !== undefined && (
-                    <td className="py-1">
-                      <input
-                        type="checkbox"
+                    <TableCell className="px-2 py-1">
+                      <Checkbox
                         aria-label={`Select row ${String(key)}`}
                         disabled={!selection.isSelectable(key)}
                         checked={selection.selected.has(key)}
-                        onChange={(event) => {
-                          selection.onToggleMany([key], event.target.checked);
+                        onCheckedChange={(checked) => {
+                          selection.onToggleMany([key], checked === true);
                         }}
                       />
-                    </td>
+                    </TableCell>
                   )}
                   {columns.map((column: TableColumn<Row>) => (
-                    <td key={column.key} className="py-1 pr-2 break-words">
+                    <TableCell key={column.key} className="px-2 py-1 whitespace-normal break-words">
                       {renderCell(row, column.key)}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       <div className="mt-1 flex items-center justify-between text-xs">
-        <button
-          type="button"
-          disabled={page.page === 0}
-          onClick={() => { change({ page: page.page - 1 }, "push"); }}
-          className="rounded border px-2 py-0.5 disabled:opacity-40"
-        >
+        <Button type="button" variant="outline" size="sm" disabled={page.page === 0} onClick={() => { change({ page: page.page - 1 }, "push"); }}>
           Previous
-        </button>
+        </Button>
         <span>
           Page {String(page.page + 1)} of {String(page.pageCount)}
         </span>
-        <button
-          type="button"
-          disabled={page.page >= page.pageCount - 1}
-          onClick={() => { change({ page: page.page + 1 }, "push"); }}
-          className="rounded border px-2 py-0.5 disabled:opacity-40"
-        >
+        <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }, "push"); }}>
           Next
-        </button>
+        </Button>
       </div>
     </div>
   );
