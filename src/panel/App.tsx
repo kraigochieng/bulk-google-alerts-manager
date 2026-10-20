@@ -28,7 +28,7 @@ export function App(): JSX.Element {
   const [settingsLoaded, setSettingsLoaded] = useState<boolean>(false);
   const [view, setView] = useState<ViewName>(() => readView({ parameters: new URLSearchParams(window.location.search) }));
   const tabStatus = useAlertsTabStatus();
-  const controller = useRunController({ settings });
+  const controller = useRunController();
   const live = useLiveAlerts({ tabStatus, runStatus: controller.run?.status ?? null });
 
   useEffect(() => {

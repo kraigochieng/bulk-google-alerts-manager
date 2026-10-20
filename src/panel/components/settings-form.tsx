@@ -1,14 +1,12 @@
 import { X } from "lucide-react";
 import type { JSX } from "react";
 
-import { DELAY_LIMITS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { Button } from "src/panel/ui/button";
 import { Input } from "src/panel/ui/input";
 import { Label } from "src/panel/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
-import { Slider } from "src/panel/ui/slider";
 import type { DeliverTo, HowMany, HowOften } from "src/shared/models";
 
 const STATUS_TEXT: Record<SaveStatus, string> = {
@@ -90,7 +88,7 @@ function OptionSelect({
   );
 }
 
-/** Render the default alert options and the delay range. Inputs lock while a run is active. */
+/** Render the default alert options. Inputs lock while a run is active. */
 export function SettingsForm({
   settings,
   onChange,
@@ -142,41 +140,6 @@ export function SettingsForm({
       <p className="mt-1 text-xs text-muted-foreground">
         Sources, language and region must match the text in the Google dropdown, for example “English”.
       </p>
-      <div className="mt-2 space-y-2 text-xs">
-        <div>
-          <Label className="text-xs">Shortest wait between alerts: {String(settings.minimumDelaySeconds)} s</Label>
-          <Slider
-            aria-label="Shortest wait between alerts"
-            className="mt-2"
-            min={DELAY_LIMITS.minimumSeconds}
-            max={DELAY_LIMITS.maximumSeconds}
-            step={1}
-            disabled={locked}
-            value={[settings.minimumDelaySeconds]}
-            onValueChange={([minimum]) => {
-              const next: number = minimum ?? settings.minimumDelaySeconds;
-              onChange({ ...settings, minimumDelaySeconds: next, maximumDelaySeconds: Math.max(next, settings.maximumDelaySeconds) });
-            }}
-          />
-        </div>
-        <div>
-          <Label className="text-xs">Longest wait between alerts: {String(settings.maximumDelaySeconds)} s</Label>
-          <Slider
-            aria-label="Longest wait between alerts"
-            className="mt-2"
-            min={DELAY_LIMITS.minimumSeconds}
-            max={DELAY_LIMITS.maximumSeconds}
-            step={1}
-            disabled={locked}
-            value={[settings.maximumDelaySeconds]}
-            onValueChange={([maximum]) => {
-              const next: number = maximum ?? settings.maximumDelaySeconds;
-              onChange({ ...settings, maximumDelaySeconds: next, minimumDelaySeconds: Math.min(next, settings.minimumDelaySeconds) });
-            }}
-          />
-        </div>
-        <p className="text-muted-foreground">The wait is random between these two values. A longer wait lowers the chance of a bot check.</p>
-      </div>
       <p role="status" className={`mt-2 text-xs ${saveStatus === "failed" ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
         {STATUS_TEXT[saveStatus]}
       </p>

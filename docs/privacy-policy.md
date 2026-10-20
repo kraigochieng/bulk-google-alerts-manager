@@ -12,7 +12,7 @@ Last updated: 2026-10-20.
 
 ## What the extension stores
 
-- Your settings (default alert options, wait times, acceptance of the first-run notice).
+- Your settings (default alert options, acceptance of the first-run notice).
 - The state of the current run: the queries, their options, and their results.
 
 The extension stores this data in your browser with `chrome.storage.local`.

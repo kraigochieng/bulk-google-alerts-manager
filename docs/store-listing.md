@@ -25,7 +25,7 @@ Bulk create
 - Set all alert options: RSS or email, how often, sources, language, region, how many.
 - See warnings for alerts that already exist or look alike.
 - See the alert limit (1000 alerts for each account) before you start.
-- Random wait between alerts. Pause, resume, cancel, and retry.
+- Random wait between alerts, set by the extension. Pause, resume, cancel, and retry.
 - Export a result CSV with the RSS link of each alert.
 
 Bulk delete

@@ -9,14 +9,13 @@ describe("parseSettings", () => {
   });
 
   it("keeps valid saved values", () => {
-    const saved = { ...DEFAULT_SETTINGS, risksAccepted: true, minimumDelaySeconds: 10, maximumDelaySeconds: 20 };
+    const saved = { ...DEFAULT_SETTINGS, risksAccepted: true };
     expect(parseSettings({ value: saved })).toEqual(saved);
   });
 
-  it("clamps delays into the allowed range and orders them", () => {
-    const parsed = parseSettings({ value: { minimumDelaySeconds: 500, maximumDelaySeconds: 1 } });
-    expect(parsed.minimumDelaySeconds).toBe(3);
-    expect(parsed.maximumDelaySeconds).toBe(120);
+  it("ignores old wait keys from earlier versions", () => {
+    const parsed = parseSettings({ value: { risksAccepted: true, minimumDelaySeconds: 500, maximumDelaySeconds: 1 } });
+    expect(parsed).toEqual({ ...DEFAULT_SETTINGS, risksAccepted: true });
   });
 
   it("replaces invalid options with the default options", () => {

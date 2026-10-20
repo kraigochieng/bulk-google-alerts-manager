@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { RUN_DELAY_RANGE_MILLISECONDS } from "src/core/delay";
 import { applyRunEvent } from "src/core/run-machine";
 import type { RunEvent } from "src/core/run-machine";
 import { runQueue } from "src/core/run-engine";
 import type { RunEngineDependencies } from "src/core/run-engine";
-import type { Settings } from "src/core/settings";
 import { sendToAlertsTab } from "src/panel/chrome-bridge";
 import type { RunSnapshot } from "src/shared/models";
 import { clearRun, loadRun, saveRun } from "src/storage/run-repository";
@@ -23,13 +23,11 @@ export interface RunController {
  * Own the one active run: state, saving, and the run loop. Side effect: drives the Alerts tab.
  * A run that was running when the panel closed comes back as paused.
  */
-export function useRunController({ settings }: { settings: Settings }): RunController {
+export function useRunController(): RunController {
   const [run, setRun] = useState<RunSnapshot | null>(null);
   const [loaded, setLoaded] = useState<boolean>(false);
   const runReference = useRef<RunSnapshot | null>(null);
   const loopActive = useRef<boolean>(false);
-  const settingsReference = useRef<Settings>(settings);
-  settingsReference.current = settings;
 
   const commit = useCallback((next: RunSnapshot | null): void => {
     runReference.current = next;
@@ -60,8 +58,8 @@ export function useRunController({ settings }: { settings: Settings }): RunContr
           window.setTimeout(resolve, milliseconds);
         }),
       random: () => Math.random(),
-      minimumDelayMilliseconds: settingsReference.current.minimumDelaySeconds * 1000,
-      maximumDelayMilliseconds: settingsReference.current.maximumDelaySeconds * 1000,
+      minimumDelayMilliseconds: RUN_DELAY_RANGE_MILLISECONDS.minimum,
+      maximumDelayMilliseconds: RUN_DELAY_RANGE_MILLISECONDS.maximum,
     };
     runQueue({ dependencies }).finally(() => {
       loopActive.current = false;
