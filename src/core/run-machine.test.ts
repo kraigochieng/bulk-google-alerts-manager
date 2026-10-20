@@ -34,6 +34,8 @@ const TABLE: [RunStatus, RunEvent, RunStatus][] = [
   ["idle", { type: "resume" }, "idle"],
   ["paused", { type: "start" }, "paused"],
   ["paused", { type: "queue_empty" }, "paused"],
+  ["paused", { type: "row_done", itemId: 1, rssLink: "" }, "paused"],
+  ["cancelled", { type: "row_failed", itemId: 1, message: "x" }, "cancelled"],
   ["awaiting_captcha", { type: "resume" }, "awaiting_captcha"],
   ["completed", { type: "start" }, "completed"],
   ["completed", { type: "cancel" }, "completed"],
@@ -74,9 +76,16 @@ describe("applyRunEvent", () => {
     expect(next.items[1]).toMatchObject({ status: "failed", errorMessage: "boom" });
   });
 
-  it("ignores a row result when the run is not running", () => {
+  it("records a row result that arrives after a pause and keeps the run paused", () => {
     const paused = run({ status: "paused", items });
-    expect(applyRunEvent({ run: paused, event: { type: "row_done", itemId: 1, rssLink: "" } })).toBe(paused);
+    const next = applyRunEvent({ run: paused, event: { type: "row_done", itemId: 1, rssLink: "" } });
+    expect(next.status).toBe("paused");
+    expect(next.items[0]?.status).toBe("created");
+  });
+
+  it("ignores a row result before the run starts", () => {
+    const ready = run({ status: "ready", items });
+    expect(applyRunEvent({ run: ready, event: { type: "row_done", itemId: 1, rssLink: "" } }).items[0]?.status).toBe("pending");
   });
 
   it("sets a notice for a bot check and clears it on resume", () => {
@@ -100,6 +109,30 @@ describe("applyRunEvent", () => {
     const next = applyRunEvent({ run: done, event: { type: "retry_failed" } });
     expect(next.status).toBe("ready");
     expect(next.items.map((entry) => entry.status)).toEqual(["pending", "created"]);
+  });
+});
+
+describe("links_filled", () => {
+  it("fills missing RSS links of created rows after completion", () => {
+    const done = run({
+      status: "completed",
+      items: [
+        { ...item({ id: 1, status: "created" }), query: "Solar  Power" },
+        { ...item({ id: 2, status: "created" }), query: "kept", rssLink: "old" },
+        item({ id: 3, status: "failed" }),
+      ],
+    });
+    const next = applyRunEvent({
+      run: done,
+      event: { type: "links_filled", linksByQuery: { "solar power": "https://x/solar", kept: "new" } },
+    });
+    expect(next.items.map((entry) => entry.rssLink)).toEqual(["https://x/solar", "old", ""]);
+  });
+
+  it("is ignored while the run is not completed", () => {
+    const paused = run({ status: "paused", items: [item({ id: 1, status: "created" })] });
+    const next = applyRunEvent({ run: paused, event: { type: "links_filled", linksByQuery: { q1: "u" } } });
+    expect(next.items[0]?.rssLink).toBe("");
   });
 });
 
