@@ -21,7 +21,7 @@ export interface LiveAlert {
   readonly feedUrl: string | null;
 }
 
-export type RowIssue = "empty" | "too_long" | "duplicate_in_file";
+export type RowIssue = "empty" | "too_long" | "duplicate_in_file" | "invalid_option";
 
 /** One row of the imported CSV file, with its validation result. */
 export interface ImportRow {
