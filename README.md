@@ -12,7 +12,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
   A CSV column overrides the default for its row.
 - Warning for exact, same-word, and similar alerts that already exist. Skip a row or create it anyway.
 - Alert cap check (1000 alerts for each account).
-- Random wait between alerts. You set the shortest and the longest wait.
+- Random wait between alerts. The extension sets the wait. It is not a user setting.
 - Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
 - Result CSV: `query, status, rss_link, error`.
 - Bulk delete with a required backup CSV, a list of the alerts to delete, and a typed confirmation (`DELETE <count>`).

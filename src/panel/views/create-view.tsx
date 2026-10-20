@@ -283,8 +283,7 @@ export function CreateView({
         <section aria-label="Start">
           <h2 className="mt-3 text-sm font-semibold">3. Read the notice and start</h2>
           <Banner tone="warning">
-            This run will create {String(createCount)} alerts, with a random wait of {String(settings.minimumDelaySeconds)} to{" "}
-            {String(settings.maximumDelaySeconds)} seconds between them. Google can slow, throttle, or show a bot check on large batches.
+            This run creates {String(createCount)} alerts and waits a random few seconds between them. Google can slow, throttle, or show a bot check on large batches.
             If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
             {String(liveCount)}. Keep the Alerts tab open and in the foreground.
           </Banner>
