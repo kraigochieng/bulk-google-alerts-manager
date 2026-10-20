@@ -1,6 +1,6 @@
 import { writeCsv } from "src/core/csv";
 
-export const TEMPLATE_FILE_NAME: string = "bulk-alerts-template.csv";
+export const TEMPLATE_FILE_NAME: string = "bulk-google-alerts-template.csv";
 
 const TEMPLATE_HEADERS: readonly string[] = [
   "query",
