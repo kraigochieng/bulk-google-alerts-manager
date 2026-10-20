@@ -3,6 +3,8 @@ import type { JSX } from "react";
 
 import { DEFAULT_SETTINGS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
+import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
+import { AccountUsage } from "src/panel/components/account-usage";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "src/panel/ui/tabs";
@@ -11,6 +13,7 @@ import { SettingsForm } from "src/panel/components/settings-form";
 import { openAlertsTab } from "src/panel/chrome-bridge";
 import { useAlertsTabStatus } from "src/panel/use-alerts-tab-status";
 import { useAutosave } from "src/panel/use-autosave";
+import { useLiveAlerts } from "src/panel/use-live-alerts";
 import { useRunController } from "src/panel/use-run-controller";
 import { switchViewParameters, readView } from "src/core/view-state";
 import type { ViewName } from "src/core/view-state";
@@ -26,6 +29,7 @@ export function App(): JSX.Element {
   const [view, setView] = useState<ViewName>(() => readView({ parameters: new URLSearchParams(window.location.search) }));
   const tabStatus = useAlertsTabStatus();
   const controller = useRunController({ settings });
+  const live = useLiveAlerts({ tabStatus, runStatus: controller.run?.status ?? null });
 
   useEffect(() => {
     const onPopState = (): void => {
@@ -93,6 +97,13 @@ export function App(): JSX.Element {
       {tabStatus === "no_script" && (
         <Banner tone="warning">The Alerts tab does not answer. Reload the Alerts tab, then try again.</Banner>
       )}
+      <AccountUsage
+        count={live.alerts?.length ?? null}
+        cap={ALERT_CAP_PER_ACCOUNT}
+        error={live.error}
+        refreshing={live.refreshing}
+        onRefresh={live.refresh}
+      />
       <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
       <Tabs
         value={view}
@@ -106,7 +117,7 @@ export function App(): JSX.Element {
           <TabsTrigger value="delete">Bulk delete</TabsTrigger>
         </TabsList>
       </Tabs>
-      {view === "create" ? <CreateView settings={settings} controller={controller} /> : <DeleteView controller={controller} />}
+      {view === "create" ? <CreateView settings={settings} controller={controller} live={live} /> : <DeleteView controller={controller} live={live} />}
     </main>
   );
 }

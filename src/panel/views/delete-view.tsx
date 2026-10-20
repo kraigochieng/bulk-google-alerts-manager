@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 
 import { guessMapping } from "src/core/column-mapping";
@@ -16,7 +16,8 @@ import { Input } from "src/panel/ui/input";
 import { Label } from "src/panel/ui/label";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
-import { downloadTextFile, sendToAlertsTab } from "src/panel/chrome-bridge";
+import { downloadTextFile } from "src/panel/chrome-bridge";
+import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
 import { useTableUrlState } from "src/panel/use-table-url-state";
 import type { LiveAlert } from "src/shared/models";
@@ -34,9 +35,11 @@ interface AlertEntry {
 }
 
 /** Render the bulk delete flow: read, select, backup, confirm, run. Holds the state of the flow. */
-export function DeleteView({ controller }: { controller: RunController }): JSX.Element {
-  const [entries, setEntries] = useState<readonly AlertEntry[] | null>(null);
-  const [readError, setReadError] = useState<string>("");
+export function DeleteView({ controller, live }: { controller: RunController; live: LiveAlertsState }): JSX.Element {
+  const entries: readonly AlertEntry[] | null = useMemo(
+    () => live.alerts?.map((alert: LiveAlert, index: number): AlertEntry => ({ index, alert })) ?? null,
+    [live.alerts],
+  );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
   const [backupExported, setBackupExported] = useState<boolean>(false);
   const [typedText, setTypedText] = useState<string>("");
@@ -44,27 +47,12 @@ export function DeleteView({ controller }: { controller: RunController }): JSX.E
   const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
   const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
 
-  const readAlerts = useCallback(async (): Promise<void> => {
-    setReadError("");
-    try {
-      const reply = await sendToAlertsTab({ request: { kind: "read_alerts" } });
-      if (reply.ok && reply.kind === "alerts") {
-        setEntries(reply.alerts.map((alert: LiveAlert, index: number) => ({ index, alert })));
-        setSelected(new Set());
-        setBackupExported(false);
-        setTypedText("");
-        setMatchReport("");
-      } else {
-        setReadError(reply.ok ? "Unexpected reply from the Alerts tab." : reply.message);
-      }
-    } catch (error: unknown) {
-      setReadError(error instanceof Error ? error.message : "Could not read the Alerts tab.");
-    }
-  }, []);
-
   useEffect(() => {
-    if (controller.run === null) void readAlerts();
-  }, [controller.run, readAlerts]);
+    setSelected(new Set());
+    setBackupExported(false);
+    setTypedText("");
+    setMatchReport("");
+  }, [live.alerts]);
 
   const selectedEntries: readonly AlertEntry[] = useMemo(
     () => (entries ?? []).filter((entry: AlertEntry) => selected.has(entry.index)),
@@ -120,11 +108,10 @@ export function DeleteView({ controller }: { controller: RunController }): JSX.E
         <section aria-label="Alerts">
           <h2 className="mt-3 text-sm font-semibold">1. Your alerts</h2>
           <div className="flex items-center gap-2 text-xs">
-            <Button type="button" variant="outline" size="sm" onClick={() => { void readAlerts(); }}>Read my alerts again</Button>
+            <Button type="button" variant="outline" size="sm" onClick={live.refresh}>Read my alerts again</Button>
             {entries !== null && <span>{String(entries.length)} alerts in your account.</span>}
           </div>
-          {readError !== "" && <Banner tone="error">{readError}</Banner>}
-          {entries === null && readError === "" && <Banner tone="info">Reading your alerts…</Banner>}
+                    {entries === null && live.error === "" && <Banner tone="info">Reading your alerts…</Banner>}
           {entries !== null && (
             <>
               <div className="mt-2 space-y-1">
