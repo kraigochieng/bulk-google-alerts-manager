@@ -10,6 +10,7 @@ import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { createResultCsv } from "src/core/result-csv";
+import { TEMPLATE_FILE_NAME, buildTemplateCsv } from "src/core/template-csv";
 import { buildCreateRun } from "src/core/run-builders";
 import type { CreateEntry } from "src/core/run-builders";
 import { checkCreateGate } from "src/core/start-gates";
@@ -179,6 +180,27 @@ export function CreateView({
         <section aria-label="Import">
           <h2 className="mt-3 text-sm font-semibold">1. Import a CSV file</h2>
           <p className="text-xs text-muted-foreground">The file needs a column with the queries. Other columns are optional.</p>
+          <details className="mt-1 text-xs">
+            <summary className="cursor-pointer font-medium">Columns and allowed values</summary>
+            <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted-foreground">
+              <li><code>query</code>: the search text. Quotes and OR work as in Google Alerts.</li>
+              <li><code>deliver_to</code>: <code>rss</code> or <code>email</code>.</li>
+              <li><code>how_often</code>: <code>as_it_happens</code>, <code>daily</code> or <code>weekly</code>. RSS always uses as-it-happens.</li>
+              <li><code>how_many</code>: <code>all</code> or <code>best</code>.</li>
+              <li><code>sources</code>, <code>language</code>, <code>region</code>: the text of the Google dropdown, for example <code>English</code>.</li>
+              <li><code>label</code>: your own note. It is kept in the result file only.</li>
+              <li>An empty cell uses the default from the panel. Column names can differ. You map them after the import.</li>
+            </ul>
+          </details>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => { downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() }); }}
+          >
+            Download template CSV
+          </Button>
           <Input
             type="file"
             accept=".csv,text/csv"
