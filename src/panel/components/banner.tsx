@@ -5,9 +5,9 @@ import { Alert, AlertDescription } from "src/panel/ui/alert";
 export type BannerTone = "info" | "warning" | "error";
 
 const TONE_CLASSES: Record<BannerTone, string> = {
-  info: "border-blue-300 bg-blue-50 text-blue-900",
-  warning: "border-amber-400 bg-amber-50 text-amber-900",
-  error: "border-red-400 bg-red-50 text-red-900",
+  info: "border-[#aecbfa] bg-[#e8f0fe] text-[#174ea6]",
+  warning: "border-[#fdd663] bg-[#fef7e0] text-[#7a4f01]",
+  error: "border-[#f6aea9] bg-[#fce8e6] text-[#a50e0e]",
 };
 
 /** Render a notice box. The label states the level in text, not only in color. */
