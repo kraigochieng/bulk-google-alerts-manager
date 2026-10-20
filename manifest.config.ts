@@ -17,16 +17,16 @@ export default defineManifest({
   ],
   side_panel: { default_path: "sidepanel.html" },
   icons: {
-    "16": "public/icons/icon-16.png",
-    "32": "public/icons/icon-32.png",
-    "48": "public/icons/icon-48.png",
-    "128": "public/icons/icon-128.png",
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png",
   },
   action: {
     default_title: "Bulk Alerts Manager",
     default_icon: {
-      "16": "public/icons/icon-16.png",
-      "32": "public/icons/icon-32.png",
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
     },
   },
 });
