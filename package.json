@@ -1,0 +1,42 @@
+{
+  "name": "bulk-google-alerts-manager",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "audit": "npm audit --audit-level=high"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kraigochieng/bulk-google-alerts-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kraigochieng/bulk-google-alerts-manager/issues"
+  },
+  "homepage": "https://github.com/kraigochieng/bulk-google-alerts-manager#readme",
+  "dependencies": {
+    "papaparse": "5.7.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "3.0.0",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/chrome": "0.3.5",
+    "@types/papaparse": "5.5.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "eslint": "10.13.0",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  },
+  "type": "module",
+  "private": "true"
+}
