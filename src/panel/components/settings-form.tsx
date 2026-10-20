@@ -1,8 +1,14 @@
+import { X } from "lucide-react";
 import type { JSX } from "react";
 
 import { DELAY_LIMITS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
 import type { SaveStatus } from "src/panel/use-autosave";
+import { Button } from "src/panel/ui/button";
+import { Input } from "src/panel/ui/input";
+import { Label } from "src/panel/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { Slider } from "src/panel/ui/slider";
 import type { DeliverTo, HowMany, HowOften } from "src/shared/models";
 
 const STATUS_TEXT: Record<SaveStatus, string> = {
@@ -24,23 +30,63 @@ function ClearableText({
   disabled: boolean;
 }): JSX.Element {
   return (
-    <label className="block text-xs">
-      {label}
-      <span className="relative block">
-        <input
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <div className="relative">
+        <Input
           type="text"
+          aria-label={label}
           value={value}
           disabled={disabled}
           onChange={(event) => { onChange(event.target.value); }}
-          className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1 pr-6 text-sm"
+          className="h-8 pr-7 text-sm"
         />
         {value !== "" && !disabled && (
-          <button type="button" aria-label={`Clear ${label}`} onClick={() => { onChange(""); }} className="absolute right-1 top-1.5 px-1 text-gray-500">
-            ×
-          </button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={`Clear ${label}`}
+            onClick={() => { onChange(""); }}
+            className="absolute right-0 top-0 size-8"
+          >
+            <X className="size-3" />
+          </Button>
         )}
-      </span>
-    </label>
+      </div>
+    </div>
+  );
+}
+
+function OptionSelect({
+  label,
+  value,
+  disabled,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  disabled: boolean;
+  onChange: (value: string) => void;
+  options: readonly (readonly [string, string])[];
+}): JSX.Element {
+  return (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <Select value={value} disabled={disabled} onValueChange={onChange}>
+        <SelectTrigger className="h-8 w-full text-sm" aria-label={label}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(([optionValue, optionLabel]) => (
+            <SelectItem key={optionValue} value={optionValue}>
+              {optionLabel}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
 
@@ -62,86 +108,76 @@ export function SettingsForm({
   };
   const isRss: boolean = defaults.deliverTo === "rss";
   return (
-    <fieldset className="mt-2 rounded border border-gray-200 p-2" disabled={locked}>
+    <fieldset className="mt-2 rounded-md border p-2" disabled={locked}>
       <legend className="px-1 text-xs font-semibold">Default alert options</legend>
       {locked && <p className="text-xs text-amber-800">Locked while a run is active.</p>}
-      <p className="text-xs text-gray-600">A CSV column overrides a default for its row.</p>
+      <p className="text-xs text-muted-foreground">A CSV column overrides a default for its row.</p>
       <div className="mt-1 grid grid-cols-2 gap-2">
-        <label className="block text-xs">
-          Deliver to
-          <select
-            value={defaults.deliverTo}
-            onChange={(event) => { setDefaults({ deliverTo: event.target.value as DeliverTo }); }}
-            className="mt-0.5 w-full rounded border border-gray-300 px-1 py-1 text-sm"
-          >
-            <option value="rss">RSS feed</option>
-            <option value="email">Email</option>
-          </select>
-        </label>
-        <label className="block text-xs">
-          How often
-          <select
-            value={isRss ? "as_it_happens" : defaults.howOften}
-            disabled={isRss}
-            onChange={(event) => { setDefaults({ howOften: event.target.value as HowOften }); }}
-            className="mt-0.5 w-full rounded border border-gray-300 px-1 py-1 text-sm"
-          >
-            <option value="as_it_happens">As-it-happens</option>
-            <option value="daily">At most once a day</option>
-            <option value="weekly">At most once a week</option>
-          </select>
-        </label>
-        <label className="block text-xs">
-          How many
-          <select
-            value={defaults.howMany}
-            onChange={(event) => { setDefaults({ howMany: event.target.value as HowMany }); }}
-            className="mt-0.5 w-full rounded border border-gray-300 px-1 py-1 text-sm"
-          >
-            <option value="all">All results</option>
-            <option value="best">Only the best results</option>
-          </select>
-        </label>
+        <OptionSelect
+          label="Deliver to"
+          value={defaults.deliverTo}
+          disabled={locked}
+          onChange={(value) => { setDefaults({ deliverTo: value as DeliverTo }); }}
+          options={[["rss", "RSS feed"], ["email", "Email"]]}
+        />
+        <OptionSelect
+          label="How often"
+          value={isRss ? "as_it_happens" : defaults.howOften}
+          disabled={locked || isRss}
+          onChange={(value) => { setDefaults({ howOften: value as HowOften }); }}
+          options={[["as_it_happens", "As-it-happens"], ["daily", "At most once a day"], ["weekly", "At most once a week"]]}
+        />
+        <OptionSelect
+          label="How many"
+          value={defaults.howMany}
+          disabled={locked}
+          onChange={(value) => { setDefaults({ howMany: value as HowMany }); }}
+          options={[["all", "All results"], ["best", "Only the best results"]]}
+        />
         <ClearableText label="Sources" value={defaults.sources} disabled={locked} onChange={(value) => { setDefaults({ sources: value }); }} />
         <ClearableText label="Language" value={defaults.language} disabled={locked} onChange={(value) => { setDefaults({ language: value }); }} />
         <ClearableText label="Region" value={defaults.region} disabled={locked} onChange={(value) => { setDefaults({ region: value }); }} />
       </div>
-      {isRss && <p className="mt-1 text-xs text-gray-600">RSS feeds always use As-it-happens.</p>}
-      <p className="mt-1 text-xs text-gray-600">
+      {isRss && <p className="mt-1 text-xs text-muted-foreground">RSS feeds always use As-it-happens.</p>}
+      <p className="mt-1 text-xs text-muted-foreground">
         Sources, language and region must match the text in the Google dropdown, for example “English”.
       </p>
-      <div className="mt-2 text-xs">
-        <label className="block">
-          Shortest wait between alerts: {String(settings.minimumDelaySeconds)} s
-          <input
-            type="range"
+      <div className="mt-2 space-y-2 text-xs">
+        <div>
+          <Label className="text-xs">Shortest wait between alerts: {String(settings.minimumDelaySeconds)} s</Label>
+          <Slider
+            aria-label="Shortest wait between alerts"
+            className="mt-2"
             min={DELAY_LIMITS.minimumSeconds}
             max={DELAY_LIMITS.maximumSeconds}
-            value={settings.minimumDelaySeconds}
-            onChange={(event) => {
-              const minimum: number = Number(event.target.value);
-              onChange({ ...settings, minimumDelaySeconds: minimum, maximumDelaySeconds: Math.max(minimum, settings.maximumDelaySeconds) });
+            step={1}
+            disabled={locked}
+            value={[settings.minimumDelaySeconds]}
+            onValueChange={([minimum]) => {
+              const next: number = minimum ?? settings.minimumDelaySeconds;
+              onChange({ ...settings, minimumDelaySeconds: next, maximumDelaySeconds: Math.max(next, settings.maximumDelaySeconds) });
             }}
-            className="block w-full"
           />
-        </label>
-        <label className="mt-1 block">
-          Longest wait between alerts: {String(settings.maximumDelaySeconds)} s
-          <input
-            type="range"
+        </div>
+        <div>
+          <Label className="text-xs">Longest wait between alerts: {String(settings.maximumDelaySeconds)} s</Label>
+          <Slider
+            aria-label="Longest wait between alerts"
+            className="mt-2"
             min={DELAY_LIMITS.minimumSeconds}
             max={DELAY_LIMITS.maximumSeconds}
-            value={settings.maximumDelaySeconds}
-            onChange={(event) => {
-              const maximum: number = Number(event.target.value);
-              onChange({ ...settings, maximumDelaySeconds: maximum, minimumDelaySeconds: Math.min(maximum, settings.minimumDelaySeconds) });
+            step={1}
+            disabled={locked}
+            value={[settings.maximumDelaySeconds]}
+            onValueChange={([maximum]) => {
+              const next: number = maximum ?? settings.maximumDelaySeconds;
+              onChange({ ...settings, maximumDelaySeconds: next, minimumDelaySeconds: Math.min(next, settings.minimumDelaySeconds) });
             }}
-            className="block w-full"
           />
-        </label>
-        <p className="mt-1 text-gray-600">The wait is random between these two values. A longer wait lowers the chance of a bot check.</p>
+        </div>
+        <p className="text-muted-foreground">The wait is random between these two values. A longer wait lowers the chance of a bot check.</p>
       </div>
-      <p role="status" className={`mt-2 text-xs ${saveStatus === "failed" ? "font-semibold text-red-700" : "text-gray-600"}`}>
+      <p role="status" className={`mt-2 text-xs ${saveStatus === "failed" ? "font-semibold text-red-700" : "text-muted-foreground"}`}>
         {STATUS_TEXT[saveStatus]}
       </p>
     </fieldset>
