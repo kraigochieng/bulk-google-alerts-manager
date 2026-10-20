@@ -29,7 +29,7 @@ function asRecord({ value }: { value: unknown }): Record<string, unknown> | null
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
-function parseAlertOptions({ value }: { value: unknown }): AlertOptions | null {
+export function parseAlertOptions({ value }: { value: unknown }): AlertOptions | null {
   const record: Record<string, unknown> | null = asRecord({ value });
   if (record === null) return null;
   const { howOften, sources, language, region, howMany, deliverTo } = record;
