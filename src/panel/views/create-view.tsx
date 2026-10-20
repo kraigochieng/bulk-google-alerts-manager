@@ -25,7 +25,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "s
 import { ColumnMapper } from "src/panel/components/column-mapper";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
-import { downloadTextFile, sendToAlertsTab } from "src/panel/chrome-bridge";
+import { downloadTextFile } from "src/panel/chrome-bridge";
+import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
 import { useTableUrlState } from "src/panel/use-table-url-state";
 import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
@@ -60,9 +61,11 @@ function defaultChecked({ row }: { row: ImportRow }): boolean {
 export function CreateView({
   settings,
   controller,
+  live,
 }: {
   settings: Settings;
   controller: RunController;
+  live: LiveAlertsState;
 }): JSX.Element {
   const [fileName, setFileName] = useState<string>("");
   const [csvTable, setCsvTable] = useState<CsvTable | null>(null);
@@ -70,8 +73,7 @@ export function CreateView({
   const [importError, setImportError] = useState<string>("");
   const [checkedRows, setCheckedRows] = useState<ReadonlySet<number>>(new Set());
   const [actionOverrides, setActionOverrides] = useState<Readonly<Record<number, RowAction>>>({});
-  const [liveAlerts, setLiveAlerts] = useState<readonly LiveAlert[] | null>(null);
-  const [liveError, setLiveError] = useState<string>("");
+  const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [acknowledged, setAcknowledged] = useState<boolean>(false);
   const [rowsState, setRowsState] = useTableUrlState({ schema: ROWS_TABLE_SCHEMA });
   const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
@@ -103,17 +105,6 @@ export function CreateView({
     [actionOverrides, matchesByRow],
   );
 
-  const readLiveAlerts = useCallback(async (): Promise<void> => {
-    setLiveError("");
-    try {
-      const reply = await sendToAlertsTab({ request: { kind: "read_alerts" } });
-      if (reply.ok && reply.kind === "alerts") setLiveAlerts(reply.alerts);
-      else setLiveError(reply.ok ? "Unexpected reply from the Alerts tab." : reply.message);
-    } catch (error: unknown) {
-      setLiveError(error instanceof Error ? error.message : "Could not read the Alerts tab.");
-    }
-  }, []);
-
   const importFile = useCallback(
     async (file: File): Promise<void> => {
       setImportError("");
@@ -126,12 +117,12 @@ export function CreateView({
         setActionOverrides({});
         setAcknowledged(false);
         setRowsState(ROWS_TABLE_SCHEMA.defaultState, { history: "replace" });
-        void readLiveAlerts();
+        live.refresh();
       } catch (error: unknown) {
         setImportError(error instanceof Error ? error.message : "The file could not be read.");
       }
     },
-    [readLiveAlerts, setRowsState],
+    [live, setRowsState],
   );
 
   // Reset the checked rows whenever the rows change (new file or new mapping).
@@ -214,13 +205,13 @@ export function CreateView({
         <section aria-label="Review">
           <h2 className="mt-3 text-sm font-semibold">2. Check the rows</h2>
           <div className="flex items-center gap-2 text-xs">
-            <Button type="button" variant="outline" size="sm" onClick={() => { void readLiveAlerts(); }}>
+            <Button type="button" variant="outline" size="sm" onClick={live.refresh}>
               Read my alerts again
             </Button>
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>
-          {liveError !== "" && <Banner tone="error">{liveError}</Banner>}
-          {liveAlerts === null && liveError === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
+          
+          {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
           <DataTable<ImportRow, number>
             rows={rows}
             columns={columns}
