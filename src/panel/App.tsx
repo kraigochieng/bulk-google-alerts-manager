@@ -104,7 +104,6 @@ export function App(): JSX.Element {
         refreshing={live.refreshing}
         onRefresh={live.refresh}
       />
-      <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
       <Tabs
         value={view}
         onValueChange={(value: string) => {
@@ -117,6 +116,9 @@ export function App(): JSX.Element {
           <TabsTrigger value="delete">Bulk delete</TabsTrigger>
         </TabsList>
       </Tabs>
+      {view === "create" && (
+        <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
+      )}
       {view === "create" ? <CreateView settings={settings} controller={controller} live={live} /> : <DeleteView controller={controller} live={live} />}
     </main>
   );
