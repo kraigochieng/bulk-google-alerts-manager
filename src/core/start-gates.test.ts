@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { checkCreateGate, checkDeleteGate, deleteConfirmationText } from "src/core/start-gates";
 
 describe("checkCreateGate", () => {
-  const ok = { liveCount: 10, createCount: 5, cap: 100, risksAccepted: true };
+  const ok = { liveCount: 10, createCount: 5, cap: 1000, risksAccepted: true };
 
   it("allows a valid run", () => {
     expect(checkCreateGate(ok)).toEqual({ allowed: true });
@@ -14,7 +14,7 @@ describe("checkCreateGate", () => {
   });
 
   it("refuses a run over the cap and names the overflow", () => {
-    const result = checkCreateGate({ ...ok, liveCount: 98, createCount: 5 });
+    const result = checkCreateGate({ ...ok, liveCount: 998, createCount: 5 });
     expect(result).toMatchObject({ allowed: false });
     expect(!result.allowed && result.reason).toContain("3 too many");
   });

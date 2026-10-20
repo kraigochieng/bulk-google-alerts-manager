@@ -24,7 +24,7 @@ Bulk create
 - Check the rows that you want.
 - Set all alert options: RSS or email, how often, sources, language, region, how many.
 - See warnings for alerts that already exist or look alike.
-- See the alert limit (100 alerts for each account) before you start.
+- See the alert limit (1000 alerts for each account) before you start.
 - Random wait between alerts. Pause, resume, cancel, and retry.
 - Export a result CSV with the RSS link of each alert.
 

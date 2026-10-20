@@ -1,4 +1,4 @@
-export const ALERT_CAP_PER_ACCOUNT: number = 100;
+export const ALERT_CAP_PER_ACCOUNT: number = 1000;
 
 /** The result of a check of the alert cap. */
 export interface CapCheck {

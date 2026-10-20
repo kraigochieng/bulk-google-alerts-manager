@@ -11,7 +11,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - All six alert options: deliver to (RSS or email), how often, sources, language, region, how many.
   A CSV column overrides the default for its row.
 - Warning for exact, same-word, and similar alerts that already exist. Skip a row or create it anyway.
-- Alert cap check (100 alerts for each account).
+- Alert cap check (1000 alerts for each account).
 - Random wait between alerts. You set the shortest and the longest wait.
 - Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
 - Result CSV: `query, status, rss_link, error`.
