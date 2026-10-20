@@ -1,5 +1,7 @@
 import type { JSX, ReactNode } from "react";
 
+import { Alert, AlertDescription } from "src/panel/ui/alert";
+
 export type BannerTone = "info" | "warning" | "error";
 
 const TONE_CLASSES: Record<BannerTone, string> = {
@@ -12,9 +14,11 @@ const TONE_CLASSES: Record<BannerTone, string> = {
 export function Banner({ tone, children }: { tone: BannerTone; children: ReactNode }): JSX.Element {
   const label: string = tone === "error" ? "Error" : tone === "warning" ? "Warning" : "Note";
   return (
-    <div role={tone === "info" ? "status" : "alert"} className={`mt-2 rounded border p-2 text-xs ${TONE_CLASSES[tone]}`}>
-      <strong>{label}: </strong>
-      {children}
-    </div>
+    <Alert role={tone === "info" ? "status" : "alert"} className={`mt-2 p-2 text-xs ${TONE_CLASSES[tone]}`}>
+      <AlertDescription className="block text-inherit">
+        <strong>{label}: </strong>
+        {children}
+      </AlertDescription>
+    </Alert>
   );
 }
