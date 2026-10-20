@@ -39,6 +39,6 @@ A new row appears with empty text for a short time after Create. The list reader
 
 - (Tested later) "Show all alerts": 11 alerts created, read back as 11, deleted again.
 - The maximum query length.
-- The alert cap of 100 and the page behavior at the cap.
+- The alert cap of 1000 and the page behavior at the cap.
 - A real CAPTCHA or throttle page.
 - The loaded extension itself in Chrome (content script, side panel).

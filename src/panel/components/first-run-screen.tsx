@@ -13,7 +13,7 @@ export function FirstRunScreen({ onAccept }: { onAccept: () => void }): JSX.Elem
         <li>It works only for the Google account that is signed in to this browser profile.</li>
         <li>Google can change the page at any time. The tool can then stop working. It shows a clear error when this happens.</li>
         <li>Google can slow your requests or show a bot check on large batches. The tool stops and asks you to solve the check. It never bypasses a bot check.</li>
-        <li>Google limits an account to 100 alerts.</li>
+        <li>Google limits an account to 1000 alerts.</li>
         <li>Deletion is permanent. The tool cannot undo it.</li>
         <li>All data stays in your browser. The tool reads and stores no password. It sends nothing to any server.</li>
       </ul>
