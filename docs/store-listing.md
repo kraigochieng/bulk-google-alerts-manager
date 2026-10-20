@@ -61,7 +61,9 @@ Productivity
 
 https://github.com/kraigochieng/bulk-google-alerts-manager/blob/main/docs/privacy-policy.md
 
-## Screenshots (1280x800)
+## Screenshots (1280x800) — owner action
+
+Take these from the loaded extension next to the real Alerts page. Do not show personal alert queries.
 
 1. Review step: CSV rows with checkboxes, similar-alert warnings, and the notice.
 2. A create run in progress with the progress bar and result table.
