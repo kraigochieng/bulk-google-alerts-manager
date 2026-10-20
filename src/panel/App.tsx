@@ -81,7 +81,7 @@ export function App(): JSX.Element {
     controller.run !== null && ["running", "paused", "awaiting_captcha"].includes(controller.run.status);
 
   return (
-    <main className="p-3 text-sm">
+    <main className="min-h-screen p-3 text-sm">
       <header>
         <h1 className="text-base font-semibold">Bulk Alerts Manager</h1>
         <p className="text-xs text-muted-foreground">Unofficial tool. Not affiliated with Google.</p>

@@ -112,7 +112,7 @@ export function DataTable<Row, Key extends string | number>({
         {String(page.totalMatching)} of {String(rows.length)} rows
         {selection !== undefined && `, ${String(selection.selected.size)} selected`}
       </div>
-      <div className="mt-1 rounded-md border">
+      <div className="mt-1 rounded-lg border bg-card">
         <Table className="text-xs">
           <TableHeader>
             <TableRow>

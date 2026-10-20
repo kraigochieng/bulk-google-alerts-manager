@@ -206,7 +206,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                   )}
                 </div>
               </div>
-              {!gate.allowed && <p className="mt-1 text-xs text-red-700">{gate.reason}</p>}
+              {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
               <p className="mt-1 text-xs text-muted-foreground">Keep the Alerts tab open and in the foreground during the run. Google can slow the run or show a bot check. The run then stops and asks you to solve it.</p>
               <Button
                 type="button"

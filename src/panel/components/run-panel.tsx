@@ -74,7 +74,7 @@ export function RunPanel({
   const isCreate: boolean = run.kind === "create";
   const finishedStatus: boolean = run.status === "completed" || run.status === "cancelled";
   return (
-    <section aria-label="Run" className="mt-3 rounded border border-gray-300 p-2">
+    <section aria-label="Run" className="mt-3 rounded-lg border bg-card p-2">
       <h2 className="text-sm font-semibold">
         {isCreate ? "Create run" : "Delete run"}: {STATUS_TEXT[run.status]}
       </h2>
@@ -98,7 +98,7 @@ export function RunPanel({
           <Button type="button" size="sm" onClick={onResume}>I solved it, continue</Button>
         )}
         {(run.status === "running" || run.status === "paused" || run.status === "awaiting_captcha") && (
-          <Button type="button" variant="outline" size="sm" className="border-red-400 text-red-700" onClick={() => { setConfirmingCancel(true); }}>
+          <Button type="button" variant="outline" size="sm" className="border-red-400 text-destructive" onClick={() => { setConfirmingCancel(true); }}>
             Cancel run
           </Button>
         )}
@@ -132,7 +132,7 @@ export function RunPanel({
               {item.rssLink !== "" && (
                 <a href={item.rssLink} target="_blank" rel="noreferrer" className="ml-1 text-primary underline">feed</a>
               )}
-              {item.errorMessage !== "" && <span className="block text-red-700">{item.errorMessage}</span>}
+              {item.errorMessage !== "" && <span className="block text-destructive">{item.errorMessage}</span>}
             </span>
           );
         }}
