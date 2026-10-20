@@ -10,24 +10,29 @@ export interface AlertRowElement {
   readonly alert: LiveAlert;
 }
 
-/** Read the visible alert rows of the list. Reads the page. */
-export function readAlertRowElements(): AlertRowElement[] {
-  const rows: HTMLElement[] = [...document.querySelectorAll<HTMLElement>(SELECTORS.alertRow)].filter(
+function visibleRows(): HTMLElement[] {
+  return [...document.querySelectorAll<HTMLElement>(SELECTORS.alertRow)].filter(
     (row: HTMLElement) => row.offsetParent !== null,
   );
-  return rows.map((element: HTMLElement): AlertRowElement => {
-    const queryElement: Element | null = element.querySelector(SELECTORS.alertRowQuery);
-    if (queryElement === null) {
-      throw new LayoutChangedError({ selectorName: SELECTORS.alertRowQuery });
-    }
-    const feedLink: HTMLAnchorElement | null = element.querySelector<HTMLAnchorElement>(
-      SELECTORS.alertRowFeedLink,
-    );
-    return {
-      element,
-      alert: { query: queryElement.textContent.trim(), feedUrl: feedLink?.href ?? null },
-    };
-  });
+}
+
+function rowQueryText({ row }: { row: HTMLElement }): string {
+  return row.querySelector(SELECTORS.alertRowQuery)?.textContent.trim() ?? "";
+}
+
+/** Read the visible alert rows that are fully drawn. A row that has no query text yet is skipped. */
+export function readAlertRowElements(): AlertRowElement[] {
+  return visibleRows()
+    .filter((row: HTMLElement) => rowQueryText({ row }) !== "")
+    .map((element: HTMLElement): AlertRowElement => {
+      const feedLink: HTMLAnchorElement | null = element.querySelector<HTMLAnchorElement>(
+        SELECTORS.alertRowFeedLink,
+      );
+      return {
+        element,
+        alert: { query: rowQueryText({ row: element }), feedUrl: feedLink?.href ?? null },
+      };
+    });
 }
 
 /** Click "Show all alerts" when it is visible and wait until the full list shows. Side effect. */
@@ -50,5 +55,10 @@ export async function expandAllAlerts(): Promise<void> {
 /** Expand the list and read every alert. Side effect: clicks "Show all alerts". */
 export async function readAllAlerts(): Promise<LiveAlert[]> {
   await expandAllAlerts();
+  await waitFor<true>({
+    find: () => (visibleRows().every((row: HTMLElement) => rowQueryText({ row }) !== "") ? true : null),
+    timeoutMilliseconds: TIMING.elementTimeoutMilliseconds,
+    onTimeout: () => new LayoutChangedError({ selectorName: SELECTORS.alertRowQuery }),
+  });
   return readAlertRowElements().map((row: AlertRowElement) => row.alert);
 }
