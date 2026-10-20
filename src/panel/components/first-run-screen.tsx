@@ -1,5 +1,7 @@
 import type { JSX } from "react";
 
+import { Button } from "src/panel/ui/button";
+
 /** Render the first-run notice. The user must accept it before the tool shows. */
 export function FirstRunScreen({ onAccept }: { onAccept: () => void }): JSX.Element {
   return (
@@ -15,13 +17,9 @@ export function FirstRunScreen({ onAccept }: { onAccept: () => void }): JSX.Elem
         <li>Deletion is permanent. The tool cannot undo it.</li>
         <li>All data stays in your browser. The tool reads and stores no password. It sends nothing to any server.</li>
       </ul>
-      <button
-        type="button"
-        onClick={onAccept}
-        className="mt-4 rounded bg-blue-600 px-3 py-1.5 font-medium text-white"
-      >
+      <Button className="mt-4" onClick={onAccept}>
         I understand and accept
-      </button>
+      </Button>
     </main>
   );
 }
