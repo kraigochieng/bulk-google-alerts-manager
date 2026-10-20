@@ -17,6 +17,11 @@ import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import type { Settings } from "src/core/settings";
 import { Banner } from "src/panel/components/banner";
+import { Button } from "src/panel/ui/button";
+import { Checkbox } from "src/panel/ui/checkbox";
+import { Input } from "src/panel/ui/input";
+import { Label } from "src/panel/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
 import { ColumnMapper } from "src/panel/components/column-mapper";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -182,8 +187,8 @@ export function CreateView({
       {!runActive && (
         <section aria-label="Import">
           <h2 className="mt-3 text-sm font-semibold">1. Import a CSV file</h2>
-          <p className="text-xs text-gray-600">The file needs a column with the queries. Other columns are optional.</p>
-          <input
+          <p className="text-xs text-muted-foreground">The file needs a column with the queries. Other columns are optional.</p>
+          <Input
             type="file"
             accept=".csv,text/csv"
             aria-label="Choose a CSV file"
@@ -191,7 +196,7 @@ export function CreateView({
               const file: File | undefined = event.target.files?.[0];
               if (file !== undefined) void importFile(file);
             }}
-            className="mt-1 block text-xs"
+            className="mt-1 h-8 text-xs"
           />
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
           {csvTable !== null && mapping !== null && (
@@ -209,9 +214,9 @@ export function CreateView({
         <section aria-label="Review">
           <h2 className="mt-3 text-sm font-semibold">2. Check the rows</h2>
           <div className="flex items-center gap-2 text-xs">
-            <button type="button" onClick={() => { void readLiveAlerts(); }} className="rounded border px-2 py-0.5">
+            <Button type="button" variant="outline" size="sm" onClick={() => { void readLiveAlerts(); }}>
               Read my alerts again
-            </button>
+            </Button>
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>
           {liveError !== "" && <Banner tone="error">{liveError}</Banner>}
@@ -236,17 +241,20 @@ export function CreateView({
                     </p>
                   ))}
                   {matches.length > 0 && checkedRows.has(row.sourceRowNumber) && (
-                    <select
-                      aria-label={`Action for row ${String(row.sourceRowNumber)}`}
+                    <Select
                       value={actionFor({ row })}
-                      onChange={(event) => {
-                        setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: event.target.value as RowAction });
+                      onValueChange={(value: string) => {
+                        setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: value as RowAction });
                       }}
-                      className="mt-0.5 rounded border border-gray-300 px-1 text-xs"
                     >
-                      <option value="skip">Skip this row</option>
-                      <option value="create">Create anyway</option>
-                    </select>
+                      <SelectTrigger size="sm" className="mt-0.5 h-7 text-xs" aria-label={`Action for row ${String(row.sourceRowNumber)}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="skip">Skip this row</SelectItem>
+                        <SelectItem value="create">Create anyway</SelectItem>
+                      </SelectContent>
+                    </Select>
                   )}
                 </div>
               );
@@ -289,23 +297,27 @@ export function CreateView({
             If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
             {String(liveCount)}. Keep the Alerts tab open and in the foreground.
           </Banner>
-          <label className="mt-2 flex items-start gap-2 text-xs">
-            <input type="checkbox" checked={acknowledged} onChange={(event) => { setAcknowledged(event.target.checked); }} />
-            I have read this notice.
-          </label>
+          <div className="mt-2 flex items-center gap-2">
+            <Checkbox
+              id="notice-read"
+              checked={acknowledged}
+              onCheckedChange={(checked) => { setAcknowledged(checked === true); }}
+            />
+            <Label htmlFor="notice-read" className="text-xs">I have read this notice.</Label>
+          </div>
           {!gate.allowed && <p className="mt-1 text-xs text-red-700">{gate.reason}</p>}
           {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-red-700">Wait until your existing alerts are read.</p>}
-          <button
+          <Button
             type="button"
+            className="mt-2"
             disabled={!canStart}
             onClick={() => {
               setAcknowledged(false);
               controller.begin(buildCreateRun({ entries, defaults: settings.defaults }));
             }}
-            className="mt-2 rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
           >
             Start creating {String(createCount)} alerts
-          </button>
+          </Button>
         </section>
       )}
     </div>
