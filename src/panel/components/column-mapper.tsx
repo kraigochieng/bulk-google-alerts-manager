@@ -29,7 +29,7 @@ export function ColumnMapper({
   onChange: (next: ColumnMapping) => void;
 }): JSX.Element {
   return (
-    <fieldset className="mt-2 rounded-md border p-2">
+    <fieldset className="mt-2 rounded-lg border bg-card p-2">
       <legend className="px-1 text-xs font-semibold">Map CSV columns</legend>
       <div className="grid grid-cols-2 gap-2">
         {IMPORT_FIELDS.map((field: ImportField) => (

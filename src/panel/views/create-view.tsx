@@ -223,7 +223,7 @@ export function CreateView({
               return (
                 <div>
                   {row.issues.map((issue: RowIssue) => (
-                    <p key={issue} className="text-red-700">{ISSUE_TEXT[issue]}</p>
+                    <p key={issue} className="text-destructive">{ISSUE_TEXT[issue]}</p>
                   ))}
                   {matches.slice(0, 2).map((match: AlertMatch) => (
                     <p key={match.alert.query} className="text-amber-800">
@@ -296,8 +296,8 @@ export function CreateView({
             />
             <Label htmlFor="notice-read" className="text-xs">I have read this notice.</Label>
           </div>
-          {!gate.allowed && <p className="mt-1 text-xs text-red-700">{gate.reason}</p>}
-          {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-red-700">Wait until your existing alerts are read.</p>}
+          {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
+          {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-destructive">Wait until your existing alerts are read.</p>}
           <Button
             type="button"
             className="mt-2"

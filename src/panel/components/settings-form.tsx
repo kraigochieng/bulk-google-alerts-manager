@@ -108,7 +108,7 @@ export function SettingsForm({
   };
   const isRss: boolean = defaults.deliverTo === "rss";
   return (
-    <fieldset className="mt-2 rounded-md border p-2" disabled={locked}>
+    <fieldset className="mt-2 rounded-lg border bg-card p-2" disabled={locked}>
       <legend className="px-1 text-xs font-semibold">Default alert options</legend>
       {locked && <p className="text-xs text-amber-800">Locked while a run is active.</p>}
       <p className="text-xs text-muted-foreground">A CSV column overrides a default for its row.</p>
@@ -177,7 +177,7 @@ export function SettingsForm({
         </div>
         <p className="text-muted-foreground">The wait is random between these two values. A longer wait lowers the chance of a bot check.</p>
       </div>
-      <p role="status" className={`mt-2 text-xs ${saveStatus === "failed" ? "font-semibold text-red-700" : "text-muted-foreground"}`}>
+      <p role="status" className={`mt-2 text-xs ${saveStatus === "failed" ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
         {STATUS_TEXT[saveStatus]}
       </p>
     </fieldset>

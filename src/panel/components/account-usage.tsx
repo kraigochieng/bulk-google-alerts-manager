@@ -20,7 +20,7 @@ export function AccountUsage({
 }): JSX.Element {
   const nearLimit: boolean = count !== null && count >= cap * 0.9;
   return (
-    <section aria-label="Alerts in your account" className="mt-2 rounded-md border p-2">
+    <section aria-label="Alerts in your account" className="mt-2 rounded-lg border bg-card p-2">
       <div className="flex items-center justify-between gap-2 text-xs">
         <span role="status">
           {count === null ? (refreshing ? "Reading your alerts…" : "Alert count not read yet.") : (
@@ -35,7 +35,7 @@ export function AccountUsage({
         </Button>
       </div>
       <Progress value={count === null ? 0 : Math.min((count / cap) * 100, 100)} className="mt-1 h-1.5" aria-label="Alerts used" />
-      {error !== "" && <p className="mt-1 text-xs text-red-700">{error}</p>}
+      {error !== "" && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </section>
   );
 }
