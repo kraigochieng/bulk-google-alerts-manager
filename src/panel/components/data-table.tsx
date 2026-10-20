@@ -129,11 +129,11 @@ export function DataTable<Row, Key extends string | number>({
               )}
               {columns.map((column: TableColumn<Row>) => (
                 <TableHead key={column.key} className="h-8 px-2">
-                  <button type="button" onClick={() => { toggleSort(column.key); }} className="inline-flex items-center gap-0.5 font-semibold">
+                  <Button type="button" variant="ghost" size="sm" onClick={() => { toggleSort(column.key); }} className="h-6 gap-0.5 px-1 text-xs font-semibold">
                     {column.label}
                     {state.sortKey === column.key &&
                       (state.sortDirection === "asc" ? <ChevronUp className="size-3" aria-label="sorted ascending" /> : <ChevronDown className="size-3" aria-label="sorted descending" />)}
-                  </button>
+                  </Button>
                 </TableHead>
               ))}
             </TableRow>
