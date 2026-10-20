@@ -1,3 +1,4 @@
+import { normaliseQuery } from "src/core/query-normaliser";
 import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 export type RunEvent =
@@ -12,7 +13,8 @@ export type RunEvent =
   | { readonly type: "captcha_seen" }
   | { readonly type: "captcha_cleared" }
   | { readonly type: "layout_changed"; readonly message: string }
-  | { readonly type: "retry_failed" };
+  | { readonly type: "retry_failed" }
+  | { readonly type: "links_filled"; readonly linksByQuery: Readonly<Record<string, string>> };
 
 const CAPTCHA_NOTICE: string = "Google shows a bot check. Solve it in the Alerts tab, then continue.";
 
@@ -86,23 +88,31 @@ function noticeFor({ event, previous }: { event: RunEvent; previous: string }): 
   }
 }
 
-/** Apply one event to a run. Pure: returns a new snapshot. */
+/**
+ * Apply one event to a run. Pure: returns a new snapshot.
+ * A row result that arrives after a pause or cancel is still recorded, because the page already did the work.
+ */
 export function applyRunEvent({ run, event }: { run: RunSnapshot; event: RunEvent }): RunSnapshot {
   const status: RunStatus = nextRunStatus({ status: run.status, event });
   const changed: boolean = status !== run.status;
   let items: readonly RunItem[] = run.items;
-  if (run.status === "running" && event.type === "row_done") {
+  const resultMayArrive: boolean = !["idle", "ready"].includes(run.status);
+  if (resultMayArrive && event.type === "row_done") {
     items = updateItem({
       items,
       itemId: event.itemId,
       update: { status: run.kind === "create" ? "created" : "deleted", rssLink: event.rssLink, errorMessage: "" },
     });
   }
-  if (run.status === "running" && event.type === "row_failed") {
+  if (resultMayArrive && event.type === "row_failed") {
     items = updateItem({ items, itemId: event.itemId, update: { status: "failed", errorMessage: event.message } });
   }
-  if (run.status !== "running" && (event.type === "row_done" || event.type === "row_failed")) {
-    return run;
+  if (run.status === "completed" && event.type === "links_filled") {
+    items = items.map((item: RunItem) =>
+      item.status === "created" && item.rssLink === ""
+        ? { ...item, rssLink: event.linksByQuery[normaliseQuery({ query: item.query })] ?? "" }
+        : item,
+    );
   }
   if (changed && event.type === "retry_failed") {
     items = items.map((item: RunItem) =>
