@@ -4,6 +4,8 @@ import type { JSX } from "react";
 import { DEFAULT_SETTINGS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
 import { Banner } from "src/panel/components/banner";
+import { Button } from "src/panel/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "src/panel/ui/tabs";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { SettingsForm } from "src/panel/components/settings-form";
 import { openAlertsTab } from "src/panel/chrome-bridge";
@@ -78,33 +80,32 @@ export function App(): JSX.Element {
     <main className="p-3 text-sm">
       <header>
         <h1 className="text-base font-semibold">Bulk Alerts Manager</h1>
-        <p className="text-xs text-gray-600">Unofficial tool. Not affiliated with Google.</p>
+        <p className="text-xs text-muted-foreground">Unofficial tool. Not affiliated with Google.</p>
       </header>
       {tabStatus === "no_tab" && (
         <Banner tone="warning">
           No Alerts tab is open.{" "}
-          <button type="button" onClick={() => { void openAlertsTab(); }} className="underline">
+          <Button type="button" variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => { void openAlertsTab(); }}>
             Open Google Alerts
-          </button>
+          </Button>
         </Banner>
       )}
       {tabStatus === "no_script" && (
         <Banner tone="warning">The Alerts tab does not answer. Reload the Alerts tab, then try again.</Banner>
       )}
       <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
-      <nav aria-label="Views" className="mt-3 flex gap-1 border-b border-gray-300 text-sm">
-        {(["create", "delete"] as const).map((name: ViewName) => (
-          <button
-            key={name}
-            type="button"
-            aria-current={view === name ? "page" : undefined}
-            onClick={() => { if (view !== name) changeView(name); }}
-            className={`rounded-t px-3 py-1 ${view === name ? "border border-b-white bg-white font-semibold" : "text-gray-600"}`}
-          >
-            {name === "create" ? "Bulk create" : "Bulk delete"}
-          </button>
-        ))}
-      </nav>
+      <Tabs
+        value={view}
+        onValueChange={(value: string) => {
+          if (value !== view) changeView(value as ViewName);
+        }}
+        className="mt-3"
+      >
+        <TabsList className="w-full">
+          <TabsTrigger value="create">Bulk create</TabsTrigger>
+          <TabsTrigger value="delete">Bulk delete</TabsTrigger>
+        </TabsList>
+      </Tabs>
       {view === "create" ? <CreateView settings={settings} controller={controller} /> : <DeleteView controller={controller} />}
     </main>
   );
