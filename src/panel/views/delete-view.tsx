@@ -9,7 +9,11 @@ import { buildDeleteRun } from "src/core/run-builders";
 import { checkDeleteGate, deleteConfirmationText } from "src/core/start-gates";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
+import { X } from "lucide-react";
 import { Banner } from "src/panel/components/banner";
+import { Button } from "src/panel/ui/button";
+import { Input } from "src/panel/ui/input";
+import { Label } from "src/panel/ui/label";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
 import { downloadTextFile, sendToAlertsTab } from "src/panel/chrome-bridge";
@@ -116,16 +120,17 @@ export function DeleteView({ controller }: { controller: RunController }): JSX.E
         <section aria-label="Alerts">
           <h2 className="mt-3 text-sm font-semibold">1. Your alerts</h2>
           <div className="flex items-center gap-2 text-xs">
-            <button type="button" onClick={() => { void readAlerts(); }} className="rounded border px-2 py-0.5">Read my alerts again</button>
+            <Button type="button" variant="outline" size="sm" onClick={() => { void readAlerts(); }}>Read my alerts again</Button>
             {entries !== null && <span>{String(entries.length)} alerts in your account.</span>}
           </div>
           {readError !== "" && <Banner tone="error">{readError}</Banner>}
           {entries === null && readError === "" && <Banner tone="info">Reading your alerts…</Banner>}
           {entries !== null && (
             <>
-              <label className="mt-2 block text-xs">
-                Select alerts by a CSV file of queries
-                <input
+              <div className="mt-2 space-y-1">
+                <Label htmlFor="queries-csv" className="text-xs">Select alerts by a CSV file of queries</Label>
+                <Input
+                  id="queries-csv"
                   type="file"
                   accept=".csv,text/csv"
                   aria-label="Choose a CSV file of queries to select"
@@ -133,9 +138,9 @@ export function DeleteView({ controller }: { controller: RunController }): JSX.E
                     const file: File | undefined = event.target.files?.[0];
                     if (file !== undefined) void importQueries(file);
                   }}
-                  className="mt-0.5 block"
+                  className="h-8 text-xs"
                 />
-              </label>
+              </div>
               {matchReport !== "" && <p className="mt-1 text-xs">{matchReport}</p>}
               <DataTable<AlertEntry, number>
                 rows={entries}
@@ -172,17 +177,19 @@ export function DeleteView({ controller }: { controller: RunController }): JSX.E
                 emptyMessage="No alerts match."
               />
               <h2 className="mt-3 text-sm font-semibold">2. Export a backup (required)</h2>
-              <p className="text-xs text-gray-600">Deletion is permanent. The backup CSV can be imported again in bulk create.</p>
-              <button
+              <p className="text-xs text-muted-foreground">Deletion is permanent. The backup CSV can be imported again in bulk create.</p>
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
+                className="mt-1"
                 onClick={() => {
                   downloadTextFile({ fileName: "alerts-backup.csv", text: backupCsv({ alerts: entries.map((entry: AlertEntry) => entry.alert) }) });
                   setBackupExported(true);
                 }}
-                className="mt-1 rounded border px-2 py-1 text-sm"
               >
                 Export backup of all {String(entries.length)} alerts
-              </button>
+              </Button>
               <p role="status" className="mt-1 text-xs">{backupExported ? "Backup exported." : "Backup not exported yet."}</p>
               <h2 className="mt-3 text-sm font-semibold">3. Confirm</h2>
               <Banner tone="error">
@@ -193,32 +200,38 @@ export function DeleteView({ controller }: { controller: RunController }): JSX.E
                   <li key={entry.index} className="font-mono">{entry.alert.query}</li>
                 ))}
               </ul>
-              <label className="mt-2 block text-xs">
-                Type {deleteConfirmationText({ count: selectedEntries.length })} to confirm
-                <span className="relative block">
-                  <input
+              <div className="mt-2 space-y-1">
+                <Label htmlFor="delete-confirmation" className="text-xs">
+                  Type {deleteConfirmationText({ count: selectedEntries.length })} to confirm
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="delete-confirmation"
                     type="text"
                     value={typedText}
                     onChange={(event) => { setTypedText(event.target.value); }}
-                    className="mt-0.5 w-full rounded border border-gray-300 px-2 py-1 pr-6 text-sm"
+                    className="h-8 pr-8 text-sm"
                   />
                   {typedText !== "" && (
-                    <button type="button" aria-label="Clear confirmation text" onClick={() => { setTypedText(""); }} className="absolute right-1 top-1.5 px-1 text-gray-500">×</button>
+                    <Button type="button" variant="ghost" size="icon" aria-label="Clear confirmation text" onClick={() => { setTypedText(""); }} className="absolute right-0 top-0 size-8">
+                      <X className="size-3" />
+                    </Button>
                   )}
-                </span>
-              </label>
+                </div>
+              </div>
               {!gate.allowed && <p className="mt-1 text-xs text-red-700">{gate.reason}</p>}
-              <p className="mt-1 text-xs text-gray-600">Keep the Alerts tab open and in the foreground during the run. Google can slow the run or show a bot check. The run then stops and asks you to solve it.</p>
-              <button
+              <p className="mt-1 text-xs text-muted-foreground">Keep the Alerts tab open and in the foreground during the run. Google can slow the run or show a bot check. The run then stops and asks you to solve it.</p>
+              <Button
                 type="button"
+                variant="destructive"
+                className="mt-2"
                 disabled={!gate.allowed}
                 onClick={() => {
                   controller.begin(buildDeleteRun({ queries: selectedEntries.map((entry: AlertEntry) => entry.alert.query) }));
                 }}
-                className="mt-2 rounded bg-red-700 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
               >
                 Delete {String(selectedEntries.length)} alerts permanently
-              </button>
+              </Button>
             </>
           )}
         </section>
