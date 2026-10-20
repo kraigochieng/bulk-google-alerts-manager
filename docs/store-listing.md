@@ -2,7 +2,7 @@
 
 ## Name
 
-Bulk Alerts Manager
+Bulk Google Alerts Manager
 
 ## Short description (132 characters or fewer)
 
@@ -14,7 +14,7 @@ Manage Google Alerts in bulk: create alerts from a CSV file and delete alerts in
 
 ## Long description
 
-Bulk Alerts Manager is an unofficial tool. It is not affiliated with Google.
+Bulk Google Alerts Manager is an unofficial tool. It is not affiliated with Google.
 
 Google Alerts has no bulk tools. Creating or removing many alerts by hand takes minutes for each alert.
 This extension does both from a CSV file, in your own logged-in browser tab.
@@ -71,4 +71,4 @@ Take these from the loaded extension next to the real Alerts page. Do not show p
 
 ## Package
 
-Run `npm run package`. It builds the extension and writes `bulk-alerts-manager.zip`. Upload that file in the developer dashboard.
+Run `npm run package`. It builds the extension and writes `bulk-google-alerts-manager.zip`. Upload that file in the developer dashboard.
