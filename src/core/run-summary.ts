@@ -22,13 +22,6 @@ function failureDetails({ run }: { run: RunSnapshot }): string[] {
     : shown;
 }
 
-const ACTIVE_STATUSES: readonly RunStatus[] = ["running", "paused", "awaiting_captcha"];
-
-/** Decide whether a run has just ended: it was active and it is now completed or cancelled. */
-export function runJustEnded({ previous, current }: { previous: RunStatus | null; current: RunStatus }): boolean {
-  return previous !== null && ACTIVE_STATUSES.includes(previous) && runIsFinished({ status: current });
-}
-
 /** Decide whether a run has ended: it is completed or cancelled. The result dialog shows for an ended run. */
 export function runIsFinished({ status }: { status: RunStatus }): boolean {
   return status === "completed" || status === "cancelled";

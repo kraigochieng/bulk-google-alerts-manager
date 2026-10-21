@@ -6,7 +6,7 @@ import type { RunSummary } from "src/core/run-summary";
 import { Button } from "src/panel/ui/button";
 import { useElementEvent } from "src/panel/ui/use-element-event";
 
-/** Render the dialog that tells the user how a run ended. Pure: state comes as props. */
+/** Render the dialog that tells the user how a run or an export ended. Pure: state comes as props. */
 export function RunResultDialog({
   open,
   summary,
@@ -28,13 +28,19 @@ export function RunResultDialog({
     <md-dialog ref={dialogRef} open={open}>
       <div slot="headline">{summary.title}</div>
       <div slot="content">
-        <ul aria-label="Run result" className="list-none space-y-1 p-0">
+        <ul aria-label="Result" className="list-none space-y-1 p-0">
           {summary.lines.map((line: string) => (
             <li key={line}>{line}</li>
           ))}
         </ul>
-        {summary.hasFailures && (
-          <p className="mt-2 text-destructive">Some rows failed. The table shows the reason for each row.</p>
+        {summary.details.length > 0 && (
+          <ul aria-label="Details" className="mt-3 list-none space-y-1 p-0 text-destructive">
+            {summary.details.map((detail: string) => (
+              <li key={detail} className="break-words">
+                {detail}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
       <div slot="actions">
