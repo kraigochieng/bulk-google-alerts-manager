@@ -4,8 +4,8 @@ import { applyRunEvent, countByStatus, nextPendingItem, nextRunStatus } from "sr
 import type { RunEvent } from "src/core/run-machine";
 import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
-function item({ id, status }: { id: number; status: RunItem["status"] }): RunItem {
-  return { id, query: `q${String(id)}`, options: null, label: "", status, rssLink: "", errorMessage: "" };
+function item({ id, status, action = "create" }: { id: number; status: RunItem["status"]; action?: RunItem["action"] }): RunItem {
+  return { id, query: `q${String(id)}`, action, options: null, label: "", status, rssLink: "", errorMessage: "" };
 }
 
 function run({ status, items }: { status: RunStatus; items: RunItem[] }): RunSnapshot {
@@ -60,9 +60,17 @@ describe("applyRunEvent", () => {
     expect(next.items[1]?.status).toBe("pending");
   });
 
+  it("records an updated row for an update item", () => {
+    const next = applyRunEvent({
+      run: run({ status: "running", items: [item({ id: 1, status: "pending", action: "update" })] }),
+      event: { type: "row_done", itemId: 1, rssLink: "https://x/feed" },
+    });
+    expect(next.items[0]).toMatchObject({ status: "updated", rssLink: "https://x/feed" });
+  });
+
   it("records a deleted row in a delete run", () => {
     const next = applyRunEvent({
-      run: { ...run({ status: "running", items }), kind: "delete" },
+      run: { ...run({ status: "running", items: [item({ id: 1, status: "pending", action: "delete" }), item({ id: 2, status: "pending", action: "delete" })] }), kind: "delete" },
       event: { type: "row_done", itemId: 2, rssLink: "" },
     });
     expect(next.items[1]?.status).toBe("deleted");
@@ -148,6 +156,6 @@ describe("queue helpers", () => {
   });
 
   it("counts items by status", () => {
-    expect(countByStatus({ run: snapshot })).toEqual({ pending: 1, created: 1, skipped: 0, failed: 1, deleted: 0 });
+    expect(countByStatus({ run: snapshot })).toEqual({ pending: 1, created: 1, updated: 0, skipped: 0, failed: 1, deleted: 0 });
   });
 });

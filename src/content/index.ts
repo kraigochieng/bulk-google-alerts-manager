@@ -1,5 +1,6 @@
 import { createAlert } from "src/content/create-alert";
 import { deleteAlert } from "src/content/delete-alert";
+import { updateAlert } from "src/content/update-alert";
 import { readAlertOptions } from "src/content/read-alert-options";
 import { readAllAlerts } from "src/content/list-reader";
 import {
@@ -34,6 +35,12 @@ async function handleRequest({ request }: { request: PanelRequest }): Promise<Co
         ok: true,
         kind: "created",
         feedUrl: await createAlert({ query: request.query, options: request.options }),
+      };
+    case "update_alert":
+      return {
+        ok: true,
+        kind: "updated",
+        feedUrl: await updateAlert({ query: request.query, options: request.options }),
       };
     case "read_alert_options":
       return { ok: true, kind: "alert_options", options: await readAlertOptions({ query: request.query }) };

@@ -4,7 +4,7 @@ import type { AlertOptions, ImportRow, RunItem, RunSnapshot } from "src/shared/m
 /** A row of the import and what the user chose for it. */
 export interface CreateEntry {
   readonly row: ImportRow;
-  readonly action: "create" | "skip";
+  readonly action: "create" | "update" | "skip";
 }
 
 /** Build a create run from the entries the user checked. Skipped rows keep status "skipped". */
@@ -19,9 +19,10 @@ export function buildCreateRun({
     (entry: CreateEntry, index: number): RunItem => ({
       id: index,
       query: entry.row.query.trim(),
+      action: entry.action === "update" ? "update" : "create",
       options: resolveOptions({ defaults, overrides: entry.row.overrides }),
       label: entry.row.label,
-      status: entry.action === "create" ? "pending" : "skipped",
+      status: entry.action === "skip" ? "skipped" : "pending",
       rssLink: "",
       errorMessage: "",
     }),
@@ -35,6 +36,7 @@ export function buildDeleteRun({ queries }: { queries: readonly string[] }): Run
     (query: string, index: number): RunItem => ({
       id: index,
       query,
+      action: "delete",
       options: null,
       label: "",
       status: "pending",

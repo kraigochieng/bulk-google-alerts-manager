@@ -23,6 +23,11 @@ describe("buildCreateRun", () => {
     expect(run).toMatchObject({ kind: "create", status: "idle" });
   });
 
+  it("makes a pending update item for an update entry", () => {
+    const run = buildCreateRun({ entries: [{ row, action: "update" }], defaults: DEFAULT_ALERT_OPTIONS });
+    expect(run.items[0]).toMatchObject({ action: "update", status: "pending" });
+  });
+
   it("marks skipped entries as skipped", () => {
     const run = buildCreateRun({ entries: [{ row, action: "skip" }], defaults: DEFAULT_ALERT_OPTIONS });
     expect(run.items[0]?.status).toBe("skipped");

@@ -76,3 +76,10 @@ export class AlertNotFoundError extends BulkAlertsError {
     this.query = query;
   }
 }
+
+/** The edit form has no change to save, because the alert already has the requested options. */
+export class AlertUnchangedError extends BulkAlertsError {
+  constructor() {
+    super({ message: "The alert already has these options." });
+  }
+}

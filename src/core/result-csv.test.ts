@@ -5,8 +5,8 @@ import { createResultCsv, deleteResultCsv } from "src/core/result-csv";
 import type { RunItem } from "src/shared/models";
 
 const items: RunItem[] = [
-  { id: 0, query: '"Jane Doe" OR "J. Doe"', options: null, label: "", status: "created", rssLink: "https://x/f", errorMessage: "" },
-  { id: 1, query: "b, c", options: null, label: "", status: "failed", rssLink: "", errorMessage: 'bad "thing"' },
+  { id: 0, query: '"Jane Doe" OR "J. Doe"', action: "create", options: null, label: "", status: "created", rssLink: "https://x/f", errorMessage: "" },
+  { id: 1, query: "b, c", action: "create", options: null, label: "", status: "failed", rssLink: "", errorMessage: 'bad "thing"' },
 ];
 
 describe("result CSV files", () => {

@@ -1,4 +1,4 @@
-import type { RowStatus, RunItem, RunKind, RunSnapshot, RunStatus } from "src/shared/models";
+import type { ItemAction, RowStatus, RunItem, RunKind, RunSnapshot, RunStatus } from "src/shared/models";
 import { parseAlertOptions } from "src/shared/messages";
 
 const RUN_KINDS: readonly string[] = ["create", "delete"];
@@ -11,13 +11,15 @@ const RUN_STATUSES: readonly string[] = [
   "completed",
   "cancelled",
 ];
-const ROW_STATUSES: readonly string[] = ["pending", "created", "skipped", "failed", "deleted"];
+const ROW_STATUSES: readonly string[] = ["pending", "created", "updated", "skipped", "failed", "deleted"];
+const ITEM_ACTIONS: readonly string[] = ["create", "update", "delete"];
 
 function asRecord({ value }: { value: unknown }): Record<string, unknown> | null {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
 }
 
-function parseItem({ value }: { value: unknown }): RunItem | null {
+/** Read one saved item. A run saved before updates existed has no action, so the run kind gives it. */
+function parseItem({ value, kind }: { value: unknown; kind: RunKind }): RunItem | null {
   const record: Record<string, unknown> | null = asRecord({ value });
   if (record === null) return null;
   const { id, query, label, status, rssLink, errorMessage } = record;
@@ -36,6 +38,12 @@ function parseItem({ value }: { value: unknown }): RunItem | null {
     id,
     query,
     label,
+    action:
+      typeof record.action === "string" && ITEM_ACTIONS.includes(record.action)
+        ? (record.action as ItemAction)
+        : kind === "delete"
+          ? "delete"
+          : "create",
     status: status as RowStatus,
     rssLink,
     errorMessage,
@@ -57,7 +65,7 @@ export function parseRunSnapshot({ value }: { value: unknown }): RunSnapshot | n
   ) {
     return null;
   }
-  const items: (RunItem | null)[] = (record.items as unknown[]).map((item: unknown) => parseItem({ value: item }));
+  const items: (RunItem | null)[] = (record.items as unknown[]).map((item: unknown) => parseItem({ value: item, kind: kind as RunKind }));
   if (items.some((item: RunItem | null) => item === null)) return null;
   return {
     kind: kind as RunKind,

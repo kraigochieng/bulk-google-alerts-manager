@@ -83,7 +83,7 @@ async function setOption({
 }
 
 /** Set the six options of the create form. Delivery goes first, because RSS forces the frequency. */
-async function applyOptions({ options }: { options: AlertOptions }): Promise<void> {
+export async function applyOptions({ options }: { options: AlertOptions }): Promise<void> {
   await ensureOptionsVisible();
   const isRss: boolean = options.deliverTo === "rss";
   await setOption({
