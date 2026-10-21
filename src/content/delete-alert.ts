@@ -13,7 +13,7 @@ import {
 
 /**
  * Delete the first alert with this query. Side effect: drives the Alerts page.
- * Deletion is permanent in Google Alerts. The caller must have checked the backup gate.
+ * Deletion is permanent in Google Alerts. The caller must have confirmed the delete.
  */
 export async function deleteAlert({ query }: { query: string }): Promise<void> {
   throwIfBotCheck();

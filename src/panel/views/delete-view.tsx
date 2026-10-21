@@ -4,7 +4,7 @@ import type { JSX } from "react";
 import { guessMapping } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
 import { normaliseQuery } from "src/core/query-normaliser";
-import { backupCsv, deleteResultCsv } from "src/core/result-csv";
+import { deleteResultCsv } from "src/core/result-csv";
 import { buildDeleteRun } from "src/core/run-builders";
 import { checkDeleteGate, deleteConfirmationText } from "src/core/start-gates";
 import type { TableColumn } from "src/core/table-query";
@@ -35,14 +35,13 @@ interface AlertEntry {
   readonly alert: LiveAlert;
 }
 
-/** Render the Delete flow: read, select, backup, confirm, run. Holds the state of the flow. */
+/** Render the Delete flow: read, select, confirm, run. Holds the state of the flow. */
 export function DeleteView({ controller, live }: { controller: RunController; live: LiveAlertsState }): JSX.Element {
   const entries: readonly AlertEntry[] | null = useMemo(
     () => live.alerts?.map((alert: LiveAlert, index: number): AlertEntry => ({ index, alert })) ?? null,
     [live.alerts],
   );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
-  const [backupExported, setBackupExported] = useState<boolean>(false);
   const [typedText, setTypedText] = useState<string>("");
   const [matchReport, setMatchReport] = useState<string>("");
   const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
@@ -50,7 +49,6 @@ export function DeleteView({ controller, live }: { controller: RunController; li
 
   useEffect(() => {
     setSelected(new Set());
-    setBackupExported(false);
     setTypedText("");
     setMatchReport("");
   }, [live.alerts]);
@@ -59,7 +57,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
     () => (entries ?? []).filter((entry: AlertEntry) => selected.has(entry.index)),
     [entries, selected],
   );
-  const gate = checkDeleteGate({ selectedCount: selectedEntries.length, backupExported, typedText });
+  const gate = checkDeleteGate({ selectedCount: selectedEntries.length, typedText });
 
   const columns: readonly TableColumn<AlertEntry>[] = [
     { key: "number", label: "#", sortValue: (entry) => entry.index, searchText: () => "" },
@@ -163,24 +161,9 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 }}
                 emptyMessage="No alerts match."
               />
-              <h2 className="mt-5 text-sm font-semibold">2. Export a backup (required)</h2>
-              <p className="text-xs text-muted-foreground">Deletion is permanent. The backup CSV can be imported again in the Add tab.</p>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="mt-1"
-                onClick={() => {
-                  downloadTextFile({ fileName: "alerts-backup.csv", text: backupCsv({ alerts: entries.map((entry: AlertEntry) => entry.alert) }) });
-                  setBackupExported(true);
-                }}
-              >
-                Export backup of all {String(entries.length)} alerts
-              </Button>
-              <p role="status" className="mt-1 text-xs">{backupExported ? "Backup exported." : "Backup not exported yet."}</p>
-              <h2 className="mt-5 text-sm font-semibold">3. Confirm</h2>
+              <h2 className="mt-5 text-sm font-semibold">2. Confirm</h2>
               <Banner tone="error">
-                {String(selectedEntries.length)} alerts will be deleted permanently. The extension cannot undo this.
+                {String(selectedEntries.length)} alerts will be deleted permanently. The extension cannot undo this. Use the Export tab first to keep a copy.
               </Banner>
               <ul aria-label="Alerts to delete" className="mt-1 max-h-32 list-disc overflow-y-auto pl-5 text-xs">
                 {selectedEntries.map((entry: AlertEntry) => (

@@ -36,21 +36,16 @@ export function deleteConfirmationText({ count }: { count: number }): string {
   return `DELETE ${String(count)}`;
 }
 
-/** Decide whether a delete run may start. The backup and the typed text are both required. */
+/** Decide whether a delete run may start. The typed text is required. */
 export function checkDeleteGate({
   selectedCount,
-  backupExported,
   typedText,
 }: {
   selectedCount: number;
-  backupExported: boolean;
   typedText: string;
 }): GateResult {
   if (selectedCount === 0) {
     return { allowed: false, reason: "No alerts are selected. Select at least one alert." };
-  }
-  if (!backupExported) {
-    return { allowed: false, reason: "Export the backup CSV first. Deletion cannot be undone." };
   }
   if (typedText.trim() !== deleteConfirmationText({ count: selectedCount })) {
     return {
