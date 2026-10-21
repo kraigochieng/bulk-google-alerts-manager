@@ -1,23 +1,19 @@
-"use client"
+import type { JSX, ReactNode } from "react";
+import clsx from "clsx";
 
-import * as React from "react"
-import { cn } from "src/panel/lib/utils"
-import { Label as LabelPrimitive } from "radix-ui"
-
-function Label({
+/** Render a form label. */
+export function Label({
+  htmlFor,
   className,
-  ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+  children,
+}: {
+  htmlFor?: string;
+  className?: string;
+  children: ReactNode;
+}): JSX.Element {
   return (
-    <LabelPrimitive.Root
-      data-slot="label"
-      className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className
-      )}
-      {...props}
-    />
-  )
+    <label htmlFor={htmlFor} className={clsx("flex items-center gap-2 font-medium leading-none select-none", className)}>
+      {children}
+    </label>
+  );
 }
-
-export { Label }
