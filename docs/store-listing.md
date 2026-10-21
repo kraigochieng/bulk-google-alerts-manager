@@ -28,6 +28,10 @@ Add
 - Random wait between alerts, set by the extension. Pause, resume, cancel, and retry.
 - Export a result CSV with the RSS link of each alert.
 
+Export
+- Write all alerts with their options to one CSV file.
+- Import the file in the Add tab of another account.
+
 Delete
 - See all your alerts with search, filter, and checkboxes.
 - Export a backup CSV first. The extension requires it.
