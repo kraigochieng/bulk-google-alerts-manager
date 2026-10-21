@@ -34,7 +34,7 @@ export function ConfirmDialog({
   return (
     <md-dialog ref={dialogRef} open={open}>
       <div slot="headline">{title}</div>
-      <div slot="content">{description}</div>
+      <div slot="content" className="whitespace-pre-line break-words">{description}</div>
       <div slot="actions">
         <Button
           type="button"
