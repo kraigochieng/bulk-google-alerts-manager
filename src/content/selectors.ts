@@ -16,6 +16,7 @@ export const SELECTORS = {
   alertRowQuery: ".query_div span",
   alertRowFeedLink: 'a[href*="alerts/feeds"]',
   alertRowDeleteButton: ".delete_button",
+  alertRowEditButton: ".edit_button",
   showAllAlerts: ".show_all_alerts",
   deleteNotice: ".jfk-butterBar-shown",
 } as const;

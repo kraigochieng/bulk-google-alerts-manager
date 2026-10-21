@@ -5,6 +5,7 @@ import {
   parseDeliverTo,
   parseHowMany,
   parseHowOften,
+  optionsFromPageTexts,
   resolveOptions,
 } from "src/core/alert-options";
 
@@ -78,5 +79,37 @@ describe("option cell parsers", () => {
     expect(parseDeliverTo({ text: "fax" })).toBeNull();
     expect(parseHowMany({ text: "some" })).toBeNull();
     expect(parseHowOften({ text: "hourly" })).toBeNull();
+  });
+});
+
+describe("optionsFromPageTexts", () => {
+  const texts = {
+    delivery: "RSS feed",
+    frequency: "As-it-happens",
+    sources: " Automatic ",
+    language: "English",
+    region: "Any Region",
+    volume: "Only the best results",
+  };
+
+  it("reads the dropdown texts", () => {
+    expect(optionsFromPageTexts({ texts })).toEqual({
+      howOften: "as_it_happens",
+      sources: "Automatic",
+      language: "English",
+      region: "Any Region",
+      howMany: "best",
+      deliverTo: "rss",
+    });
+  });
+
+  it("reads an email address as email delivery", () => {
+    const options = optionsFromPageTexts({ texts: { ...texts, delivery: "me@example.com", frequency: "At most once a week" } });
+    expect(options?.deliverTo).toBe("email");
+    expect(options?.howOften).toBe("weekly");
+  });
+
+  it.each([{ frequency: "Sometimes" }, { volume: "Few" }])("returns null for %j", (override) => {
+    expect(optionsFromPageTexts({ texts: { ...texts, ...override } })).toBeNull();
   });
 });

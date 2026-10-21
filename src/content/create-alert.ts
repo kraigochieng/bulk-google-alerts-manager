@@ -17,7 +17,7 @@ import type { AlertOptions } from "src/shared/models";
  * Cancel edit mode or old text in the create form with its close icon.
  * Side effect: clicks the page. Does nothing when the Create button is already visible.
  */
-async function resetFormIfNeeded(): Promise<void> {
+export async function resetFormIfNeeded(): Promise<void> {
   if (findVisible({ selector: SELECTORS.createButton, scope: document }) !== null) {
     return;
   }
@@ -48,7 +48,7 @@ function typeQuery({ input, query }: { input: HTMLInputElement; query: string })
   input.dispatchEvent(new KeyboardEvent("keyup", { bubbles: true, key: "a" }));
 }
 
-async function ensureOptionsVisible(): Promise<void> {
+export async function ensureOptionsVisible(): Promise<void> {
   if (findVisible({ selector: SELECTORS.volumeSelect, scope: document }) !== null) {
     return;
   }

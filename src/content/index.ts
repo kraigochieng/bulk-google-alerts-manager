@@ -1,5 +1,6 @@
 import { createAlert } from "src/content/create-alert";
 import { deleteAlert } from "src/content/delete-alert";
+import { readAlertOptions } from "src/content/read-alert-options";
 import { readAllAlerts } from "src/content/list-reader";
 import {
   BulkAlertsError,
@@ -34,6 +35,8 @@ async function handleRequest({ request }: { request: PanelRequest }): Promise<Co
         kind: "created",
         feedUrl: await createAlert({ query: request.query, options: request.options }),
       };
+    case "read_alert_options":
+      return { ok: true, kind: "alert_options", options: await readAlertOptions({ query: request.query }) };
     case "delete_alert":
       await deleteAlert({ query: request.query });
       return { ok: true, kind: "deleted" };

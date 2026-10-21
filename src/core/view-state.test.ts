@@ -15,6 +15,10 @@ describe("readView", () => {
     expect(readView({ parameters: new URLSearchParams("view=delete") })).toBe("delete");
   });
 
+  it("reads the export view", () => {
+    expect(readView({ parameters: new URLSearchParams("view=export") })).toBe("export");
+  });
+
   it.each(["", "view=other", "view=delete&view=create"])("uses the default for %j", (query: string) => {
     expect(readView({ parameters: new URLSearchParams(query) })).toBe("create");
   });
