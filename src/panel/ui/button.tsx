@@ -6,10 +6,11 @@ import "src/panel/material-elements";
 export type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
 export type ButtonSize = "default" | "sm" | "icon";
 
-/** Render a Material Web button. The variant picks the Material button type. */
+/** Render a Material Web button. The variant picks the Material button type. A full width button fills the line. */
 export function Button({
   variant = "default",
   size = "default",
+  fullWidth = false,
   type = "button",
   disabled = false,
   className,
@@ -19,6 +20,7 @@ export function Button({
 }: {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  fullWidth?: boolean;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   className?: string;
@@ -30,7 +32,7 @@ export function Button({
     if (!disabled) onClick?.(event);
   };
   const shared = { type, disabled, onClick: handleClick, "data-size": size, "data-variant": variant, ...rest };
-  const classes: string = clsx("app-button", className);
+  const classes: string = clsx("app-button", fullWidth && "app-button-block", className);
   if (size === "icon") {
     return <md-icon-button {...shared} className={classes}>{children}</md-icon-button>;
   }

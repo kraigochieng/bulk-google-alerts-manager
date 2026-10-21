@@ -164,3 +164,9 @@ md-dialog [slot="actions"] {
   justify-content: flex-end;
   padding: 16px 24px 24px;
 }
+
+/* A full width button fills the line. */
+.app-button-block {
+  display: flex;
+  width: 100%;
+}

@@ -28,10 +28,11 @@ export function ExportView({ controller, live }: { controller: RunController; li
       {live.alerts === null && live.error === "" && <Banner tone="info">Reading your alerts…</Banner>}
       {live.alerts?.length === 0 && <Banner tone="info">Your account has no alerts to export.</Banner>}
       {runActive && <Banner tone="warning">A run is active. Wait until it ends, then export.</Banner>}
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-3 flex flex-col gap-2">
         <Button
           type="button"
           size="sm"
+          fullWidth
           disabled={!canStart}
           onClick={() => {
             if (live.alerts !== null) exporter.start({ alerts: live.alerts });
@@ -40,7 +41,7 @@ export function ExportView({ controller, live }: { controller: RunController; li
           Start export
         </Button>
         {running && (
-          <Button type="button" variant="outline" size="sm" onClick={exporter.cancel}>
+          <Button type="button" variant="outline" size="sm" fullWidth onClick={exporter.cancel}>
             Cancel
           </Button>
         )}
@@ -65,6 +66,7 @@ export function ExportView({ controller, live }: { controller: RunController; li
         <Button
           type="button"
           size="sm"
+          fullWidth
           className="mt-2"
           onClick={() => {
             downloadTextFile({ fileName: EXPORT_FILE_NAME, text: buildExportCsv({ entries: state.entries }) });
