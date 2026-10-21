@@ -113,17 +113,16 @@
   text-decoration: underline;
 }
 
-/* Compact fields for the side panel. */
-md-outlined-text-field {
+/* Text fields and selects share the same height. Both read the token of the Material outlined field. */
+md-outlined-text-field,
+md-outlined-select {
   --md-outlined-field-top-space: 8px;
   --md-outlined-field-bottom-space: 8px;
   --md-outlined-text-field-input-text-size: 0.875rem;
-}
-
-md-outlined-select {
-  --md-outlined-select-text-field-top-space: 8px;
-  --md-outlined-select-text-field-bottom-space: 8px;
   --md-outlined-select-text-field-input-text-size: 0.875rem;
+  --md-outlined-text-field-input-text-line-height: 1.5rem;
+  --md-outlined-select-text-field-input-text-line-height: 1.5rem;
+  min-width: 0;
 }
 
 input[type="file"] {
