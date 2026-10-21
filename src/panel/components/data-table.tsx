@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import type { JSX, ReactNode } from "react";
 
-import { DEFAULT_PAGE_SIZE, queryTable } from "src/core/table-query";
+import { DEFAULT_PAGE_SIZE, pageRangeLabel, queryTable } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { SortDirection, TableSchema, TableState } from "src/core/table-state";
 import type { HistoryMode } from "src/panel/use-table-url-state";
@@ -90,15 +90,17 @@ export function DataTable<Row, Key extends string | number>({
             </Button>
           )}
         </div>
-        <Select
-          value={state.filter}
-          onValueChange={(value: string) => {
-            change({ filter: value, page: 0 }, "replace");
-          }}
-          aria-label="Filter the table"
-          className="w-40"
-          choices={schema.filters.map((filter: string) => ({ value: filter, label: filterLabels[filter] ?? filter }))}
-        />
+        {schema.filters.length > 1 && (
+          <Select
+            value={state.filter}
+            onValueChange={(value: string) => {
+              change({ filter: value, page: 0 }, "replace");
+            }}
+            aria-label="Filter the table"
+            className="w-40"
+            choices={schema.filters.map((filter: string) => ({ value: filter, label: filterLabels[filter] ?? filter }))}
+          />
+        )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
         {String(page.totalMatching)} of {String(rows.length)} rows
@@ -170,7 +172,7 @@ export function DataTable<Row, Key extends string | number>({
           Previous
         </Button>
         <span>
-          Page {String(page.page + 1)} of {String(page.pageCount)}
+          {pageRangeLabel({ page: page.page, pageSize: DEFAULT_PAGE_SIZE, totalMatching: page.totalMatching })} · Page {String(page.page + 1)} of {String(page.pageCount)}
         </span>
         <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }, "push"); }}>
           Next
