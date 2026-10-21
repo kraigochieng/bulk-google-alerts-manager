@@ -31,27 +31,10 @@ export function checkCreateGate({
   return { allowed: true };
 }
 
-/** The exact text that the user must type to confirm a delete run. */
-export function deleteConfirmationText({ count }: { count: number }): string {
-  return `DELETE ${String(count)}`;
-}
-
-/** Decide whether a delete run may start. The typed text is required. */
-export function checkDeleteGate({
-  selectedCount,
-  typedText,
-}: {
-  selectedCount: number;
-  typedText: string;
-}): GateResult {
+/** Decide whether a delete run may start. At least one alert must be selected. */
+export function checkDeleteGate({ selectedCount }: { selectedCount: number }): GateResult {
   if (selectedCount === 0) {
     return { allowed: false, reason: "No alerts are selected. Select at least one alert." };
-  }
-  if (typedText.trim() !== deleteConfirmationText({ count: selectedCount })) {
-    return {
-      allowed: false,
-      reason: `Type ${deleteConfirmationText({ count: selectedCount })} to confirm.`,
-    };
   }
   return { allowed: true };
 }
