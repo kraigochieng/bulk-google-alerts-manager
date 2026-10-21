@@ -28,7 +28,7 @@ function ClearableText({
   disabled: boolean;
 }): JSX.Element {
   return (
-    <div className="space-y-1">
+    <div className="min-w-0 space-y-1">
       <Label className="text-xs">{label}</Label>
       <div className="relative">
         <TextField
@@ -69,7 +69,7 @@ function OptionSelect({
   options: readonly (readonly [string, string])[];
 }): JSX.Element {
   return (
-    <div className="space-y-1">
+    <div className="min-w-0 space-y-1">
       <Label className="text-xs">{label}</Label>
       <Select
         value={value}
@@ -101,11 +101,11 @@ export function SettingsForm({
   };
   const isRss: boolean = defaults.deliverTo === "rss";
   return (
-    <fieldset className="mt-2 rounded-lg border bg-card p-2" disabled={locked}>
+    <fieldset className="mt-3 rounded-lg border bg-card p-3" disabled={locked}>
       <legend className="px-1 text-xs font-semibold">Default alert options</legend>
       {locked && <p className="text-xs text-amber-800">Locked while a run is active.</p>}
       <p className="text-xs text-muted-foreground">A CSV column overrides a default for its row.</p>
-      <div className="mt-1 grid grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-1 gap-3 @sm:grid-cols-2">
         <OptionSelect
           label="Deliver to"
           value={defaults.deliverTo}

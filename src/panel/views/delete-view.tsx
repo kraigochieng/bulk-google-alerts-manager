@@ -107,8 +107,8 @@ export function DeleteView({ controller, live }: { controller: RunController; li
       )}
       {!runActive && run === null && (
         <section aria-label="Alerts">
-          <h2 className="mt-3 text-sm font-semibold">1. Your alerts</h2>
-          <div className="flex items-center gap-2 text-xs">
+          <h2 className="mt-5 text-sm font-semibold">1. Your alerts</h2>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <Button type="button" variant="outline" size="sm" onClick={live.refresh}>Read my alerts again</Button>
             {entries !== null && <span>{String(entries.length)} alerts in your account.</span>}
           </div>
@@ -163,7 +163,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 }}
                 emptyMessage="No alerts match."
               />
-              <h2 className="mt-3 text-sm font-semibold">2. Export a backup (required)</h2>
+              <h2 className="mt-5 text-sm font-semibold">2. Export a backup (required)</h2>
               <p className="text-xs text-muted-foreground">Deletion is permanent. The backup CSV can be imported again in the Add tab.</p>
               <Button
                 type="button"
@@ -178,7 +178,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 Export backup of all {String(entries.length)} alerts
               </Button>
               <p role="status" className="mt-1 text-xs">{backupExported ? "Backup exported." : "Backup not exported yet."}</p>
-              <h2 className="mt-3 text-sm font-semibold">3. Confirm</h2>
+              <h2 className="mt-5 text-sm font-semibold">3. Confirm</h2>
               <Banner tone="error">
                 {String(selectedEntries.length)} alerts will be deleted permanently. The extension cannot undo this.
               </Banner>

@@ -28,7 +28,7 @@ export function ExportView({ controller, live }: { controller: RunController; li
       {live.alerts === null && live.error === "" && <Banner tone="info">Reading your alerts…</Banner>}
       {live.alerts?.length === 0 && <Banner tone="info">Your account has no alerts to export.</Banner>}
       {runActive && <Banner tone="warning">A run is active. Wait until it ends, then export.</Banner>}
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <Button
           type="button"
           size="sm"

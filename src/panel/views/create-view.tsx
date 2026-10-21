@@ -178,7 +178,7 @@ export function CreateView({
       )}
       {!runActive && (
         <section aria-label="Import">
-          <h2 className="mt-3 text-sm font-semibold">1. Import a CSV file</h2>
+          <h2 className="mt-5 text-sm font-semibold">1. Import a CSV file</h2>
           <p className="text-xs text-muted-foreground">The file needs a column with the queries. Other columns are optional.</p>
           <details className="mt-1 text-xs">
             <summary className="cursor-pointer font-medium">Columns and allowed values</summary>
@@ -192,24 +192,25 @@ export function CreateView({
               <li>An empty cell uses the default from the panel. Column names can differ. You map them after the import.</li>
             </ul>
           </details>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="mt-2"
-            onClick={() => { downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() }); }}
-          >
-            Download template CSV
-          </Button>
-          <Input
-            accept=".csv,text/csv"
-            aria-label="Choose a CSV file"
-            onChange={(event) => {
-              const file: File | undefined = event.target.files?.[0];
-              if (file !== undefined) void importFile(file);
-            }}
-            className="mt-1 text-xs"
-          />
+          <div className="mt-3 flex flex-col items-start gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => { downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() }); }}
+            >
+              Download template CSV
+            </Button>
+            <Input
+              accept=".csv,text/csv"
+              aria-label="Choose a CSV file"
+              onChange={(event) => {
+                const file: File | undefined = event.target.files?.[0];
+                if (file !== undefined) void importFile(file);
+              }}
+              className="text-xs"
+            />
+          </div>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
           {csvTable !== null && mapping !== null && (
             <>
@@ -224,8 +225,8 @@ export function CreateView({
       )}
       {!runActive && rows.length > 0 && (
         <section aria-label="Review">
-          <h2 className="mt-3 text-sm font-semibold">2. Check the rows</h2>
-          <div className="flex items-center gap-2 text-xs">
+          <h2 className="mt-5 text-sm font-semibold">2. Check the rows</h2>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
             <Button type="button" variant="outline" size="sm" onClick={live.refresh}>
               Read my alerts again
             </Button>
@@ -300,13 +301,13 @@ export function CreateView({
       )}
       {!runActive && rows.length > 0 && (
         <section aria-label="Start">
-          <h2 className="mt-3 text-sm font-semibold">3. Read the notice and start</h2>
+          <h2 className="mt-5 text-sm font-semibold">3. Read the notice and start</h2>
           <Banner tone="warning">
             This run creates {String(createCount)} alerts and waits a random few seconds between them. Google can slow, throttle, or show a bot check on large batches.
             If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
             {String(liveCount)}. Keep the Alerts tab open and in the foreground.
           </Banner>
-          <div className="mt-2 flex items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <Checkbox
               id="notice-read"
               checked={acknowledged}
