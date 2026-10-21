@@ -5,14 +5,16 @@ export type PanelRequest =
   | { readonly kind: "ping" }
   | { readonly kind: "read_alerts" }
   | { readonly kind: "create_alert"; readonly query: string; readonly options: AlertOptions }
-  | { readonly kind: "delete_alert"; readonly query: string };
+  | { readonly kind: "delete_alert"; readonly query: string }
+  | { readonly kind: "read_alert_options"; readonly query: string };
 
 /** Successful replies of the content script. */
 export type ContentSuccess =
   | { readonly ok: true; readonly kind: "pong"; readonly pageUrl: string; readonly hidden: boolean }
   | { readonly ok: true; readonly kind: "alerts"; readonly alerts: readonly LiveAlert[] }
   | { readonly ok: true; readonly kind: "created"; readonly feedUrl: string | null }
-  | { readonly ok: true; readonly kind: "deleted" };
+  | { readonly ok: true; readonly kind: "deleted" }
+  | { readonly ok: true; readonly kind: "alert_options"; readonly options: AlertOptions };
 
 /** The content script failed. The flags let the panel pick the right action. */
 export interface ContentFailure {
@@ -54,6 +56,9 @@ export function parsePanelRequest({ value }: { value: unknown }): PanelRequest |
   if (record.kind === "read_alerts") return { kind: "read_alerts" };
   if (record.kind === "delete_alert" && typeof record.query === "string") {
     return { kind: "delete_alert", query: record.query };
+  }
+  if (record.kind === "read_alert_options" && typeof record.query === "string") {
+    return { kind: "read_alert_options", query: record.query };
   }
   if (record.kind === "create_alert" && typeof record.query === "string") {
     const options: AlertOptions | null = parseAlertOptions({ value: record.options });

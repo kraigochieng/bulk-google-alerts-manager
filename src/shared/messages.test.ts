@@ -21,8 +21,16 @@ describe("parsePanelRequest", () => {
     });
   });
 
+  it("accepts a read options request", () => {
+    expect(parsePanelRequest({ value: { kind: "read_alert_options", query: "q" } })).toEqual({
+      kind: "read_alert_options",
+      query: "q",
+    });
+  });
+
   it.each([
     null,
+    { kind: "read_alert_options" },
     undefined,
     42,
     "ping",
