@@ -86,3 +86,30 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Compact Material buttons for the side panel. */
+.app-button[data-size="sm"] {
+  --md-filled-button-container-height: 32px;
+  --md-filled-tonal-button-container-height: 32px;
+  --md-outlined-button-container-height: 32px;
+  --md-text-button-container-height: 32px;
+  --md-filled-button-label-text-size: 0.8125rem;
+  --md-outlined-button-label-text-size: 0.8125rem;
+  --md-text-button-label-text-size: 0.8125rem;
+}
+
+.app-button[data-size="icon"] {
+  --md-icon-button-icon-size: 16px;
+}
+
+.app-button[data-variant="destructive"] {
+  --md-filled-button-container-color: var(--md-sys-color-error);
+  --md-filled-button-label-text-color: var(--md-sys-color-on-error);
+  --md-filled-button-hover-label-text-color: var(--md-sys-color-on-error);
+  --md-filled-button-focus-label-text-color: var(--md-sys-color-on-error);
+  --md-filled-button-pressed-label-text-color: var(--md-sys-color-on-error);
+}
+
+.app-button[data-variant="link"] {
+  text-decoration: underline;
+}
