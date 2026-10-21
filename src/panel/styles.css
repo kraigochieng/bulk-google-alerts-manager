@@ -112,3 +112,46 @@
 .app-button[data-variant="link"] {
   text-decoration: underline;
 }
+
+/* Compact fields for the side panel. */
+md-outlined-text-field {
+  --md-outlined-field-top-space: 8px;
+  --md-outlined-field-bottom-space: 8px;
+  --md-outlined-text-field-input-text-size: 0.875rem;
+}
+
+md-outlined-select {
+  --md-outlined-select-text-field-top-space: 8px;
+  --md-outlined-select-text-field-bottom-space: 8px;
+  --md-outlined-select-text-field-input-text-size: 0.875rem;
+}
+
+input[type="file"] {
+  font-size: 0.75rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+input[type="file"]::file-selector-button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/*
+ * The Tailwind reset sets padding to 0 on every element. That overrides the :host padding of the Material buttons.
+ * Restore the padding from the tokens that each button defines.
+ */
+md-filled-button,
+md-filled-tonal-button,
+md-outlined-button,
+md-text-button {
+  padding-block: calc((var(--_container-height) - max(var(--_label-text-line-height), var(--_icon-size))) / 2);
+  padding-inline-start: var(--_leading-space);
+  padding-inline-end: var(--_trailing-space);
+}
