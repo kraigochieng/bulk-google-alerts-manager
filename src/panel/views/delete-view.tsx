@@ -34,7 +34,7 @@ interface AlertEntry {
   readonly alert: LiveAlert;
 }
 
-/** Render the bulk delete flow: read, select, backup, confirm, run. Holds the state of the flow. */
+/** Render the Delete flow: read, select, backup, confirm, run. Holds the state of the flow. */
 export function DeleteView({ controller, live }: { controller: RunController; live: LiveAlertsState }): JSX.Element {
   const entries: readonly AlertEntry[] | null = useMemo(
     () => live.alerts?.map((alert: LiveAlert, index: number): AlertEntry => ({ index, alert })) ?? null,
@@ -164,7 +164,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 emptyMessage="No alerts match."
               />
               <h2 className="mt-3 text-sm font-semibold">2. Export a backup (required)</h2>
-              <p className="text-xs text-muted-foreground">Deletion is permanent. The backup CSV can be imported again in bulk create.</p>
+              <p className="text-xs text-muted-foreground">Deletion is permanent. The backup CSV can be imported again in the Add tab.</p>
               <Button
                 type="button"
                 variant="outline"

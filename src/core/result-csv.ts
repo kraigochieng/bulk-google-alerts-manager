@@ -21,7 +21,7 @@ export function deleteResultCsv({ items }: { items: readonly RunItem[] }): strin
   });
 }
 
-/** Write the backup CSV of live alerts. Bulk create can import it again. */
+/** Write the backup CSV of live alerts. The Add tab can import it again. */
 export function backupCsv({ alerts }: { alerts: readonly LiveAlert[] }): string {
   return writeCsv({
     table: {

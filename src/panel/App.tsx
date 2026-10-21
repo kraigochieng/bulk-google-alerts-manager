@@ -112,8 +112,8 @@ export function App(): JSX.Element {
         className="mt-3"
       >
         <TabsList className="w-full">
-          <TabsTrigger value="create">Bulk create</TabsTrigger>
-          <TabsTrigger value="delete">Bulk delete</TabsTrigger>
+          <TabsTrigger value="create">Add</TabsTrigger>
+          <TabsTrigger value="delete">Delete</TabsTrigger>
         </TabsList>
       </Tabs>
       {view === "create" && (

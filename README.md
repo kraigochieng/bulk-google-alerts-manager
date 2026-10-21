@@ -7,7 +7,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 
 ## Features
 
-- Bulk create from a CSV file. Map any CSV column to a field. Check the rows you want.
+- Add from a CSV file. Map any CSV column to a field. Check the rows you want.
 - All six alert options: deliver to (RSS or email), how often, sources, language, region, how many.
   A CSV column overrides the default for its row.
 - Warning for exact, same-word, and similar alerts that already exist. Skip a row or create it anyway.
@@ -15,8 +15,8 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - Random wait between alerts. The extension sets the wait. It is not a user setting.
 - Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
 - Result CSV: `query, status, rss_link, error`.
-- Bulk delete with a required backup CSV, a list of the alerts to delete, and a typed confirmation (`DELETE <count>`).
-  The backup CSV can be imported again in bulk create.
+- Delete with a required backup CSV, a list of the alerts to delete, and a typed confirmation (`DELETE <count>`).
+  The backup CSV can be imported again in the Add tab.
 - The tool never bypasses a bot check. It stops and asks you to solve the check.
 
 ## Limits
@@ -43,7 +43,7 @@ It reads and stores no password. See [docs/privacy-policy.md](docs/privacy-polic
 
 ## CSV format
 
-Bulk create reads a header row and the data rows. One column holds the queries. Other columns are optional.
+The Add tab reads a header row and the data rows. One column holds the queries. Other columns are optional.
 
 ```csv
 query,deliver_to,how_often,how_many,language,region,label
