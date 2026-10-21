@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { queryTable } from "src/core/table-query";
+import { pageRangeLabel, queryTable } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { TableState } from "src/core/table-state";
 
@@ -51,5 +51,16 @@ describe("queryTable", () => {
       pageCount: 1,
       page: 0,
     });
+  });
+});
+
+describe("pageRangeLabel", () => {
+  it.each([
+    [0, 25, 140, "1–25 of 140"],
+    [5, 25, 140, "126–140 of 140"],
+    [0, 25, 3, "1–3 of 3"],
+    [0, 25, 0, "0 of 0"],
+  ])("page %i with size %i and %i rows gives %s", (page: number, pageSize: number, totalMatching: number, expected: string) => {
+    expect(pageRangeLabel({ page, pageSize, totalMatching })).toBe(expected);
   });
 });

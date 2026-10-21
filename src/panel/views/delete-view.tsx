@@ -24,9 +24,9 @@ import type { LiveAlert } from "src/shared/models";
 
 export const ALERTS_TABLE_SCHEMA: TableSchema = {
   prefix: "alerts",
-  sortKeys: ["number", "query", "delivery"],
-  filters: ["all", "rss", "email", "selected"],
-  defaultState: { search: "", sortKey: "number", sortDirection: "asc", page: 0, filter: "all" },
+  sortKeys: ["query"],
+  filters: ["all"],
+  defaultState: { search: "", sortKey: "query", sortDirection: "asc", page: 0, filter: "all" },
 };
 
 /** How many queries the confirmation dialog lists before it shows the count of the rest. */
@@ -61,9 +61,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
   const gate = checkDeleteGate({ selectedCount: selectedEntries.length });
 
   const columns: readonly TableColumn<AlertEntry>[] = [
-    { key: "number", label: "#", sortValue: (entry) => entry.index, searchText: () => "" },
     { key: "query", label: "Query", sortValue: (entry) => entry.alert.query.toLowerCase(), searchText: (entry) => entry.alert.query },
-    { key: "delivery", label: "Delivery", sortValue: (entry) => (entry.alert.feedUrl === null ? "email" : "rss"), searchText: (entry) => (entry.alert.feedUrl === null ? "email" : "rss") },
   ];
 
   const importQueries = async (file: File): Promise<void> => {
@@ -127,21 +125,12 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 rows={entries}
                 columns={columns}
                 rowKey={(entry) => entry.index}
-                renderCell={(entry, columnKey) => {
-                  if (columnKey === "number") return String(entry.index + 1);
-                  if (columnKey === "query") return <span className="font-mono">{entry.alert.query}</span>;
-                  return entry.alert.feedUrl === null ? "Email" : "RSS";
-                }}
+                renderCell={(entry) => <span className="font-mono">{entry.alert.query}</span>}
                 schema={ALERTS_TABLE_SCHEMA}
                 state={tableState}
                 onStateChange={setTableState}
-                filters={{
-                  all: () => true,
-                  rss: (entry) => entry.alert.feedUrl !== null,
-                  email: (entry) => entry.alert.feedUrl === null,
-                  selected: (entry) => selected.has(entry.index),
-                }}
-                filterLabels={{ all: "All alerts", rss: "RSS only", email: "Email only", selected: "Selected" }}
+                filters={{ all: () => true }}
+                filterLabels={{ all: "All alerts" }}
                 selection={{
                   selected,
                   isSelectable: () => true,
