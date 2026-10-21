@@ -25,7 +25,7 @@ export function NoAlertsTabScreen({ onOpen }: { onOpen: () => void }): JSX.Eleme
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
       <MissingBellIllustration />
-      <div>
+      <div className="max-w-sm">
         <p className="text-xs font-medium tracking-widest text-muted-foreground">NO ALERTS PAGE</p>
         <h1 className="mt-1 text-xl font-medium">There is no Google Alerts page to work with</h1>
         <p className="mt-2 text-sm text-muted-foreground">
