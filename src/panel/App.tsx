@@ -17,6 +17,7 @@ import { useLiveAlerts } from "src/panel/use-live-alerts";
 import { useRunController } from "src/panel/use-run-controller";
 import { switchViewParameters, readView } from "src/core/view-state";
 import type { ViewName } from "src/core/view-state";
+import { ExportView } from "src/panel/views/export-view";
 import { CreateView, ROWS_TABLE_SCHEMA } from "src/panel/views/create-view";
 import { ALERTS_TABLE_SCHEMA, DeleteView } from "src/panel/views/delete-view";
 import { RUN_TABLE_SCHEMA } from "src/panel/components/run-panel";
@@ -114,12 +115,15 @@ export function App(): JSX.Element {
         <TabsList className="w-full">
           <TabsTrigger value="create">Add</TabsTrigger>
           <TabsTrigger value="delete">Delete</TabsTrigger>
+          <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
       </Tabs>
       {view === "create" && (
         <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
       )}
-      {view === "create" ? <CreateView settings={settings} controller={controller} live={live} /> : <DeleteView controller={controller} live={live} />}
+      {view === "create" && <CreateView settings={settings} controller={controller} live={live} />}
+      {view === "delete" && <DeleteView controller={controller} live={live} />}
+      {view === "export" && <ExportView controller={controller} live={live} />}
     </main>
   );
 }
