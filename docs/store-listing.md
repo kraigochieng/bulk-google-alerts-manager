@@ -26,10 +26,10 @@ Add
 - A row with the same query as an existing alert updates that alert. See warnings for alerts that look alike.
 - See the alert limit (1000 alerts for each account) before you start.
 - Random wait between alerts, set by the extension. Pause, resume, cancel, and retry.
-- Export a result CSV with the RSS link of each alert.
+- A dialog shows the result when a run ends.
 
 Export
-- Write all alerts with their options to one CSV file.
+- Write all alerts with their options and feed links to one CSV file. It downloads by itself.
 - Import the file in the Add tab of another account.
 
 Delete
