@@ -58,7 +58,7 @@ function defaultChecked({ row }: { row: ImportRow }): boolean {
   return row.issues.length === 0;
 }
 
-/** Render the bulk create flow: import, map, review, notice, run. Holds the state of the flow. */
+/** Render the Add flow: import, map, review, notice, run. Holds the state of the flow. */
 export function CreateView({
   settings,
   controller,
