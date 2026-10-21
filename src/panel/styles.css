@@ -45,12 +45,12 @@
   --md-sys-color-on-error: #ffffff;
   --md-sys-color-shadow: #000000;
   --md-sys-color-scrim: #000000;
-  --md-ref-typeface-brand: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --md-ref-typeface-brand: "Google Sans Variable", Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --md-ref-typeface-plain: var(--md-ref-typeface-brand);
 }
 
 @theme inline {
-  --font-sans: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Google Sans Variable", Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
   --color-warning: var(--warning);
   --color-success: var(--success);
   --radius-sm: calc(var(--radius) - 4px);

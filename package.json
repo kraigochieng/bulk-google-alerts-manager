@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/kraigochieng/bulk-google-alerts-manager#readme",
   "dependencies": {
+    "@fontsource-variable/google-sans": "5.3.2",
     "@material/web": "2.5.0",
     "clsx": "2.1.1",
     "lucide-react": "1.60.0",
