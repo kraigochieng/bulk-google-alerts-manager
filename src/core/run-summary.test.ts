@@ -4,7 +4,7 @@ import { buildRunSummary, runIsFinished } from "src/core/run-summary";
 import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 function item({ id, status, action = "create" }: { id: number; status: RunItem["status"]; action?: RunItem["action"] }): RunItem {
-  return { id, query: `q${String(id)}`, action, options: null, label: "", status, errorMessage: "" };
+  return { id, query: `q${String(id)}`, action, options: null, status, errorMessage: "" };
 }
 
 describe("runIsFinished", () => {

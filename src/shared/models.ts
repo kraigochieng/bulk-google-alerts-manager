@@ -27,7 +27,6 @@ export type RowIssue = "empty" | "too_long" | "duplicate_in_file" | "invalid_opt
 export interface ImportRow {
   readonly sourceRowNumber: number;
   readonly query: string;
-  readonly label: string;
   readonly overrides: AlertOptionOverrides;
   readonly issues: readonly RowIssue[];
 }
@@ -53,7 +52,6 @@ export interface RunItem {
   readonly query: string;
   readonly action: ItemAction;
   readonly options: AlertOptions | null;
-  readonly label: string;
   readonly status: RowStatus;
   readonly errorMessage: string;
 }

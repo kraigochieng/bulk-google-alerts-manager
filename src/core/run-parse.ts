@@ -21,11 +21,10 @@ function asRecord({ value }: { value: unknown }): Record<string, unknown> | null
 function parseItem({ value, kind }: { value: unknown; kind: RunKind }): RunItem | null {
   const record: Record<string, unknown> | null = asRecord({ value });
   if (record === null) return null;
-  const { id, query, label, status, errorMessage } = record;
+  const { id, query, status, errorMessage } = record;
   if (
     typeof id !== "number" ||
     typeof query !== "string" ||
-    typeof label !== "string" ||
     typeof status !== "string" ||
     !ROW_STATUSES.includes(status) ||
     typeof errorMessage !== "string"
@@ -35,7 +34,6 @@ function parseItem({ value, kind }: { value: unknown; kind: RunKind }): RunItem 
   return {
     id,
     query,
-    label,
     action:
       typeof record.action === "string" && ITEM_ACTIONS.includes(record.action)
         ? (record.action as ItemAction)

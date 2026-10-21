@@ -9,7 +9,6 @@ import type { AlertOptionOverrides, ImportRow, RowIssue } from "src/shared/model
 
 export const IMPORT_FIELDS = [
   "query",
-  "label",
   "deliverTo",
   "howOften",
   "sources",
@@ -25,7 +24,6 @@ export type ColumnMapping = Readonly<Record<ImportField, number | null>>;
 
 const HEADER_SYNONYMS: Readonly<Record<ImportField, readonly string[]>> = {
   query: ["query", "queries", "keyword", "keywords", "search", "searchterm", "term", "topic"],
-  label: ["label", "name", "tag", "title"],
   deliverTo: ["deliverto", "delivery", "deliver"],
   howOften: ["howoften", "frequency", "often"],
   sources: ["sources", "source"],
@@ -120,7 +118,6 @@ export function buildImportRows({
     return {
       sourceRowNumber: index + 2,
       query: queries[index] ?? "",
-      label: cellText({ record, mapping, field: "label" }),
       overrides,
       issues,
     };

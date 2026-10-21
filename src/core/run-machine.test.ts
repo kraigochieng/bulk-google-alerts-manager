@@ -5,7 +5,7 @@ import type { RunEvent } from "src/core/run-machine";
 import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 function item({ id, status, action = "create" }: { id: number; status: RunItem["status"]; action?: RunItem["action"] }): RunItem {
-  return { id, query: `q${String(id)}`, action, options: null, label: "", status, errorMessage: "" };
+  return { id, query: `q${String(id)}`, action, options: null, status, errorMessage: "" };
 }
 
 function run({ status, items }: { status: RunStatus; items: RunItem[] }): RunSnapshot {

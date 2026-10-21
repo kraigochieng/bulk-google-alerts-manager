@@ -10,7 +10,7 @@ import type { ContentReply, PanelRequest } from "src/shared/messages";
 import type { ImportRow, RunSnapshot } from "src/shared/models";
 
 function rowFor({ query }: { query: string }): ImportRow {
-  return { sourceRowNumber: 2, query, label: "", overrides: {}, issues: [] };
+  return { sourceRowNumber: 2, query, overrides: {}, issues: [] };
 }
 
 function harness({
