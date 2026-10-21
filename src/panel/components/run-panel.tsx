@@ -16,7 +16,7 @@ import type { RunItem, RunSnapshot } from "src/shared/models";
 export const RUN_TABLE_SCHEMA: TableSchema = {
   prefix: "run",
   sortKeys: ["number", "query", "status"],
-  filters: ["all", "pending", "created", "deleted", "skipped", "failed"],
+  filters: ["all", "pending", "created", "updated", "deleted", "skipped", "failed"],
   defaultState: { search: "", sortKey: "number", sortDirection: "asc", page: 0, filter: "all" },
 };
 
@@ -30,6 +30,7 @@ const FILTERS: Record<string, (item: RunItem) => boolean> = {
   all: () => true,
   pending: (item) => item.status === "pending",
   created: (item) => item.status === "created",
+  updated: (item) => item.status === "updated",
   deleted: (item) => item.status === "deleted",
   skipped: (item) => item.status === "skipped",
   failed: (item) => item.status === "failed",
