@@ -202,14 +202,13 @@ export function CreateView({
             Download template CSV
           </Button>
           <Input
-            type="file"
             accept=".csv,text/csv"
             aria-label="Choose a CSV file"
             onChange={(event) => {
               const file: File | undefined = event.target.files?.[0];
               if (file !== undefined) void importFile(file);
             }}
-            className="mt-1 h-8 text-xs"
+            className="mt-1 text-xs"
           />
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
           {csvTable !== null && mapping !== null && (

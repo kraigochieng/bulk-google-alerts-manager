@@ -7,7 +7,7 @@ import type { SortDirection, TableSchema, TableState } from "src/core/table-stat
 import type { HistoryMode } from "src/panel/use-table-url-state";
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
-import { Input } from "src/panel/ui/input";
+import { TextField } from "src/panel/ui/text-field";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "src/panel/ui/table";
 
@@ -65,15 +65,15 @@ export function DataTable<Row, Key extends string | number>({
     <div className="mt-2">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-32 flex-1">
-          <Input
+          <TextField
             type="search"
             aria-label="Search the table"
             placeholder="Search"
             value={state.search}
-            onChange={(event) => {
-              change({ search: event.target.value, page: 0 }, "replace");
+            onValueChange={(search: string) => {
+              change({ search, page: 0 }, "replace");
             }}
-            className="h-8 pr-8 text-sm"
+            className="w-full"
           />
           {state.search !== "" && (
             <Button
