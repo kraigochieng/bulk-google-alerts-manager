@@ -59,3 +59,19 @@ export function queryTable<Row>({
     page,
   };
 }
+
+/** Describe the rows on one page, for example "1–25 of 140". An empty result gives "0 of 0". */
+export function pageRangeLabel({
+  page,
+  pageSize,
+  totalMatching,
+}: {
+  page: number;
+  pageSize: number;
+  totalMatching: number;
+}): string {
+  if (totalMatching === 0) return "0 of 0";
+  const first: number = page * pageSize + 1;
+  const last: number = Math.min((page + 1) * pageSize, totalMatching);
+  return `${String(first)}–${String(last)} of ${String(totalMatching)}`;
+}
