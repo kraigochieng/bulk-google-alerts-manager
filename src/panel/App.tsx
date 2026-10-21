@@ -11,7 +11,6 @@ import { Tabs } from "src/panel/ui/tabs";
 import { chooseScreen } from "src/core/screen-state";
 import { NoAlertsTabScreen } from "src/panel/components/no-alerts-tab-screen";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
-import { SettingsForm } from "src/panel/components/settings-form";
 import { openAlertsTab } from "src/panel/chrome-bridge";
 import { useAlertsTabStatus } from "src/panel/use-alerts-tab-status";
 import { useAutosave } from "src/panel/use-autosave";
@@ -89,9 +88,6 @@ export function App(): JSX.Element {
     return <NoAlertsTabScreen onOpen={() => { void openAlertsTab(); }} />;
   }
 
-  const runActive: boolean =
-    controller.run !== null && ["running", "paused", "awaiting_captcha"].includes(controller.run.status);
-
   return (
     <main className="@container min-h-screen p-3 text-sm">
       <header>
@@ -128,10 +124,7 @@ export function App(): JSX.Element {
         ]}
         className="mt-3"
       />
-      {view === "create" && (
-        <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
-      )}
-      {view === "create" && <CreateView settings={settings} controller={controller} live={live} />}
+      {view === "create" && <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />}
       {view === "delete" && <DeleteView controller={controller} live={live} />}
       {view === "export" && <ExportView controller={controller} live={live} />}
     </main>

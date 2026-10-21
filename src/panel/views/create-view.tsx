@@ -23,6 +23,8 @@ import { Checkbox } from "src/panel/ui/checkbox";
 import { Input } from "src/panel/ui/input";
 import { Label } from "src/panel/ui/label";
 import { Select } from "src/panel/ui/select";
+import { SettingsForm } from "src/panel/components/settings-form";
+import type { SaveStatus } from "src/panel/use-autosave";
 import { ColumnMapper } from "src/panel/components/column-mapper";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -61,10 +63,14 @@ function defaultChecked({ row }: { row: ImportRow }): boolean {
 /** Render the Add flow: import, map, review, notice, run. Holds the state of the flow. */
 export function CreateView({
   settings,
+  onSettingsChange,
+  saveStatus,
   controller,
   live,
 }: {
   settings: Settings;
+  onSettingsChange: (next: Settings) => void;
+  saveStatus: SaveStatus;
   controller: RunController;
   live: LiveAlertsState;
 }): JSX.Element {
@@ -223,6 +229,7 @@ export function CreateView({
           )}
         </section>
       )}
+      <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
       {!runActive && rows.length > 0 && (
         <section aria-label="Review">
           <h2 className="mt-5 text-sm font-semibold">2. Check the rows</h2>
