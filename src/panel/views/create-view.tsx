@@ -9,7 +9,6 @@ import type { CsvTable } from "src/core/csv";
 import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
-import { createResultCsv } from "src/core/result-csv";
 import { TEMPLATE_FILE_NAME, buildTemplateCsv } from "src/core/template-csv";
 import { buildCreateRun } from "src/core/run-builders";
 import type { CreateEntry } from "src/core/run-builders";
@@ -27,7 +26,6 @@ import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { ColumnMapper } from "src/panel/components/column-mapper";
 import { DataTable } from "src/panel/components/data-table";
-import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
 import { downloadTextFile } from "src/panel/chrome-bridge";
 import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
@@ -83,7 +81,6 @@ export function CreateView({
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [acknowledged, setAcknowledged] = useState<boolean>(false);
   const [rowsState, setRowsState] = useTableUrlState({ schema: ROWS_TABLE_SCHEMA });
-  const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
 
   const rows: readonly ImportRow[] = useMemo(
     () =>
@@ -161,28 +158,10 @@ export function CreateView({
   ];
 
   const run = controller.run;
-  const runIsCreate: boolean = run?.kind === "create";
   const runActive: boolean = run !== null && ["running", "paused", "awaiting_captcha"].includes(run.status);
-
-  if (run !== null && !runIsCreate) {
-    return <Banner tone="warning">A delete run is open. Finish or close it before you create alerts.</Banner>;
-  }
 
   return (
     <div>
-      {run !== null && (
-        <RunPanel
-          run={run}
-          onPause={() => { controller.send({ type: "pause", reason: "You paused the run." }); }}
-          onResume={controller.resume}
-          onCancel={() => { controller.send({ type: "cancel" }); }}
-          onRetryFailed={controller.resume}
-          onExport={() => { downloadTextFile({ fileName: "create-results.csv", text: createResultCsv({ items: run.items }) }); }}
-          onClose={controller.clear}
-          tableState={runState}
-          onTableStateChange={setRunState}
-        />
-      )}
       {!runActive && (
         <section aria-label="Import">
           <h2 className="mt-5 text-sm font-semibold">1. Import a CSV file</h2>
@@ -195,7 +174,7 @@ export function CreateView({
               <li><code>how_often</code>: <code>as_it_happens</code>, <code>daily</code> or <code>weekly</code>. RSS always uses as-it-happens.</li>
               <li><code>how_many</code>: <code>all</code> or <code>best</code>.</li>
               <li><code>sources</code>, <code>language</code>, <code>region</code>: the text of the Google dropdown, for example <code>English</code>.</li>
-              <li><code>label</code>: your own note. It is kept in the result file only.</li>
+              <li><code>label</code>: your own note. The extension ignores it.</li>
               <li>An empty cell uses the default from the panel. Column names can differ. You map them after the import.</li>
             </ul>
           </details>

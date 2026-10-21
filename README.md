@@ -14,8 +14,8 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - Alert cap check (1000 alerts for each account).
 - Random wait between alerts. The extension sets the wait. It is not a user setting.
 - Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
-- Result CSV: `query, status, rss_link, error`.
-- Export every alert with its six options to one CSV file. Import the file in the Add tab of another account.
+- A foggy loader with a progress bar shows while a run works. A dialog shows the result when it ends.
+- Export every alert with its six options and its feed link to one CSV file. The file downloads by itself. Import the file in the Add tab of another account.
 - Delete with a list of the alerts to delete and a confirmation dialog that names the count.
   Use the Export tab first to keep a copy. The Add tab can import that copy again.
 - The tool never bypasses a bot check. It stops and asks you to solve the check.

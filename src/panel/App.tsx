@@ -8,13 +8,19 @@ import { AccountUsage } from "src/panel/components/account-usage";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { Tabs } from "src/panel/ui/tabs";
+import { buildExportSummary, exportIsEnded } from "src/core/export-progress";
+import { buildRunSummary, runIsFinished } from "src/core/run-summary";
 import { chooseScreen } from "src/core/screen-state";
+import { ExportOverlay } from "src/panel/components/export-overlay";
+import { RunOverlay } from "src/panel/components/run-overlay";
+import { RunResultDialog } from "src/panel/components/run-result-dialog";
 import { NoAlertsTabScreen } from "src/panel/components/no-alerts-tab-screen";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { openAlertsTab } from "src/panel/chrome-bridge";
 import { useAlertsTabStatus } from "src/panel/use-alerts-tab-status";
 import { useAutosave } from "src/panel/use-autosave";
 import { useLiveAlerts } from "src/panel/use-live-alerts";
+import { useExport } from "src/panel/use-export";
 import { useRunController } from "src/panel/use-run-controller";
 import type { ScreenName } from "src/core/screen-state";
 import { switchViewParameters, readView } from "src/core/view-state";
@@ -22,7 +28,6 @@ import type { ViewName } from "src/core/view-state";
 import { ExportView } from "src/panel/views/export-view";
 import { CreateView, ROWS_TABLE_SCHEMA } from "src/panel/views/create-view";
 import { ALERTS_TABLE_SCHEMA, DeleteView } from "src/panel/views/delete-view";
-import { RUN_TABLE_SCHEMA } from "src/panel/components/run-panel";
 import { loadSettings, saveSettings } from "src/storage/run-repository";
 
 /** Render the side panel: first-run notice, tab status, settings, and the active view. Holds the app state. */
@@ -32,6 +37,7 @@ export function App(): JSX.Element {
   const [view, setView] = useState<ViewName>(() => readView({ parameters: new URLSearchParams(window.location.search) }));
   const tabStatus = useAlertsTabStatus();
   const controller = useRunController();
+  const exporter = useExport();
   const live = useLiveAlerts({ tabStatus, runStatus: controller.run?.status ?? null });
 
   useEffect(() => {
@@ -48,7 +54,7 @@ export function App(): JSX.Element {
     const parameters: URLSearchParams = switchViewParameters({
       parameters: new URLSearchParams(window.location.search),
       view: next,
-      schemas: [ROWS_TABLE_SCHEMA, ALERTS_TABLE_SCHEMA, RUN_TABLE_SCHEMA],
+      schemas: [ROWS_TABLE_SCHEMA, ALERTS_TABLE_SCHEMA],
     });
     const query: string = parameters.toString();
     window.history.pushState(null, "", `${window.location.pathname}${query === "" ? "" : `?${query}`}`);
@@ -88,8 +94,13 @@ export function App(): JSX.Element {
     return <NoAlertsTabScreen onOpen={() => { void openAlertsTab(); }} />;
   }
 
+  const run = controller.run;
+  const runActive: boolean = run !== null && !runIsFinished({ status: run.status });
+  const exportActive: boolean = exporter.state.status === "running";
+
   return (
-    <main className="@container min-h-screen p-3 text-sm">
+    <>
+      <main className="@container min-h-screen p-3 text-sm" inert={runActive || exportActive}>
       <header className="flex items-center gap-3 px-1 pt-1">
         <img src="/icons/icon-48.png" alt="" width={40} height={40} className="size-10 shrink-0" />
         <div className="min-w-0">
@@ -129,7 +140,38 @@ export function App(): JSX.Element {
       />
       {view === "create" && <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />}
       {view === "delete" && <DeleteView controller={controller} live={live} />}
-      {view === "export" && <ExportView controller={controller} live={live} />}
-    </main>
+      {view === "export" && <ExportView exporter={exporter} live={live} />}
+      </main>
+      {run !== null && runActive && (
+        <RunOverlay
+          run={run}
+          onPause={() => { controller.send({ type: "pause", reason: "You paused the run." }); }}
+          onResume={controller.resume}
+          onCancel={() => { controller.send({ type: "cancel" }); }}
+        />
+      )}
+      {run !== null && !runActive && (
+        <RunResultDialog open summary={buildRunSummary({ run })} onClose={controller.clear} />
+      )}
+      {exportActive && (
+        <ExportOverlay
+          readCount={exporter.state.entries.length}
+          total={exporter.state.total}
+          onCancel={exporter.cancel}
+        />
+      )}
+      {exportIsEnded({ status: exporter.state.status }) && (
+        <RunResultDialog
+          open
+          summary={buildExportSummary({
+            status: exporter.state.status,
+            entries: exporter.state.entries,
+            total: exporter.state.total,
+            notice: exporter.state.notice,
+          })}
+          onClose={exporter.reset}
+        />
+      )}
+    </>
   );
 }

@@ -17,6 +17,7 @@ const EXPORT_HEADERS: readonly string[] = [
   "sources",
   "language",
   "region",
+  "rss_link",
 ];
 
 /**
@@ -30,7 +31,7 @@ export function buildExportCsv({ entries }: { entries: readonly ExportEntry[] })
       records: entries.map((entry: ExportEntry) => {
         const { alert, options } = entry;
         if (options === null) {
-          return [alert.query, alert.feedUrl === null ? "email" : "rss", "", "", "", "", ""];
+          return [alert.query, alert.feedUrl === null ? "email" : "rss", "", "", "", "", "", alert.feedUrl ?? ""];
         }
         return [
           alert.query,
@@ -40,6 +41,7 @@ export function buildExportCsv({ entries }: { entries: readonly ExportEntry[] })
           options.sources,
           options.language,
           options.region,
+          alert.feedUrl ?? "",
         ];
       }),
     },

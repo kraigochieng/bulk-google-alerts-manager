@@ -1,24 +1,23 @@
 import { describe, expect, it } from "vitest";
 
-import { buildRunSummary, runJustEnded } from "src/core/run-summary";
+import { buildRunSummary, runIsFinished } from "src/core/run-summary";
 import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 function item({ id, status, action = "create" }: { id: number; status: RunItem["status"]; action?: RunItem["action"] }): RunItem {
   return { id, query: `q${String(id)}`, action, options: null, label: "", status, rssLink: "", errorMessage: "" };
 }
 
-describe("runJustEnded", () => {
-  it.each<[RunStatus | null, RunStatus, boolean]>([
-    ["running", "completed", true],
-    ["paused", "cancelled", true],
-    ["awaiting_captcha", "cancelled", true],
-    [null, "completed", false],
-    ["completed", "completed", false],
-    ["running", "paused", false],
-    ["ready", "running", false],
-    ["cancelled", "ready", false],
-  ])("previous %s, current %s gives %s", (previous, current, expected) => {
-    expect(runJustEnded({ previous, current })).toBe(expected);
+describe("runIsFinished", () => {
+  it.each<[RunStatus, boolean]>([
+    ["completed", true],
+    ["cancelled", true],
+    ["running", false],
+    ["paused", false],
+    ["awaiting_captcha", false],
+    ["ready", false],
+    ["idle", false],
+  ])("status %s gives %s", (status, expected) => {
+    expect(runIsFinished({ status })).toBe(expected);
   });
 });
 
@@ -36,6 +35,22 @@ describe("buildRunSummary", () => {
     expect(summary.title).toBe("The add run is complete");
     expect(summary.lines).toEqual(["Created: 2", "Updated: 1", "Skipped: 1", "Failed: 1"]);
     expect(summary.hasFailures).toBe(true);
+  });
+
+  it("names the failed rows with their reason", () => {
+    const failing: RunItem[] = [
+      { ...item({ id: 0, status: "failed" }), errorMessage: "No menu" },
+      { ...item({ id: 1, status: "failed" }), errorMessage: "" },
+    ];
+    const summary = buildRunSummary({ run: { kind: "create", status: "completed", items: failing, notice: "" } });
+    expect(summary.details).toEqual(["q0: No menu", "q1"]);
+  });
+
+  it("shows the count of the failed rows beyond the limit", () => {
+    const many: RunItem[] = Array.from({ length: 7 }, (_, index) => item({ id: index, status: "failed" }));
+    const summary = buildRunSummary({ run: { kind: "create", status: "completed", items: many, notice: "" } });
+    expect(summary.details).toHaveLength(6);
+    expect(summary.details[5]).toBe("...and 2 more");
   });
 
   it("names the rows that did not run in a cancelled run", () => {
