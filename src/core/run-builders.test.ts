@@ -7,7 +7,6 @@ import type { ImportRow } from "src/shared/models";
 const row: ImportRow = {
   sourceRowNumber: 2,
   query: "  solar  ",
-  label: "energy",
   overrides: { deliverTo: "email", howOften: "weekly" },
   issues: [],
 };

@@ -10,7 +10,7 @@ import type { ContentReply, PanelRequest } from "src/shared/messages";
 import type { ImportRow, RunSnapshot } from "src/shared/models";
 
 function rowFor({ query }: { query: string }): ImportRow {
-  return { sourceRowNumber: 2, query, label: "", overrides: {}, issues: [] };
+  return { sourceRowNumber: 2, query, overrides: {}, issues: [] };
 }
 
 function harness({
@@ -58,20 +58,18 @@ function createRun({ queries }: { queries: string[] }): RunSnapshot {
 }
 
 describe("runQueue", () => {
-  it("creates every row, waits between rows, and fills links at the end", async () => {
+  it("creates every row and waits between rows", async () => {
     const { dependencies, state } = harness({
       initial: createRun({ queries: ["a", "b"] }),
       respond: (request) => {
         if (request.kind === "ping") return PONG;
-        if (request.kind === "create_alert") return { ok: true, kind: "created", feedUrl: null };
-        return { ok: true, kind: "alerts", alerts: [{ query: "A", feedUrl: "https://x/a" }] };
+        return { ok: true, kind: "created" };
       },
     });
     await runQueue({ dependencies });
     expect(state.run.status).toBe("completed");
     expect(state.run.items.map((item) => item.status)).toEqual(["created", "created"]);
     expect(state.sleeps).toEqual([6000]);
-    expect(state.run.items[0]?.rssLink).toBe("https://x/a");
   });
 
   it("sends an update request for an update item", async () => {
@@ -83,14 +81,12 @@ describe("runQueue", () => {
         }),
       }),
       respond: (request) => {
-        if (request.kind === "ping") return PONG;
-        if (request.kind === "update_alert") return { ok: true, kind: "updated", feedUrl: "https://x/a" };
-        return { ok: true, kind: "alerts", alerts: [] };
+        return request.kind === "ping" ? PONG : { ok: true, kind: "updated" };
       },
     });
     await runQueue({ dependencies });
     expect(state.requests.some((request) => request.kind === "update_alert")).toBe(true);
-    expect(state.run.items[0]).toMatchObject({ status: "updated", rssLink: "https://x/a" });
+    expect(state.run.items[0]).toMatchObject({ status: "updated" });
   });
 
   it("records a failed row and keeps going", async () => {
@@ -101,8 +97,7 @@ describe("runQueue", () => {
         if (request.kind === "create_alert" && request.query === "a") {
           return { ok: false, errorName: "X", message: "bad", botCheck: false, layoutChanged: false };
         }
-        if (request.kind === "create_alert") return { ok: true, kind: "created", feedUrl: "u" };
-        return { ok: true, kind: "alerts", alerts: [] };
+        return { ok: true, kind: "created" };
       },
     });
     await runQueue({ dependencies });
@@ -162,7 +157,7 @@ describe("runQueue", () => {
       respond: (request) => {
         if (request.kind === "ping") return PONG;
         state.run = applyRunEvent({ run: state.run, event: { type: "pause", reason: "user" } });
-        return { ok: true, kind: "created", feedUrl: "u" };
+        return { ok: true, kind: "created" };
       },
     });
     await runQueue({ dependencies });
@@ -193,7 +188,7 @@ describe("runQueue", () => {
     const { dependencies, state } = harness({
       initial,
       respond: (request) =>
-        request.kind === "ping" ? PONG : request.kind === "create_alert" ? { ok: true, kind: "created", feedUrl: "u" } : { ok: true, kind: "alerts", alerts: [] },
+        request.kind === "ping" ? PONG : { ok: true, kind: "created" },
     });
     await runQueue({ dependencies });
     expect(state.run.items.map((item) => item.status)).toEqual(["skipped", "created"]);

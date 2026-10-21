@@ -10,14 +10,13 @@ const TEMPLATE_HEADERS: readonly string[] = [
   "sources",
   "language",
   "region",
-  "label",
 ];
 
 const TEMPLATE_ROWS: readonly (readonly string[])[] = [
-  ['"Jane Doe"', "rss", "", "all", "", "", "", "people"],
-  ['"Jane Doe" OR "Jane A. Doe"', "rss", "", "best", "", "", "", "people"],
-  ["solar power kenya", "email", "weekly", "all", "Automatic", "English", "Any Region", "energy"],
-  ['site:example.com "annual report"', "email", "daily", "best", "", "French", "", "reports"],
+  ['"Jane Doe"', "rss", "", "all", "", "", ""],
+  ['"Jane Doe" OR "Jane A. Doe"', "rss", "", "best", "", "", ""],
+  ["solar power kenya", "email", "weekly", "all", "Automatic", "English", "Any Region"],
+  ['site:example.com "annual report"', "email", "daily", "best", "", "French", ""],
 ];
 
 /** Build the template CSV. An empty cell means: use the default from the panel. */

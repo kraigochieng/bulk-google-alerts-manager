@@ -21,9 +21,7 @@ export function buildCreateRun({
       query: entry.row.query.trim(),
       action: entry.action === "update" ? "update" : "create",
       options: resolveOptions({ defaults, overrides: entry.row.overrides }),
-      label: entry.row.label,
       status: entry.action === "skip" ? "skipped" : "pending",
-      rssLink: "",
       errorMessage: "",
     }),
   );
@@ -38,9 +36,7 @@ export function buildDeleteRun({ queries }: { queries: readonly string[] }): Run
       query,
       action: "delete",
       options: null,
-      label: "",
       status: "pending",
-      rssLink: "",
       errorMessage: "",
     }),
   );

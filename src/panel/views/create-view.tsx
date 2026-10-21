@@ -174,7 +174,6 @@ export function CreateView({
               <li><code>how_often</code>: <code>as_it_happens</code>, <code>daily</code> or <code>weekly</code>. RSS always uses as-it-happens.</li>
               <li><code>how_many</code>: <code>all</code> or <code>best</code>.</li>
               <li><code>sources</code>, <code>language</code>, <code>region</code>: the text of the Google dropdown, for example <code>English</code>.</li>
-              <li><code>label</code>: your own note. The extension ignores it.</li>
               <li>An empty cell uses the default from the panel. Column names can differ. You map them after the import.</li>
             </ul>
           </details>

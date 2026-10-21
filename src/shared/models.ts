@@ -27,7 +27,6 @@ export type RowIssue = "empty" | "too_long" | "duplicate_in_file" | "invalid_opt
 export interface ImportRow {
   readonly sourceRowNumber: number;
   readonly query: string;
-  readonly label: string;
   readonly overrides: AlertOptionOverrides;
   readonly issues: readonly RowIssue[];
 }
@@ -37,19 +36,10 @@ export type RowStatus = "pending" | "created" | "updated" | "skipped" | "failed"
 /** What a run does with one item: create an alert, update the alert that has the same query, or delete an alert. */
 export type ItemAction = "create" | "update" | "delete";
 
-/** The result of one row after a run. */
-export interface RowResult {
-  readonly query: string;
-  readonly status: RowStatus;
-  readonly rssLink: string;
-  readonly errorMessage: string;
-}
-
 export type RunKind = "create" | "delete";
 
 export type RunStatus =
   | "idle"
-  | "ready"
   | "running"
   | "paused"
   | "awaiting_captcha"
@@ -62,9 +52,7 @@ export interface RunItem {
   readonly query: string;
   readonly action: ItemAction;
   readonly options: AlertOptions | null;
-  readonly label: string;
   readonly status: RowStatus;
-  readonly rssLink: string;
   readonly errorMessage: string;
 }
 

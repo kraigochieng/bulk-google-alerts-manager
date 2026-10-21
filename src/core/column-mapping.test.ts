@@ -16,21 +16,20 @@ describe("guessMapping", () => {
 describe("buildImportRows", () => {
   const table = parseCsv({
     text: [
-      "topic,delivery,often,howmany,lang,label",
-      '"""Jane Doe"" OR ""Jane A. Doe""",email,weekly,best,French,people',
-      ",rss,,,,",
-      "plain,fax,,,,",
-      "plain,,,,,",
+      "topic,delivery,often,howmany,lang",
+      '"""Jane Doe"" OR ""Jane A. Doe""",email,weekly,best,French',
+      ",rss,,,",
+      "plain,fax,,,",
+      "plain,,,,",
     ].join("\n"),
   });
   const mapping = guessMapping({ headers: table.headers });
   const rows = buildImportRows({ table, mapping, maximumQueryLength: 100 });
 
-  it("reads options and label of a full row", () => {
+  it("reads the options of a full row", () => {
     expect(rows[0]).toMatchObject({
       sourceRowNumber: 2,
       query: '"Jane Doe" OR "Jane A. Doe"',
-      label: "people",
       overrides: { deliverTo: "email", howOften: "weekly", howMany: "best", language: "French" },
       issues: [],
     });

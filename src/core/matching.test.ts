@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { compareQueries, findExactAlert, findMatches } from "src/core/matching";
+import { compareQueries, findMatches } from "src/core/matching";
 import type { LiveAlert } from "src/shared/models";
 
 describe("compareQueries", () => {
@@ -50,13 +50,5 @@ describe("findMatches", () => {
 
   it("returns an empty list when nothing is alike", () => {
     expect(findMatches({ query: "tea prices", liveAlerts })).toEqual([]);
-  });
-});
-
-describe("findExactAlert", () => {
-  it("finds the alert or returns null", () => {
-    const liveAlerts: LiveAlert[] = [{ query: "Wind  Energy", feedUrl: "u" }];
-    expect(findExactAlert({ query: "wind energy", liveAlerts })?.feedUrl).toBe("u");
-    expect(findExactAlert({ query: "other", liveAlerts })).toBeNull();
   });
 });

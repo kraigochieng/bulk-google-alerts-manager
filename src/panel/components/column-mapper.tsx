@@ -8,7 +8,6 @@ import type { SelectChoice } from "src/panel/ui/select";
 
 const FIELD_LABELS: Record<ImportField, string> = {
   query: "Query (required)",
-  label: "Label",
   deliverTo: "Deliver to (rss or email)",
   howOften: "How often",
   sources: "Sources",

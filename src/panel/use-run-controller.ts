@@ -93,10 +93,6 @@ export function useRunController(): RunController {
     const status = runReference.current?.status;
     if (status === "awaiting_captcha") send({ type: "captcha_cleared" });
     else if (status === "paused") send({ type: "resume" });
-    else if (status === "completed" || status === "cancelled") {
-      send({ type: "retry_failed" });
-      send({ type: "start" });
-    } else if (status === "ready") send({ type: "start" });
     startLoop();
   }, [send, startLoop]);
 

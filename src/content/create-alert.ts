@@ -109,7 +109,7 @@ export async function applyOptions({ options }: { options: AlertOptions }): Prom
 }
 
 /**
- * Create one alert on the page and return its feed link (null for email).
+ * Create one alert on the page.
  * Side effect: drives the Alerts page. Reads the query box back before it submits.
  */
 export async function createAlert({
@@ -118,7 +118,7 @@ export async function createAlert({
 }: {
   query: string;
   options: AlertOptions;
-}): Promise<string | null> {
+}): Promise<void> {
   throwIfBotCheck();
   await resetFormIfNeeded();
   const rowsBefore: Set<HTMLElement> = new Set(
@@ -141,7 +141,7 @@ export async function createAlert({
   });
   syntheticClick({ element: createButton });
   const normalisedQuery: string = normaliseQuery({ query });
-  const newRow: AlertRowElement = await waitFor<AlertRowElement>({
+  await waitFor<AlertRowElement>({
     find: () => {
       throwIfBotCheck();
       return (
@@ -154,5 +154,4 @@ export async function createAlert({
     timeoutMilliseconds: TIMING.alertAppearTimeoutMilliseconds,
     onTimeout: () => new AlertListTimeoutError({ query, expectation: "appear" }),
   });
-  return newRow.alert.feedUrl;
 }

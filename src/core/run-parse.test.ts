@@ -7,7 +7,7 @@ import { parseRunSnapshot } from "src/core/run-parse";
 describe("parseRunSnapshot", () => {
   it("round-trips a create run through JSON", () => {
     const run = buildCreateRun({
-      entries: [{ row: { sourceRowNumber: 2, query: "a", label: "x", overrides: {}, issues: [] }, action: "create" }],
+      entries: [{ row: { sourceRowNumber: 2, query: "a", overrides: {}, issues: [] }, action: "create" }],
       defaults: DEFAULT_ALERT_OPTIONS,
     });
     expect(parseRunSnapshot({ value: JSON.parse(JSON.stringify(run)) })).toEqual(run);
@@ -20,16 +20,16 @@ describe("parseRunSnapshot", () => {
 
   it("round-trips an update item", () => {
     const run = buildCreateRun({
-      entries: [{ row: { sourceRowNumber: 2, query: "a", label: "", overrides: {}, issues: [] }, action: "update" }],
+      entries: [{ row: { sourceRowNumber: 2, query: "a", overrides: {}, issues: [] }, action: "update" }],
       defaults: DEFAULT_ALERT_OPTIONS,
     });
     expect(parseRunSnapshot({ value: JSON.parse(JSON.stringify(run)) })).toEqual(run);
   });
 
   it("gives an item saved without an action the action of its run kind", () => {
-    const saved = { id: 0, query: "a", label: "", status: "pending", rssLink: "", errorMessage: "", options: null };
-    expect(parseRunSnapshot({ value: { kind: "delete", status: "ready", notice: "", items: [saved] } })?.items[0]?.action).toBe("delete");
-    expect(parseRunSnapshot({ value: { kind: "create", status: "ready", notice: "", items: [saved] } })?.items[0]?.action).toBe("create");
+    const saved = { id: 0, query: "a", status: "pending", errorMessage: "", options: null };
+    expect(parseRunSnapshot({ value: { kind: "delete", status: "paused", notice: "", items: [saved] } })?.items[0]?.action).toBe("delete");
+    expect(parseRunSnapshot({ value: { kind: "create", status: "paused", notice: "", items: [saved] } })?.items[0]?.action).toBe("create");
   });
 
   it.each([

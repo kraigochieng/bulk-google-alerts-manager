@@ -47,9 +47,9 @@ It reads and stores no password. See [docs/privacy-policy.md](docs/privacy-polic
 The Add tab reads a header row and the data rows. One column holds the queries. Other columns are optional.
 
 ```csv
-query,deliver_to,how_often,how_many,language,region,label
-"""Jane Doe"" OR ""Jane A. Doe""",rss,,all,,,people
-solar power kenya,email,weekly,best,English,Any Region,energy
+query,deliver_to,how_often,how_many,language,region
+"""Jane Doe"" OR ""Jane A. Doe""",rss,,all,,
+solar power kenya,email,weekly,best,English,Any Region
 ```
 
 See `fixtures/sample-queries.csv` for a larger example.
