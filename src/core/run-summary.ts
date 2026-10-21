@@ -1,22 +1,37 @@
 import { countByStatus } from "src/core/run-machine";
-import type { RunSnapshot, RunStatus } from "src/shared/models";
+import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 /** The text of the dialog that tells the user how a run ended. */
 export interface RunSummary {
   readonly title: string;
   readonly lines: readonly string[];
+  readonly details: readonly string[];
   readonly hasFailures: boolean;
+}
+
+/** How many failed rows the result dialog names before it shows the count of the rest. */
+const FAILURE_DETAIL_LIMIT: number = 5;
+
+function failureDetails({ run }: { run: RunSnapshot }): string[] {
+  const failed: RunItem[] = run.items.filter((item: RunItem) => item.status === "failed");
+  const shown: string[] = failed
+    .slice(0, FAILURE_DETAIL_LIMIT)
+    .map((item: RunItem) => (item.errorMessage === "" ? item.query : `${item.query}: ${item.errorMessage}`));
+  return failed.length > FAILURE_DETAIL_LIMIT
+    ? [...shown, `...and ${String(failed.length - FAILURE_DETAIL_LIMIT)} more`]
+    : shown;
 }
 
 const ACTIVE_STATUSES: readonly RunStatus[] = ["running", "paused", "awaiting_captcha"];
 
 /** Decide whether a run has just ended: it was active and it is now completed or cancelled. */
 export function runJustEnded({ previous, current }: { previous: RunStatus | null; current: RunStatus }): boolean {
-  return (
-    previous !== null &&
-    ACTIVE_STATUSES.includes(previous) &&
-    (current === "completed" || current === "cancelled")
-  );
+  return previous !== null && ACTIVE_STATUSES.includes(previous) && runIsFinished({ status: current });
+}
+
+/** Decide whether a run has ended: it is completed or cancelled. The result dialog shows for an ended run. */
+export function runIsFinished({ status }: { status: RunStatus }): boolean {
+  return status === "completed" || status === "cancelled";
 }
 
 /** Build the title and the count lines of a finished run. A count of 0 gets no line. */
@@ -45,6 +60,7 @@ export function buildRunSummary({ run }: { run: RunSnapshot }): RunSummary {
   return {
     title: cancelled ? `${kindText} was cancelled` : `${kindText} is complete`,
     lines: lines.length === 0 ? ["No row ran."] : lines,
+    details: failureDetails({ run }),
     hasFailures: counts.failed > 0,
   };
 }

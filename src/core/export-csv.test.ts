@@ -20,7 +20,7 @@ const entries: readonly ExportEntry[] = [
 describe("buildExportCsv", () => {
   it("writes one row per alert under the import column names", () => {
     const table = parseCsv({ text: buildExportCsv({ entries }) });
-    expect(table.headers).toEqual(["query", "deliver_to", "how_often", "how_many", "sources", "language", "region"]);
+    expect(table.headers).toEqual(["query", "deliver_to", "how_often", "how_many", "sources", "language", "region", "rss_link"]);
     expect(table.records).toHaveLength(3);
   });
 
@@ -35,8 +35,14 @@ describe("buildExportCsv", () => {
     expect(rows[1]?.overrides.howOften).toBe("weekly");
   });
 
+  it("writes the feed link of an RSS alert and leaves it empty for an email alert", () => {
+    const table = parseCsv({ text: buildExportCsv({ entries }) });
+    expect(table.records[0]?.[7]).toBe("https://www.google.com/alerts/feeds/1/2");
+    expect(table.records[1]?.[7]).toBe("");
+  });
+
   it("leaves option cells empty when the options are unread", () => {
     const table = parseCsv({ text: buildExportCsv({ entries }) });
-    expect(table.records[2]).toEqual(["unread", "email", "", "", "", "", ""]);
+    expect(table.records[2]).toEqual(["unread", "email", "", "", "", "", "", ""]);
   });
 });
