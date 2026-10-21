@@ -114,7 +114,7 @@ export function DataTable<Row, Key extends string | number>({
                     aria-label="Select all matching rows"
                     checked={allSelected}
                     onCheckedChange={(checked) => {
-                      selection.onToggleMany(selectableKeys, checked === true);
+                      selection.onToggleMany(selectableKeys, checked);
                     }}
                   />
                 </TableHead>
@@ -149,7 +149,7 @@ export function DataTable<Row, Key extends string | number>({
                         disabled={!selection.isSelectable(key)}
                         checked={selection.selected.has(key)}
                         onCheckedChange={(checked) => {
-                          selection.onToggleMany([key], checked === true);
+                          selection.onToggleMany([key], checked);
                         }}
                       />
                     </TableCell>

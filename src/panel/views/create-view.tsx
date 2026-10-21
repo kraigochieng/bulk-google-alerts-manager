@@ -310,7 +310,7 @@ export function CreateView({
             <Checkbox
               id="notice-read"
               checked={acknowledged}
-              onCheckedChange={(checked) => { setAcknowledged(checked === true); }}
+              onCheckedChange={(checked) => { setAcknowledged(checked); }}
             />
             <Label htmlFor="notice-read" className="text-xs">I have read this notice.</Label>
           </div>

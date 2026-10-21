@@ -1,31 +1,31 @@
-"use client"
+import { useRef } from "react";
+import type { JSX } from "react";
+import { MdCheckbox } from "@material/web/checkbox/checkbox.js";
 
-import * as React from "react"
-import { cn } from "src/panel/lib/utils"
-import { CheckIcon } from "lucide-react"
-import { Checkbox as CheckboxPrimitive } from "radix-ui"
+import "src/panel/material-elements";
+import { useElementEvent } from "src/panel/ui/use-element-event";
 
-function Checkbox({
-  className,
-  ...props
-}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {
-  return (
-    <CheckboxPrimitive.Root
-      data-slot="checkbox"
-      className={cn(
-        "peer size-4 shrink-0 rounded-[4px] border border-input shadow-xs transition-shadow outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:bg-input/30 dark:aria-invalid:ring-destructive/40 dark:data-[state=checked]:bg-primary",
-        className
-      )}
-      {...props}
-    >
-      <CheckboxPrimitive.Indicator
-        data-slot="checkbox-indicator"
-        className="grid place-content-center text-current transition-none"
-      >
-        <CheckIcon className="size-3.5" />
-      </CheckboxPrimitive.Indicator>
-    </CheckboxPrimitive.Root>
-  )
+/** Render a Material Web checkbox. It reports the new checked state. */
+export function Checkbox({
+  checked,
+  onCheckedChange,
+  disabled = false,
+  id,
+  ...rest
+}: {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  id?: string;
+  "aria-label"?: string;
+}): JSX.Element {
+  const checkboxRef = useRef<HTMLElement | null>(null);
+  useElementEvent({
+    elementRef: checkboxRef,
+    eventName: "change",
+    handler: (event: Event) => {
+      if (event.target instanceof MdCheckbox) onCheckedChange(event.target.checked);
+    },
+  });
+  return <md-checkbox ref={checkboxRef} checked={checked} disabled={disabled} id={id} {...rest} />;
 }
-
-export { Checkbox }

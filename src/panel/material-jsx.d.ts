@@ -29,6 +29,11 @@ interface MaterialSelectOptionAttributes extends HTMLAttributes<HTMLElement> {
   selected?: boolean;
 }
 
+interface MaterialCheckboxAttributes extends HTMLAttributes<HTMLElement> {
+  checked?: boolean;
+  disabled?: boolean;
+}
+
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
@@ -40,6 +45,7 @@ declare module "react" {
       "md-outlined-text-field": DetailedHTMLProps<MaterialTextFieldAttributes, HTMLElement>;
       "md-outlined-select": DetailedHTMLProps<MaterialSelectAttributes, HTMLElement>;
       "md-select-option": DetailedHTMLProps<MaterialSelectOptionAttributes, HTMLElement>;
+      "md-checkbox": DetailedHTMLProps<MaterialCheckboxAttributes, HTMLElement>;
       "md-linear-progress": DetailedHTMLProps<MaterialProgressAttributes, HTMLElement>;
     }
   }
