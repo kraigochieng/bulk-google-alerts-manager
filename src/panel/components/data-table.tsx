@@ -7,8 +7,8 @@ import type { SortDirection, TableSchema, TableState } from "src/core/table-stat
 import type { HistoryMode } from "src/panel/use-table-url-state";
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
-import { Input } from "src/panel/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { TextField } from "src/panel/ui/text-field";
+import { Select } from "src/panel/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "src/panel/ui/table";
 
 export interface RowSelection<Key extends string | number> {
@@ -65,15 +65,15 @@ export function DataTable<Row, Key extends string | number>({
     <div className="mt-2">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-32 flex-1">
-          <Input
+          <TextField
             type="search"
             aria-label="Search the table"
             placeholder="Search"
             value={state.search}
-            onChange={(event) => {
-              change({ search: event.target.value, page: 0 }, "replace");
+            onValueChange={(search: string) => {
+              change({ search, page: 0 }, "replace");
             }}
-            className="h-8 pr-8 text-sm"
+            className="w-full"
           />
           {state.search !== "" && (
             <Button
@@ -95,18 +95,10 @@ export function DataTable<Row, Key extends string | number>({
           onValueChange={(value: string) => {
             change({ filter: value, page: 0 }, "replace");
           }}
-        >
-          <SelectTrigger className="h-8 w-40 text-xs" aria-label="Filter the table">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {schema.filters.map((filter: string) => (
-              <SelectItem key={filter} value={filter}>
-                {filterLabels[filter] ?? filter}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          aria-label="Filter the table"
+          className="w-40"
+          choices={schema.filters.map((filter: string) => ({ value: filter, label: filterLabels[filter] ?? filter }))}
+        />
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
         {String(page.totalMatching)} of {String(rows.length)} rows
@@ -122,7 +114,7 @@ export function DataTable<Row, Key extends string | number>({
                     aria-label="Select all matching rows"
                     checked={allSelected}
                     onCheckedChange={(checked) => {
-                      selection.onToggleMany(selectableKeys, checked === true);
+                      selection.onToggleMany(selectableKeys, checked);
                     }}
                   />
                 </TableHead>
@@ -157,7 +149,7 @@ export function DataTable<Row, Key extends string | number>({
                         disabled={!selection.isSelectable(key)}
                         checked={selection.selected.has(key)}
                         onCheckedChange={(checked) => {
-                          selection.onToggleMany([key], checked === true);
+                          selection.onToggleMany([key], checked);
                         }}
                       />
                     </TableCell>

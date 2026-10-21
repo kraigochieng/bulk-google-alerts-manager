@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 @source "../";
 
 @custom-variant dark (&:is(.dark *));
@@ -26,6 +25,28 @@
   --ring: #1a73e8;
   --warning: #f9ab00;
   --success: #188038;
+
+  /* Material Web color roles, set to the Google palette. */
+  --md-sys-color-primary: #1a73e8;
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #e8f0fe;
+  --md-sys-color-on-primary-container: #174ea6;
+  --md-sys-color-secondary-container: #e8f0fe;
+  --md-sys-color-on-secondary-container: #174ea6;
+  --md-sys-color-surface: #ffffff;
+  --md-sys-color-surface-container: #ffffff;
+  --md-sys-color-surface-container-high: #ffffff;
+  --md-sys-color-surface-container-highest: #f1f3f4;
+  --md-sys-color-on-surface: #202124;
+  --md-sys-color-on-surface-variant: #5f6368;
+  --md-sys-color-outline: #80868b;
+  --md-sys-color-outline-variant: #dadce0;
+  --md-sys-color-error: #d93025;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-ref-typeface-brand: Roboto, "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --md-ref-typeface-plain: var(--md-ref-typeface-brand);
 }
 
 @theme inline {
@@ -63,4 +84,74 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Compact Material buttons for the side panel. */
+.app-button[data-size="sm"] {
+  --md-filled-button-container-height: 32px;
+  --md-filled-tonal-button-container-height: 32px;
+  --md-outlined-button-container-height: 32px;
+  --md-text-button-container-height: 32px;
+  --md-filled-button-label-text-size: 0.8125rem;
+  --md-outlined-button-label-text-size: 0.8125rem;
+  --md-text-button-label-text-size: 0.8125rem;
+}
+
+.app-button[data-size="icon"] {
+  --md-icon-button-icon-size: 16px;
+}
+
+.app-button[data-variant="destructive"] {
+  --md-filled-button-container-color: var(--md-sys-color-error);
+  --md-filled-button-label-text-color: var(--md-sys-color-on-error);
+  --md-filled-button-hover-label-text-color: var(--md-sys-color-on-error);
+  --md-filled-button-focus-label-text-color: var(--md-sys-color-on-error);
+  --md-filled-button-pressed-label-text-color: var(--md-sys-color-on-error);
+}
+
+.app-button[data-variant="link"] {
+  text-decoration: underline;
+}
+
+/* Compact fields for the side panel. */
+md-outlined-text-field {
+  --md-outlined-field-top-space: 8px;
+  --md-outlined-field-bottom-space: 8px;
+  --md-outlined-text-field-input-text-size: 0.875rem;
+}
+
+md-outlined-select {
+  --md-outlined-select-text-field-top-space: 8px;
+  --md-outlined-select-text-field-bottom-space: 8px;
+  --md-outlined-select-text-field-input-text-size: 0.875rem;
+}
+
+input[type="file"] {
+  font-size: 0.75rem;
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+input[type="file"]::file-selector-button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--md-sys-color-primary);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/*
+ * The Tailwind reset sets padding to 0 on every element. That overrides the :host padding of the Material buttons.
+ * Restore the padding from the tokens that each button defines.
+ */
+md-filled-button,
+md-filled-tonal-button,
+md-outlined-button,
+md-text-button {
+  padding-block: calc((var(--_container-height) - max(var(--_label-text-line-height), var(--_icon-size))) / 2);
+  padding-inline-start: var(--_leading-space);
+  padding-inline-end: var(--_trailing-space);
 }

@@ -1,30 +1,16 @@
-"use client"
+import type { JSX } from "react";
 
-import * as React from "react"
-import { cn } from "src/panel/lib/utils"
-import { Progress as ProgressPrimitive } from "radix-ui"
+import "src/panel/material-elements";
 
-function Progress({
-  className,
+/** Render a Material Web linear progress bar. The value runs from 0 to 100. */
+export function Progress({
   value,
-  ...props
-}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
-  return (
-    <ProgressPrimitive.Root
-      data-slot="progress"
-      className={cn(
-        "relative h-2 w-full overflow-hidden rounded-full bg-primary/20",
-        className
-      )}
-      {...props}
-    >
-      <ProgressPrimitive.Indicator
-        data-slot="progress-indicator"
-        className="h-full w-full flex-1 bg-primary transition-all"
-        style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
-      />
-    </ProgressPrimitive.Root>
-  )
+  className,
+  ...rest
+}: {
+  value: number;
+  className?: string;
+  "aria-label"?: string;
+}): JSX.Element {
+  return <md-linear-progress value={Math.min(Math.max(value, 0), 100) / 100} className={className} {...rest} />;
 }
-
-export { Progress }

@@ -4,9 +4,9 @@ import type { JSX } from "react";
 import type { Settings } from "src/core/settings";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { Button } from "src/panel/ui/button";
-import { Input } from "src/panel/ui/input";
+import { TextField } from "src/panel/ui/text-field";
 import { Label } from "src/panel/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { Select } from "src/panel/ui/select";
 import type { DeliverTo, HowMany, HowOften } from "src/shared/models";
 
 const STATUS_TEXT: Record<SaveStatus, string> = {
@@ -31,13 +31,12 @@ function ClearableText({
     <div className="space-y-1">
       <Label className="text-xs">{label}</Label>
       <div className="relative">
-        <Input
-          type="text"
+        <TextField
           aria-label={label}
           value={value}
           disabled={disabled}
-          onChange={(event) => { onChange(event.target.value); }}
-          className="h-8 pr-7 text-sm"
+          onValueChange={onChange}
+          className="w-full"
         />
         {value !== "" && !disabled && (
           <Button
@@ -72,18 +71,14 @@ function OptionSelect({
   return (
     <div className="space-y-1">
       <Label className="text-xs">{label}</Label>
-      <Select value={value} disabled={disabled} onValueChange={onChange}>
-        <SelectTrigger className="h-8 w-full text-sm" aria-label={label}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map(([optionValue, optionLabel]) => (
-            <SelectItem key={optionValue} value={optionValue}>
-              {optionLabel}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Select
+        value={value}
+        disabled={disabled}
+        onValueChange={onChange}
+        aria-label={label}
+        className="w-full"
+        choices={options.map(([optionValue, optionLabel]) => ({ value: optionValue, label: optionLabel }))}
+      />
     </div>
   );
 }

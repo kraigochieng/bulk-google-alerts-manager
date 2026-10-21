@@ -22,7 +22,7 @@ import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
 import { Input } from "src/panel/ui/input";
 import { Label } from "src/panel/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { Select } from "src/panel/ui/select";
 import { ColumnMapper } from "src/panel/components/column-mapper";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -202,14 +202,13 @@ export function CreateView({
             Download template CSV
           </Button>
           <Input
-            type="file"
             accept=".csv,text/csv"
             aria-label="Choose a CSV file"
             onChange={(event) => {
               const file: File | undefined = event.target.files?.[0];
               if (file !== undefined) void importFile(file);
             }}
-            className="mt-1 h-8 text-xs"
+            className="mt-1 text-xs"
           />
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
           {csvTable !== null && mapping !== null && (
@@ -259,15 +258,13 @@ export function CreateView({
                       onValueChange={(value: string) => {
                         setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: value as RowAction });
                       }}
-                    >
-                      <SelectTrigger size="sm" className="mt-0.5 h-7 text-xs" aria-label={`Action for row ${String(row.sourceRowNumber)}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="skip">Skip this row</SelectItem>
-                        <SelectItem value="create">Create anyway</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      aria-label={`Action for row ${String(row.sourceRowNumber)}`}
+                      className="mt-0.5 w-full"
+                      choices={[
+                        { value: "skip", label: "Skip this row" },
+                        { value: "create", label: "Create anyway" },
+                      ]}
+                    />
                   )}
                 </div>
               );
@@ -313,7 +310,7 @@ export function CreateView({
             <Checkbox
               id="notice-read"
               checked={acknowledged}
-              onCheckedChange={(checked) => { setAcknowledged(checked === true); }}
+              onCheckedChange={(checked) => { setAcknowledged(checked); }}
             />
             <Label htmlFor="notice-read" className="text-xs">I have read this notice.</Label>
           </div>

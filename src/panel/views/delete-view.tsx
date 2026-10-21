@@ -13,6 +13,7 @@ import { X } from "lucide-react";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { Input } from "src/panel/ui/input";
+import { TextField } from "src/panel/ui/text-field";
 import { Label } from "src/panel/ui/label";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -118,14 +119,13 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 <Label htmlFor="queries-csv" className="text-xs">Select alerts by a CSV file of queries</Label>
                 <Input
                   id="queries-csv"
-                  type="file"
                   accept=".csv,text/csv"
                   aria-label="Choose a CSV file of queries to select"
                   onChange={(event) => {
                     const file: File | undefined = event.target.files?.[0];
                     if (file !== undefined) void importQueries(file);
                   }}
-                  className="h-8 text-xs"
+                  className="text-xs"
                 />
               </div>
               {matchReport !== "" && <p className="mt-1 text-xs">{matchReport}</p>}
@@ -192,12 +192,11 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                   Type {deleteConfirmationText({ count: selectedEntries.length })} to confirm
                 </Label>
                 <div className="relative">
-                  <Input
+                  <TextField
                     id="delete-confirmation"
-                    type="text"
                     value={typedText}
-                    onChange={(event) => { setTypedText(event.target.value); }}
-                    className="h-8 pr-8 text-sm"
+                    onValueChange={setTypedText}
+                    className="w-full"
                   />
                   {typedText !== "" && (
                     <Button type="button" variant="ghost" size="icon" aria-label="Clear confirmation text" onClick={() => { setTypedText(""); }} className="absolute right-0 top-0 size-8">
