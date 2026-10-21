@@ -1,22 +1,24 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 
 import { countByStatus } from "src/core/run-machine";
+import { buildRunSummary, runJustEnded } from "src/core/run-summary";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema, TableState } from "src/core/table-state";
 import { Banner } from "src/panel/components/banner";
 import { ConfirmDialog } from "src/panel/components/confirm-dialog";
+import { RunResultDialog } from "src/panel/components/run-result-dialog";
 import { DataTable } from "src/panel/components/data-table";
 import { Badge } from "src/panel/ui/badge";
 import { Button } from "src/panel/ui/button";
 import { Progress } from "src/panel/ui/progress";
 import type { HistoryMode } from "src/panel/use-table-url-state";
-import type { RunItem, RunSnapshot } from "src/shared/models";
+import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 export const RUN_TABLE_SCHEMA: TableSchema = {
   prefix: "run",
   sortKeys: ["number", "query", "status"],
-  filters: ["all", "pending", "created", "deleted", "skipped", "failed"],
+  filters: ["all", "pending", "created", "updated", "deleted", "skipped", "failed"],
   defaultState: { search: "", sortKey: "number", sortDirection: "asc", page: 0, filter: "all" },
 };
 
@@ -30,6 +32,7 @@ const FILTERS: Record<string, (item: RunItem) => boolean> = {
   all: () => true,
   pending: (item) => item.status === "pending",
   created: (item) => item.status === "created",
+  updated: (item) => item.status === "updated",
   deleted: (item) => item.status === "deleted",
   skipped: (item) => item.status === "skipped",
   failed: (item) => item.status === "failed",
@@ -45,7 +48,7 @@ const STATUS_TEXT: Record<RunSnapshot["status"], string> = {
   cancelled: "Cancelled",
 };
 
-/** Render the progress, notices, controls and result table of a run. Pure: actions come as props. */
+/** Render the progress, notices, controls and result table of a run. It opens a result dialog when the run ends. Actions come as props. */
 export function RunPanel({
   run,
   onPause,
@@ -68,6 +71,12 @@ export function RunPanel({
   onTableStateChange: (next: TableState, options: { history: HistoryMode }) => void;
 }): JSX.Element {
   const [confirmingCancel, setConfirmingCancel] = useState<boolean>(false);
+  const [showingResult, setShowingResult] = useState<boolean>(false);
+  const previousStatus = useRef<RunStatus | null>(null);
+  useEffect(() => {
+    if (runJustEnded({ previous: previousStatus.current, current: run.status })) setShowingResult(true);
+    previousStatus.current = run.status;
+  }, [run.status]);
   const counts = countByStatus({ run });
   const total: number = run.items.length;
   const finished: number = total - counts.pending;
@@ -110,6 +119,13 @@ export function RunPanel({
           <Button type="button" variant="outline" size="sm" onClick={onClose}>Close results</Button>
         )}
       </div>
+      <RunResultDialog
+        open={showingResult}
+        summary={buildRunSummary({ run })}
+        onClose={() => {
+          setShowingResult(false);
+        }}
+      />
       <ConfirmDialog
         open={confirmingCancel}
         title={`Cancel this ${isCreate ? "create" : "delete"} run?`}
