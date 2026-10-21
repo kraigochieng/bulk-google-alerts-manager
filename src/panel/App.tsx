@@ -8,6 +8,8 @@ import { AccountUsage } from "src/panel/components/account-usage";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { Tabs } from "src/panel/ui/tabs";
+import { chooseScreen } from "src/core/screen-state";
+import { NoAlertsTabScreen } from "src/panel/components/no-alerts-tab-screen";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { SettingsForm } from "src/panel/components/settings-form";
 import { openAlertsTab } from "src/panel/chrome-bridge";
@@ -15,6 +17,7 @@ import { useAlertsTabStatus } from "src/panel/use-alerts-tab-status";
 import { useAutosave } from "src/panel/use-autosave";
 import { useLiveAlerts } from "src/panel/use-live-alerts";
 import { useRunController } from "src/panel/use-run-controller";
+import type { ScreenName } from "src/core/screen-state";
 import { switchViewParameters, readView } from "src/core/view-state";
 import type { ViewName } from "src/core/view-state";
 import { ExportView } from "src/panel/views/export-view";
@@ -66,7 +69,12 @@ export function App(): JSX.Element {
   if (!settingsLoaded || !controller.loaded) {
     return <main className="p-4 text-sm">Loading…</main>;
   }
-  if (!settings.risksAccepted) {
+  const screen: ScreenName = chooseScreen({
+    risksAccepted: settings.risksAccepted,
+    tabMissing: tabStatus === "no_tab",
+    hasRun: controller.run !== null,
+  });
+  if (screen === "first_run") {
     return (
       <FirstRunScreen
         onAccept={() => {
@@ -76,6 +84,9 @@ export function App(): JSX.Element {
         }}
       />
     );
+  }
+  if (screen === "no_alerts_tab") {
+    return <NoAlertsTabScreen onOpen={() => { void openAlertsTab(); }} />;
   }
 
   const runActive: boolean =
