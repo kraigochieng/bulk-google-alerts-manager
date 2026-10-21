@@ -61,3 +61,7 @@ Values for sources, language, and region must match the text in the Google dropd
 - All page selectors and timing constants are in `src/content/selectors.ts`. A layout change is a fix in that file.
 - Notes on the page driver: [docs/spike-findings.md](docs/spike-findings.md).
 - Manual test steps: [docs/manual-test-checklist.md](docs/manual-test-checklist.md).
+
+## License
+
+[MIT](LICENSE). Copyright (c) 2026 Kraig Ochieng. The Google Sans font files come from `@fontsource-variable/google-sans` under the OFL-1.1.
