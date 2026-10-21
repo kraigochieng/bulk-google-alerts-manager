@@ -1,9 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { JSX } from "react";
 
-import { guessMapping } from "src/core/column-mapping";
-import { parseCsv } from "src/core/csv";
-import { normaliseQuery } from "src/core/query-normaliser";
 import { deleteResultCsv } from "src/core/result-csv";
 import { buildDeleteRun } from "src/core/run-builders";
 import { buildDeleteConfirmationMessage } from "src/core/delete-confirmation";
@@ -12,8 +9,6 @@ import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
-import { FileDropzone } from "src/panel/ui/file-dropzone";
-import { Label } from "src/panel/ui/label";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
 import { downloadTextFile } from "src/panel/chrome-bridge";
@@ -44,14 +39,11 @@ export function DeleteView({ controller, live }: { controller: RunController; li
     [live.alerts],
   );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
-  const [matchReport, setMatchReport] = useState<string>("");
-  const [queriesFileName, setQueriesFileName] = useState<string>("");
   const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
   const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
 
   useEffect(() => {
     setSelected(new Set());
-    setMatchReport("");
   }, [live.alerts]);
 
   const selectedEntries: readonly AlertEntry[] = useMemo(
@@ -63,22 +55,6 @@ export function DeleteView({ controller, live }: { controller: RunController; li
   const columns: readonly TableColumn<AlertEntry>[] = [
     { key: "query", label: "Query", sortValue: (entry) => entry.alert.query.toLowerCase(), searchText: (entry) => entry.alert.query },
   ];
-
-  const importQueries = async (file: File): Promise<void> => {
-    if (entries === null) return;
-    try {
-      const table = parseCsv({ text: await file.text() });
-      const queryColumn: number = guessMapping({ headers: table.headers }).query ?? 0;
-      const wanted: Set<string> = new Set(
-        table.records.map((record: readonly string[]) => normaliseQuery({ query: record[queryColumn] ?? "" })).filter((query: string) => query !== ""),
-      );
-      const matched: AlertEntry[] = entries.filter((entry: AlertEntry) => wanted.has(normaliseQuery({ query: entry.alert.query })));
-      setSelected(new Set(matched.map((entry: AlertEntry) => entry.index)));
-        setMatchReport(`${String(matched.length)} alerts match. ${String(wanted.size - new Set(matched.map((entry: AlertEntry) => normaliseQuery({ query: entry.alert.query }))).size)} queries in the file match no alert.`);
-    } catch (error: unknown) {
-      setMatchReport(error instanceof Error ? error.message : "The file could not be read.");
-    }
-  };
 
   const run = controller.run;
   if (run !== null && run.kind !== "delete") {
@@ -102,25 +78,10 @@ export function DeleteView({ controller, live }: { controller: RunController; li
         />
       )}
       {!runActive && run === null && (
-        <section aria-label="Alerts">
-          <h2 className="mt-5 text-sm font-semibold">1. Your alerts</h2>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <Button type="button" variant="outline" size="sm" onClick={live.refresh}>Read my alerts again</Button>
-            {entries !== null && <span>{String(entries.length)} alerts in your account.</span>}
-          </div>
-                    {entries === null && live.error === "" && <Banner tone="info">Reading your alerts…</Banner>}
+        <section aria-label="Alerts" className="mt-3">
+          {entries === null && live.error === "" && <Banner tone="info">Reading your alerts…</Banner>}
           {entries !== null && (
             <>
-              <div className="mt-2 space-y-1">
-                <Label htmlFor="queries-csv" className="text-xs">Select alerts by a CSV file of queries</Label>
-                <FileDropzone
-                  id="queries-csv"
-                  label="Choose a CSV file of queries to select"
-                  chosenFileName={queriesFileName}
-                  onFile={(file: File) => { setQueriesFileName(file.name); void importQueries(file); }}
-                />
-              </div>
-              {matchReport !== "" && <p className="mt-1 text-xs">{matchReport}</p>}
               <DataTable<AlertEntry, number>
                 rows={entries}
                 columns={columns}
@@ -141,20 +102,15 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                       else next.delete(key);
                     }
                     setSelected(next);
-                                  },
+                  },
                 }}
                 emptyMessage="No alerts match."
               />
-              <h2 className="mt-5 text-sm font-semibold">2. Delete</h2>
-              <Banner tone="error">
-                {String(selectedEntries.length)} alerts will be deleted permanently. The extension cannot undo this. Use the Export tab first to keep a copy.
-              </Banner>
-              {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
-              <p className="mt-1 text-xs text-muted-foreground">Keep the Alerts tab open and in the foreground during the run. Google can slow the run or show a bot check. The run then stops and asks you to solve it.</p>
               <Button
                 type="button"
                 variant="destructive"
-                className="mt-2"
+                fullWidth
+                className="mt-3"
                 disabled={!gate.allowed}
                 onClick={() => {
                   const queries: string[] = selectedEntries.map((entry: AlertEntry) => entry.alert.query);
@@ -163,7 +119,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                   }
                 }}
               >
-                Delete {String(selectedEntries.length)} alerts permanently
+                Delete {String(selectedEntries.length)} alerts
               </Button>
             </>
           )}

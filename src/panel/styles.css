@@ -164,3 +164,28 @@ md-dialog [slot="actions"] {
   justify-content: flex-end;
   padding: 16px 24px 24px;
 }
+
+/* A full width button fills the line. */
+.app-button-block {
+  display: flex;
+  width: 100%;
+}
+
+/* A thick, rounded usage bar. The tone changes its color near the limit. */
+md-linear-progress {
+  --md-linear-progress-track-height: 8px;
+  --md-linear-progress-active-indicator-height: 8px;
+  --md-linear-progress-track-shape: 4px;
+  --md-linear-progress-active-indicator-color: var(--md-sys-color-primary);
+  --md-linear-progress-track-color: var(--md-sys-color-secondary-container);
+}
+
+md-linear-progress[data-tone="warning"] {
+  --md-linear-progress-active-indicator-color: #f9ab00;
+  --md-linear-progress-track-color: #fef7e0;
+}
+
+md-linear-progress[data-tone="error"] {
+  --md-linear-progress-active-indicator-color: var(--md-sys-color-error);
+  --md-linear-progress-track-color: #fce8e6;
+}

@@ -199,11 +199,12 @@ export function CreateView({
               <li>An empty cell uses the default from the panel. Column names can differ. You map them after the import.</li>
             </ul>
           </details>
-          <div className="mt-3 flex flex-col items-start gap-3">
+          <div className="mt-3 flex flex-col gap-3">
             <Button
               type="button"
               variant="outline"
               size="sm"
+              fullWidth
               onClick={() => { downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() }); }}
             >
               Download template CSV
@@ -231,7 +232,7 @@ export function CreateView({
         <section aria-label="Review">
           <h2 className="mt-5 text-sm font-semibold">2. Check the rows</h2>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <Button type="button" variant="outline" size="sm" onClick={live.refresh}>
+            <Button type="button" variant="outline" size="sm" fullWidth onClick={live.refresh}>
               Read my alerts again
             </Button>
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
@@ -330,7 +331,8 @@ export function CreateView({
           {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-destructive">Wait until your existing alerts are read.</p>}
           <Button
             type="button"
-            className="mt-2"
+            fullWidth
+            className="mt-3"
             disabled={!canStart}
             onClick={() => {
               setAcknowledged(false);
