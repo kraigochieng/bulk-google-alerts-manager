@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import "src/panel/fonts.css";
 import { App } from "src/panel/App";
 import "src/panel/styles.css";
 
