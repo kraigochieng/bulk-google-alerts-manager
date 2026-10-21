@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { JSX } from "react";
 
-import { BellRing } from "lucide-react";
 import { DEFAULT_SETTINGS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
@@ -92,9 +91,7 @@ export function App(): JSX.Element {
   return (
     <main className="@container min-h-screen p-3 text-sm">
       <header className="flex items-center gap-3 px-1 pt-1">
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-secondary text-primary" aria-hidden="true">
-          <BellRing className="size-6" />
-        </span>
+        <img src="/icons/icon-48.png" alt="" width={40} height={40} className="size-10 shrink-0" />
         <div className="min-w-0">
           <h1 className="text-lg font-medium leading-tight text-foreground">Bulk Google Alerts Manager</h1>
           <p className="text-xs text-muted-foreground">Unofficial tool. Not affiliated with Google.</p>
