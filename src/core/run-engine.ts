@@ -1,4 +1,3 @@
-import { pickDelayMilliseconds } from "src/core/delay";
 import { nextPendingItem } from "src/core/run-machine";
 import type { RunEvent } from "src/core/run-machine";
 import type { ContentReply, PanelRequest } from "src/shared/messages";
@@ -9,10 +8,6 @@ export interface RunEngineDependencies {
   readonly getRun: () => RunSnapshot;
   readonly dispatch: (event: RunEvent) => void;
   readonly sendToPage: (request: PanelRequest) => Promise<ContentReply>;
-  readonly sleep: (milliseconds: number) => Promise<void>;
-  readonly random: () => number;
-  readonly minimumDelayMilliseconds: number;
-  readonly maximumDelayMilliseconds: number;
 }
 
 const HIDDEN_TAB_NOTICE: string =
@@ -102,15 +97,6 @@ export async function runQueue({ dependencies }: { dependencies: RunEngineDepend
     }
     if (!(await runItem({ dependencies, item }))) {
       return;
-    }
-    if (dependencies.getRun().status === "running" && nextPendingItem({ run: dependencies.getRun() }) !== null) {
-      await dependencies.sleep(
-        pickDelayMilliseconds({
-          minimumMilliseconds: dependencies.minimumDelayMilliseconds,
-          maximumMilliseconds: dependencies.maximumDelayMilliseconds,
-          random: dependencies.random,
-        }),
-      );
     }
   }
 }
