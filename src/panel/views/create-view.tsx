@@ -50,7 +50,7 @@ const ISSUE_TEXT: Record<RowIssue, string> = {
   invalid_option: "A value in an option column is not valid (use rss or email, all or best, and so on).",
 };
 
-type RowAction = "create" | "skip";
+type RowAction = "create" | "update" | "skip";
 
 function isSelectable({ row }: { row: ImportRow }): boolean {
   return !row.issues.some((issue: RowIssue) => BLOCKING_ISSUES.includes(issue));
@@ -107,7 +107,7 @@ export function CreateView({
     ({ row }: { row: ImportRow }): RowAction => {
       const override: RowAction | undefined = actionOverrides[row.sourceRowNumber];
       if (override !== undefined) return override;
-      return matchesByRow.get(row.sourceRowNumber)?.[0]?.similarity === "exact" ? "skip" : "create";
+      return matchesByRow.get(row.sourceRowNumber)?.[0]?.similarity === "exact" ? "update" : "create";
     },
     [actionOverrides, matchesByRow],
   );
@@ -144,8 +144,9 @@ export function CreateView({
     .filter((row: ImportRow) => checkedRows.has(row.sourceRowNumber) && isSelectable({ row }))
     .map((row: ImportRow) => ({ row, action: actionFor({ row }) }));
   const createCount: number = entries.filter((entry: CreateEntry) => entry.action === "create").length;
+  const updateCount: number = entries.filter((entry: CreateEntry) => entry.action === "update").length;
   const liveCount: number = liveAlerts?.length ?? 0;
-  const gate = checkCreateGate({ liveCount, createCount, cap: ALERT_CAP_PER_ACCOUNT, risksAccepted: acknowledged });
+  const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT, risksAccepted: acknowledged });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
   const columns: readonly TableColumn<ImportRow>[] = [
@@ -252,7 +253,7 @@ export function CreateView({
                   ))}
                   {matches.slice(0, 2).map((match: AlertMatch) => (
                     <p key={match.alert.query} className="text-amber-800">
-                      {match.similarity === "exact" ? "Already exists" : match.similarity === "same_words" ? "Same words as" : "Similar to"}:{" "}
+                      {match.similarity === "exact" ? "Already exists, the alert is updated" : match.similarity === "same_words" ? "Same words as" : "Similar to"}:{" "}
                       <span className="font-mono">{match.alert.query}</span>
                     </p>
                   ))}
@@ -264,10 +265,17 @@ export function CreateView({
                       }}
                       aria-label={`Action for row ${String(row.sourceRowNumber)}`}
                       className="mt-0.5 w-full"
-                      choices={[
-                        { value: "skip", label: "Skip this row" },
-                        { value: "create", label: "Create anyway" },
-                      ]}
+                      choices={
+                        matches[0]?.similarity === "exact"
+                          ? [
+                              { value: "update", label: "Update the alert" },
+                              { value: "skip", label: "Skip this row" },
+                            ]
+                          : [
+                              { value: "skip", label: "Skip this row" },
+                              { value: "create", label: "Create anyway" },
+                            ]
+                      }
                     />
                   )}
                 </div>
@@ -306,7 +314,7 @@ export function CreateView({
         <section aria-label="Start">
           <h2 className="mt-5 text-sm font-semibold">3. Read the notice and start</h2>
           <Banner tone="warning">
-            This run creates {String(createCount)} alerts and waits a random few seconds between them. Google can slow, throttle, or show a bot check on large batches.
+            This run creates {String(createCount)} alerts and updates {String(updateCount)} alerts. It waits a random few seconds between them. Google can slow, throttle, or show a bot check on large batches.
             If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
             {String(liveCount)}. Keep the Alerts tab open and in the foreground.
           </Banner>
@@ -329,7 +337,7 @@ export function CreateView({
               controller.begin(buildCreateRun({ entries, defaults: settings.defaults }));
             }}
           >
-            Start creating {String(createCount)} alerts
+            Start: create {String(createCount)}, update {String(updateCount)}
           </Button>
         </section>
       )}

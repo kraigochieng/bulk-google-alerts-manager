@@ -80,7 +80,7 @@ export function RunPanel({
       </h2>
       <Progress value={(finished / Math.max(total, 1)) * 100} className="mt-2" aria-label="Progress" />
       <p className="text-xs">
-        {String(finished)} of {String(total)} finished. {String(counts[isCreate ? "created" : "deleted"])} {isCreate ? "created" : "deleted"},{" "}
+        {String(finished)} of {String(total)} finished. {isCreate ? `${String(counts.created)} created, ${String(counts.updated)} updated` : `${String(counts.deleted)} deleted`},{" "}
         {String(counts.skipped)} skipped, {String(counts.failed)} failed, {String(counts.pending)} pending.
       </p>
       {run.status === "running" && (

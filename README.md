@@ -10,7 +10,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - Add from a CSV file. Map any CSV column to a field. Check the rows you want.
 - All six alert options: deliver to (RSS or email), how often, sources, language, region, how many.
   A CSV column overrides the default for its row.
-- Warning for exact, same-word, and similar alerts that already exist. Skip a row or create it anyway.
+- A row with the same query as an existing alert updates that alert (upsert). Warning for same-word and similar alerts: skip a row or create it anyway.
 - Alert cap check (1000 alerts for each account).
 - Random wait between alerts. The extension sets the wait. It is not a user setting.
 - Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
