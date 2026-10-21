@@ -25,19 +25,18 @@ describe("checkCreateGate", () => {
 });
 
 describe("checkDeleteGate", () => {
-  const ok = { selectedCount: 3, backupExported: true, typedText: "DELETE 3" };
+  const ok = { selectedCount: 3, typedText: "DELETE 3" };
 
   it("builds the confirmation text", () => {
     expect(deleteConfirmationText({ count: 3 })).toBe("DELETE 3");
   });
 
-  it("allows a confirmed run with a backup", () => {
+  it("allows a confirmed run", () => {
     expect(checkDeleteGate(ok)).toEqual({ allowed: true });
   });
 
   it.each([
     [{ ...ok, selectedCount: 0 }, "Select at least one"],
-    [{ ...ok, backupExported: false }, "Export the backup"],
     [{ ...ok, typedText: "delete 3" }, "Type DELETE 3"],
     [{ ...ok, typedText: "DELETE 2" }, "Type DELETE 3"],
   ])("refuses %j", (input, reasonPart: string) => {

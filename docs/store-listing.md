@@ -34,7 +34,7 @@ Export
 
 Delete
 - See all your alerts with search, filter, and checkboxes.
-- Export a backup CSV first. The extension requires it.
+- Use the Export tab first to keep a copy of your alerts.
 - Type DELETE and the count to confirm. Deletion is permanent.
 
 Important
@@ -71,7 +71,7 @@ Take these from the loaded extension next to the real Alerts page. Do not show p
 
 1. Review step: CSV rows with checkboxes, similar-alert warnings, and the notice.
 2. A create run in progress with the progress bar and result table.
-3. Delete with the backup gate and typed confirmation.
+3. Delete with typed confirmation.
 
 ## Package
 
