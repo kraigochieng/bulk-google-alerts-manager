@@ -3,11 +3,12 @@ import type { JSX } from "react";
 
 import { deleteResultCsv } from "src/core/result-csv";
 import { buildDeleteRun } from "src/core/run-builders";
-import { buildDeleteConfirmationMessage } from "src/core/delete-confirmation";
+import { buildDeleteConfirmation } from "src/core/delete-confirmation";
 import { checkDeleteGate } from "src/core/start-gates";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import { Banner } from "src/panel/components/banner";
+import { ConfirmDialog } from "src/panel/components/confirm-dialog";
 import { Button } from "src/panel/ui/button";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -39,6 +40,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
     [live.alerts],
   );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
+  const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
   const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
   const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
 
@@ -51,6 +53,8 @@ export function DeleteView({ controller, live }: { controller: RunController; li
     [entries, selected],
   );
   const gate = checkDeleteGate({ selectedCount: selectedEntries.length });
+  const selectedQueries: string[] = selectedEntries.map((entry: AlertEntry) => entry.alert.query);
+  const confirmation = buildDeleteConfirmation({ queries: selectedQueries, previewLimit: DELETE_PREVIEW_LIMIT });
 
   const columns: readonly TableColumn<AlertEntry>[] = [
     { key: "query", label: "Query", sortValue: (entry) => entry.alert.query.toLowerCase(), searchText: (entry) => entry.alert.query },
@@ -113,14 +117,22 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 className="mt-3"
                 disabled={!gate.allowed}
                 onClick={() => {
-                  const queries: string[] = selectedEntries.map((entry: AlertEntry) => entry.alert.query);
-                  if (window.confirm(buildDeleteConfirmationMessage({ queries, previewLimit: DELETE_PREVIEW_LIMIT }))) {
-                    controller.begin(buildDeleteRun({ queries }));
-                  }
+                  setConfirmingDelete(true);
                 }}
               >
                 Delete {String(selectedEntries.length)} alerts
               </Button>
+              <ConfirmDialog
+                open={confirmingDelete}
+                title={confirmation.title}
+                description={confirmation.description}
+                confirmLabel="Delete"
+                keepLabel="Keep"
+                onConfirm={() => {
+                  controller.begin(buildDeleteRun({ queries: selectedQueries }));
+                }}
+                onOpenChange={setConfirmingDelete}
+              />
             </>
           )}
         </section>
