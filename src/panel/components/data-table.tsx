@@ -8,7 +8,7 @@ import type { HistoryMode } from "src/panel/use-table-url-state";
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
 import { TextField } from "src/panel/ui/text-field";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { Select } from "src/panel/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "src/panel/ui/table";
 
 export interface RowSelection<Key extends string | number> {
@@ -95,18 +95,10 @@ export function DataTable<Row, Key extends string | number>({
           onValueChange={(value: string) => {
             change({ filter: value, page: 0 }, "replace");
           }}
-        >
-          <SelectTrigger className="h-8 w-40 text-xs" aria-label="Filter the table">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {schema.filters.map((filter: string) => (
-              <SelectItem key={filter} value={filter}>
-                {filterLabels[filter] ?? filter}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          aria-label="Filter the table"
+          className="w-40"
+          choices={schema.filters.map((filter: string) => ({ value: filter, label: filterLabels[filter] ?? filter }))}
+        />
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
         {String(page.totalMatching)} of {String(rows.length)} rows

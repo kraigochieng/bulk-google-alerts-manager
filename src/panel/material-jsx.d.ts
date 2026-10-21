@@ -19,6 +19,16 @@ interface MaterialTextFieldAttributes extends HTMLAttributes<HTMLElement> {
   label?: string;
 }
 
+interface MaterialSelectAttributes extends HTMLAttributes<HTMLElement> {
+  value?: string;
+  disabled?: boolean;
+}
+
+interface MaterialSelectOptionAttributes extends HTMLAttributes<HTMLElement> {
+  value?: string;
+  selected?: boolean;
+}
+
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
@@ -28,6 +38,8 @@ declare module "react" {
       "md-text-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;
       "md-icon-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;
       "md-outlined-text-field": DetailedHTMLProps<MaterialTextFieldAttributes, HTMLElement>;
+      "md-outlined-select": DetailedHTMLProps<MaterialSelectAttributes, HTMLElement>;
+      "md-select-option": DetailedHTMLProps<MaterialSelectOptionAttributes, HTMLElement>;
       "md-linear-progress": DetailedHTMLProps<MaterialProgressAttributes, HTMLElement>;
     }
   }

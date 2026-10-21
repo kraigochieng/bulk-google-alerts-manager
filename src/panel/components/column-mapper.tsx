@@ -3,7 +3,8 @@ import type { JSX } from "react";
 import { IMPORT_FIELDS } from "src/core/column-mapping";
 import type { ColumnMapping, ImportField } from "src/core/column-mapping";
 import { Label } from "src/panel/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "src/panel/ui/select";
+import { Select } from "src/panel/ui/select";
+import type { SelectChoice } from "src/panel/ui/select";
 
 const FIELD_LABELS: Record<ImportField, string> = {
   query: "Query (required)",
@@ -40,19 +41,16 @@ export function ColumnMapper({
               onValueChange={(value: string) => {
                 onChange({ ...mapping, [field]: value === NO_COLUMN ? null : Number(value) });
               }}
-            >
-              <SelectTrigger className="h-8 w-full text-xs" aria-label={FIELD_LABELS[field]}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={NO_COLUMN}>{field === "query" ? "Choose a column" : "Not in file (use default)"}</SelectItem>
-                {headers.map((header: string, index: number) => (
-                  <SelectItem key={`${header}-${String(index)}`} value={String(index)}>
-                    {header === "" ? `(column ${String(index + 1)})` : header}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              aria-label={FIELD_LABELS[field]}
+              className="w-full"
+              choices={[
+                { value: NO_COLUMN, label: field === "query" ? "Choose a column" : "Not in file (use default)" },
+                ...headers.map((header: string, index: number): SelectChoice => ({
+                  value: String(index),
+                  label: header === "" ? `(column ${String(index + 1)})` : header,
+                })),
+              ]}
+            />
           </div>
         ))}
       </div>
