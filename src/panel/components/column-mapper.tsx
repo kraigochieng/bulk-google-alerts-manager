@@ -30,11 +30,11 @@ export function ColumnMapper({
   onChange: (next: ColumnMapping) => void;
 }): JSX.Element {
   return (
-    <fieldset className="mt-2 rounded-lg border bg-card p-2">
+    <fieldset className="mt-3 rounded-lg border bg-card p-3">
       <legend className="px-1 text-xs font-semibold">Map CSV columns</legend>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-3 @sm:grid-cols-2">
         {IMPORT_FIELDS.map((field: ImportField) => (
-          <div key={field} className="space-y-1">
+          <div key={field} className="min-w-0 space-y-1">
             <Label className="text-xs">{FIELD_LABELS[field]}</Label>
             <Select
               value={mapping[field] === null ? NO_COLUMN : String(mapping[field])}

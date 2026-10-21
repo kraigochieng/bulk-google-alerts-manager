@@ -74,7 +74,7 @@ export function RunPanel({
   const isCreate: boolean = run.kind === "create";
   const finishedStatus: boolean = run.status === "completed" || run.status === "cancelled";
   return (
-    <section aria-label="Run" className="mt-3 rounded-lg border bg-card p-2">
+    <section aria-label="Run" className="mt-3 rounded-lg border bg-card p-3">
       <h2 className="text-sm font-semibold">
         {isCreate ? "Create run" : "Delete run"}: {STATUS_TEXT[run.status]}
       </h2>
