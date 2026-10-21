@@ -1,6 +1,5 @@
 /** Every page selector and timing constant lives here. A Google layout change is a fix in this file. */
 export const SELECTORS = {
-  createForm: "#create-alert-div",
   queryInput: "#create-alert-div .query_div input",
   showOptionsToggle: "#create-alert-div .show_options",
   createButton: "#create_alert",
@@ -20,7 +19,6 @@ export const SELECTORS = {
   alertRowDeleteButton: ".delete_button",
   alertRowEditButton: ".edit_button",
   showAllAlerts: ".show_all_alerts",
-  deleteNotice: ".jfk-butterBar-shown",
 } as const;
 
 export const TIMING = {
@@ -28,7 +26,6 @@ export const TIMING = {
   menuTimeoutMilliseconds: 3000,
   alertAppearTimeoutMilliseconds: 15000,
   alertDisappearTimeoutMilliseconds: 15000,
-  settleMilliseconds: 150,
 } as const;
 
 /** Menu item text for each option value, as the form shows it. */

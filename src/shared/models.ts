@@ -37,14 +37,6 @@ export type RowStatus = "pending" | "created" | "updated" | "skipped" | "failed"
 /** What a run does with one item: create an alert, update the alert that has the same query, or delete an alert. */
 export type ItemAction = "create" | "update" | "delete";
 
-/** The result of one row after a run. */
-export interface RowResult {
-  readonly query: string;
-  readonly status: RowStatus;
-  readonly rssLink: string;
-  readonly errorMessage: string;
-}
-
 export type RunKind = "create" | "delete";
 
 export type RunStatus =

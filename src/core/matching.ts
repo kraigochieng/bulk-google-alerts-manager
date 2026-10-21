@@ -67,19 +67,3 @@ export function findMatches({
     })
     .sort((left: AlertMatch, right: AlertMatch) => rank[left.similarity] - rank[right.similarity]);
 }
-
-/** Find the live alert that has the same normalised query. Return null when none has. */
-export function findExactAlert({
-  query,
-  liveAlerts,
-}: {
-  query: string;
-  liveAlerts: readonly LiveAlert[];
-}): LiveAlert | null {
-  const normalisedQuery: string = normaliseQuery({ query });
-  return (
-    liveAlerts.find(
-      (alert: LiveAlert) => normaliseQuery({ query: alert.query }) === normalisedQuery,
-    ) ?? null
-  );
-}
