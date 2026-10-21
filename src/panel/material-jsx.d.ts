@@ -50,7 +50,6 @@ declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "md-filled-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;
-      "md-filled-tonal-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;
       "md-outlined-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;
       "md-text-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;
       "md-icon-button": DetailedHTMLProps<MaterialButtonAttributes, HTMLElement>;

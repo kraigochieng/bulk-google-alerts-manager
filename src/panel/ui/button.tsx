@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 import "src/panel/material-elements";
 
-export type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+export type ButtonVariant = "default" | "destructive" | "outline" | "ghost" | "link";
 export type ButtonSize = "default" | "sm" | "icon";
 
 /** Render a Material Web button. The variant picks the Material button type. A full width button fills the line. */
@@ -38,6 +38,5 @@ export function Button({
   }
   if (variant === "outline") return <md-outlined-button {...shared} className={classes}>{children}</md-outlined-button>;
   if (variant === "ghost" || variant === "link") return <md-text-button {...shared} className={classes}>{children}</md-text-button>;
-  if (variant === "secondary") return <md-filled-tonal-button {...shared} className={classes}>{children}</md-filled-tonal-button>;
   return <md-filled-button {...shared} className={classes}>{children}</md-filled-button>;
 }
