@@ -16,7 +16,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
 - Result CSV: `query, status, rss_link, error`.
 - Export every alert with its six options to one CSV file. Import the file in the Add tab of another account.
-- Delete with a list of the alerts to delete and a typed confirmation (`DELETE <count>`).
+- Delete with a list of the alerts to delete and a confirmation dialog of the browser.
   Use the Export tab first to keep a copy. The Add tab can import that copy again.
 - The tool never bypasses a bot check. It stops and asks you to solve the check.
 

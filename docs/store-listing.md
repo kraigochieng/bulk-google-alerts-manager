@@ -35,7 +35,7 @@ Export
 Delete
 - See all your alerts with search, filter, and checkboxes.
 - Use the Export tab first to keep a copy of your alerts.
-- Type DELETE and the count to confirm. Deletion is permanent.
+- Confirm in a browser dialog that names the count. Deletion is permanent.
 
 Important
 - The extension drives the Google Alerts page. If Google changes the page, the extension stops and shows a clear message.
@@ -71,7 +71,7 @@ Take these from the loaded extension next to the real Alerts page. Do not show p
 
 1. Review step: CSV rows with checkboxes, similar-alert warnings, and the notice.
 2. A create run in progress with the progress bar and result table.
-3. Delete with typed confirmation.
+3. Delete with a confirmation dialog.
 
 ## Package
 
