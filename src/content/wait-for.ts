@@ -1,8 +1,10 @@
 import { LayoutChangedError } from "src/shared/errors";
 
+const RECHECK_MILLISECONDS: number = 100;
+
 /**
  * Wait until a finder returns a value. Side effect: observes the page.
- * The finder runs on each page change. No fixed timers decide the outcome.
+ * The finder runs on each page change and every 100 milliseconds. Only the timeout decides a failure.
  */
 export async function waitFor<Found>({
   find,
@@ -18,19 +20,23 @@ export async function waitFor<Found>({
     return immediate;
   }
   return new Promise<Found>((resolve, reject) => {
-    const observer: MutationObserver = new MutationObserver(() => {
+    const check = (): void => {
       const found: Found | null | undefined = find();
       if (found !== null && found !== undefined) {
         cleanUp();
         resolve(found);
       }
-    });
+    };
+    const observer: MutationObserver = new MutationObserver(check);
+    // A value that a script sets on a form field changes no DOM node, so the observer does not see it. The check runs again at a fixed pace.
+    const recheckHandle: number = window.setInterval(check, RECHECK_MILLISECONDS);
     const timeoutHandle: number = window.setTimeout(() => {
       cleanUp();
       reject(onTimeout());
     }, timeoutMilliseconds);
     function cleanUp(): void {
       observer.disconnect();
+      window.clearInterval(recheckHandle);
       window.clearTimeout(timeoutHandle);
     }
     observer.observe(document.documentElement, {
