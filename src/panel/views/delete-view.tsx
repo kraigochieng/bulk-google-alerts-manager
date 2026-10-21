@@ -6,14 +6,13 @@ import { parseCsv } from "src/core/csv";
 import { normaliseQuery } from "src/core/query-normaliser";
 import { deleteResultCsv } from "src/core/result-csv";
 import { buildDeleteRun } from "src/core/run-builders";
-import { checkDeleteGate, deleteConfirmationText } from "src/core/start-gates";
+import { buildDeleteConfirmationMessage } from "src/core/delete-confirmation";
+import { checkDeleteGate } from "src/core/start-gates";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
-import { X } from "lucide-react";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { Input } from "src/panel/ui/input";
-import { TextField } from "src/panel/ui/text-field";
 import { Label } from "src/panel/ui/label";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -30,6 +29,9 @@ export const ALERTS_TABLE_SCHEMA: TableSchema = {
   defaultState: { search: "", sortKey: "number", sortDirection: "asc", page: 0, filter: "all" },
 };
 
+/** How many queries the confirmation dialog lists before it shows the count of the rest. */
+const DELETE_PREVIEW_LIMIT: number = 8;
+
 interface AlertEntry {
   readonly index: number;
   readonly alert: LiveAlert;
@@ -42,14 +44,12 @@ export function DeleteView({ controller, live }: { controller: RunController; li
     [live.alerts],
   );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
-  const [typedText, setTypedText] = useState<string>("");
   const [matchReport, setMatchReport] = useState<string>("");
   const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
   const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
 
   useEffect(() => {
     setSelected(new Set());
-    setTypedText("");
     setMatchReport("");
   }, [live.alerts]);
 
@@ -57,7 +57,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
     () => (entries ?? []).filter((entry: AlertEntry) => selected.has(entry.index)),
     [entries, selected],
   );
-  const gate = checkDeleteGate({ selectedCount: selectedEntries.length, typedText });
+  const gate = checkDeleteGate({ selectedCount: selectedEntries.length });
 
   const columns: readonly TableColumn<AlertEntry>[] = [
     { key: "number", label: "#", sortValue: (entry) => entry.index, searchText: () => "" },
@@ -75,8 +75,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
       );
       const matched: AlertEntry[] = entries.filter((entry: AlertEntry) => wanted.has(normaliseQuery({ query: entry.alert.query })));
       setSelected(new Set(matched.map((entry: AlertEntry) => entry.index)));
-      setTypedText("");
-      setMatchReport(`${String(matched.length)} alerts match. ${String(wanted.size - new Set(matched.map((entry: AlertEntry) => normaliseQuery({ query: entry.alert.query }))).size)} queries in the file match no alert.`);
+        setMatchReport(`${String(matched.length)} alerts match. ${String(wanted.size - new Set(matched.map((entry: AlertEntry) => normaliseQuery({ query: entry.alert.query }))).size)} queries in the file match no alert.`);
     } catch (error: unknown) {
       setMatchReport(error instanceof Error ? error.message : "The file could not be read.");
     }
@@ -156,38 +155,14 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                       else next.delete(key);
                     }
                     setSelected(next);
-                    setTypedText("");
-                  },
+                                  },
                 }}
                 emptyMessage="No alerts match."
               />
-              <h2 className="mt-5 text-sm font-semibold">2. Confirm</h2>
+              <h2 className="mt-5 text-sm font-semibold">2. Delete</h2>
               <Banner tone="error">
                 {String(selectedEntries.length)} alerts will be deleted permanently. The extension cannot undo this. Use the Export tab first to keep a copy.
               </Banner>
-              <ul aria-label="Alerts to delete" className="mt-1 max-h-32 list-disc overflow-y-auto pl-5 text-xs">
-                {selectedEntries.map((entry: AlertEntry) => (
-                  <li key={entry.index} className="font-mono">{entry.alert.query}</li>
-                ))}
-              </ul>
-              <div className="mt-2 space-y-1">
-                <Label htmlFor="delete-confirmation" className="text-xs">
-                  Type {deleteConfirmationText({ count: selectedEntries.length })} to confirm
-                </Label>
-                <div className="relative">
-                  <TextField
-                    id="delete-confirmation"
-                    value={typedText}
-                    onValueChange={setTypedText}
-                    className="w-full"
-                  />
-                  {typedText !== "" && (
-                    <Button type="button" variant="ghost" size="icon" aria-label="Clear confirmation text" onClick={() => { setTypedText(""); }} className="absolute right-0 top-0 size-8">
-                      <X className="size-3" />
-                    </Button>
-                  )}
-                </div>
-              </div>
               {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
               <p className="mt-1 text-xs text-muted-foreground">Keep the Alerts tab open and in the foreground during the run. Google can slow the run or show a bot check. The run then stops and asks you to solve it.</p>
               <Button
@@ -196,7 +171,10 @@ export function DeleteView({ controller, live }: { controller: RunController; li
                 className="mt-2"
                 disabled={!gate.allowed}
                 onClick={() => {
-                  controller.begin(buildDeleteRun({ queries: selectedEntries.map((entry: AlertEntry) => entry.alert.query) }));
+                  const queries: string[] = selectedEntries.map((entry: AlertEntry) => entry.alert.query);
+                  if (window.confirm(buildDeleteConfirmationMessage({ queries, previewLimit: DELETE_PREVIEW_LIMIT }))) {
+                    controller.begin(buildDeleteRun({ queries }));
+                  }
                 }}
               >
                 Delete {String(selectedEntries.length)} alerts permanently

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { checkCreateGate, checkDeleteGate, deleteConfirmationText } from "src/core/start-gates";
+import { checkCreateGate, checkDeleteGate } from "src/core/start-gates";
 
 describe("checkCreateGate", () => {
   const ok = { liveCount: 10, createCount: 5, cap: 1000, risksAccepted: true };
@@ -25,23 +25,13 @@ describe("checkCreateGate", () => {
 });
 
 describe("checkDeleteGate", () => {
-  const ok = { selectedCount: 3, typedText: "DELETE 3" };
-
-  it("builds the confirmation text", () => {
-    expect(deleteConfirmationText({ count: 3 })).toBe("DELETE 3");
+  it("allows a run with selected alerts", () => {
+    expect(checkDeleteGate({ selectedCount: 3 })).toEqual({ allowed: true });
   });
 
-  it("allows a confirmed run", () => {
-    expect(checkDeleteGate(ok)).toEqual({ allowed: true });
-  });
-
-  it.each([
-    [{ ...ok, selectedCount: 0 }, "Select at least one"],
-    [{ ...ok, typedText: "delete 3" }, "Type DELETE 3"],
-    [{ ...ok, typedText: "DELETE 2" }, "Type DELETE 3"],
-  ])("refuses %j", (input, reasonPart: string) => {
-    const result = checkDeleteGate(input);
+  it("refuses a run with no selected alerts", () => {
+    const result = checkDeleteGate({ selectedCount: 0 });
     expect(result.allowed).toBe(false);
-    expect(!result.allowed && result.reason).toContain(reasonPart);
+    expect(!result.allowed && result.reason).toContain("Select at least one");
   });
 });
