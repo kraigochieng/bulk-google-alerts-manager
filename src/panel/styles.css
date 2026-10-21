@@ -137,3 +137,30 @@ md-text-button {
   padding-inline-start: var(--_leading-space);
   padding-inline-end: var(--_trailing-space);
 }
+
+/*
+ * The Tailwind reset also overrides the host margin of the Material dialog and the ::slotted padding of its slots.
+ * Restore both, with the values of the Material dialog.
+ */
+md-dialog {
+  margin: auto;
+}
+
+md-dialog [slot="headline"] {
+  padding: 24px 24px 0;
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+md-dialog [slot="content"] {
+  padding: 24px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+md-dialog [slot="actions"] {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px 24px 24px;
+}
