@@ -5,6 +5,7 @@ export type PanelRequest =
   | { readonly kind: "ping" }
   | { readonly kind: "read_alerts" }
   | { readonly kind: "create_alert"; readonly query: string; readonly options: AlertOptions }
+  | { readonly kind: "update_alert"; readonly query: string; readonly options: AlertOptions }
   | { readonly kind: "delete_alert"; readonly query: string }
   | { readonly kind: "read_alert_options"; readonly query: string };
 
@@ -13,6 +14,7 @@ export type ContentSuccess =
   | { readonly ok: true; readonly kind: "pong"; readonly pageUrl: string; readonly hidden: boolean }
   | { readonly ok: true; readonly kind: "alerts"; readonly alerts: readonly LiveAlert[] }
   | { readonly ok: true; readonly kind: "created"; readonly feedUrl: string | null }
+  | { readonly ok: true; readonly kind: "updated"; readonly feedUrl: string | null }
   | { readonly ok: true; readonly kind: "deleted" }
   | { readonly ok: true; readonly kind: "alert_options"; readonly options: AlertOptions };
 
@@ -60,9 +62,9 @@ export function parsePanelRequest({ value }: { value: unknown }): PanelRequest |
   if (record.kind === "read_alert_options" && typeof record.query === "string") {
     return { kind: "read_alert_options", query: record.query };
   }
-  if (record.kind === "create_alert" && typeof record.query === "string") {
+  if ((record.kind === "create_alert" || record.kind === "update_alert") && typeof record.query === "string") {
     const options: AlertOptions | null = parseAlertOptions({ value: record.options });
-    return options === null ? null : { kind: "create_alert", query: record.query, options };
+    return options === null ? null : { kind: record.kind, query: record.query, options };
   }
   return null;
 }

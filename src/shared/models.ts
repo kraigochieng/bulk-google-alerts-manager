@@ -32,7 +32,10 @@ export interface ImportRow {
   readonly issues: readonly RowIssue[];
 }
 
-export type RowStatus = "pending" | "created" | "skipped" | "failed" | "deleted";
+export type RowStatus = "pending" | "created" | "updated" | "skipped" | "failed" | "deleted";
+
+/** What a run does with one item: create an alert, update the alert that has the same query, or delete an alert. */
+export type ItemAction = "create" | "update" | "delete";
 
 /** The result of one row after a run. */
 export interface RowResult {
@@ -57,6 +60,7 @@ export type RunStatus =
 export interface RunItem {
   readonly id: number;
   readonly query: string;
+  readonly action: ItemAction;
   readonly options: AlertOptions | null;
   readonly label: string;
   readonly status: RowStatus;

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { checkCreateGate, checkDeleteGate } from "src/core/start-gates";
 
 describe("checkCreateGate", () => {
-  const ok = { liveCount: 10, createCount: 5, cap: 1000, risksAccepted: true };
+  const ok = { liveCount: 10, createCount: 5, updateCount: 0, cap: 1000, risksAccepted: true };
 
   it("allows a valid run", () => {
     expect(checkCreateGate(ok)).toEqual({ allowed: true });
@@ -11,6 +11,14 @@ describe("checkCreateGate", () => {
 
   it("refuses an empty run", () => {
     expect(checkCreateGate({ ...ok, createCount: 0 })).toMatchObject({ allowed: false });
+  });
+
+  it("allows a run that only updates", () => {
+    expect(checkCreateGate({ ...ok, createCount: 0, updateCount: 3 })).toEqual({ allowed: true });
+  });
+
+  it("does not count updates against the cap", () => {
+    expect(checkCreateGate({ ...ok, liveCount: 1000, createCount: 0, updateCount: 3 })).toEqual({ allowed: true });
   });
 
   it("refuses a run over the cap and names the overflow", () => {

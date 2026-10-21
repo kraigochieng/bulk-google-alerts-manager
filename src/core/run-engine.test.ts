@@ -74,6 +74,25 @@ describe("runQueue", () => {
     expect(state.run.items[0]?.rssLink).toBe("https://x/a");
   });
 
+  it("sends an update request for an update item", async () => {
+    const { dependencies, state } = harness({
+      initial: started({
+        run: buildCreateRun({
+          entries: [{ row: rowFor({ query: "a" }), action: "update" }],
+          defaults: DEFAULT_ALERT_OPTIONS,
+        }),
+      }),
+      respond: (request) => {
+        if (request.kind === "ping") return PONG;
+        if (request.kind === "update_alert") return { ok: true, kind: "updated", feedUrl: "https://x/a" };
+        return { ok: true, kind: "alerts", alerts: [] };
+      },
+    });
+    await runQueue({ dependencies });
+    expect(state.requests.some((request) => request.kind === "update_alert")).toBe(true);
+    expect(state.run.items[0]).toMatchObject({ status: "updated", rssLink: "https://x/a" });
+  });
+
   it("records a failed row and keeps going", async () => {
     const { dependencies, state } = harness({
       initial: createRun({ queries: ["a", "b"] }),

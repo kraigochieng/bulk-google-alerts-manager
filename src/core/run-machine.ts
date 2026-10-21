@@ -1,5 +1,5 @@
 import { normaliseQuery } from "src/core/query-normaliser";
-import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
+import type { RowStatus, RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 export type RunEvent =
   | { readonly type: "start" }
@@ -67,6 +67,15 @@ function updateItem({
   return items.map((item: RunItem) => (item.id === itemId ? { ...item, ...update } : item));
 }
 
+function itemActionOf({ items, itemId }: { items: readonly RunItem[]; itemId: number }): RunItem["action"] {
+  return items.find((item: RunItem) => item.id === itemId)?.action ?? "create";
+}
+
+function statusAfterDone({ action }: { action: RunItem["action"] }): RowStatus {
+  if (action === "update") return "updated";
+  return action === "delete" ? "deleted" : "created";
+}
+
 function noticeFor({ event, previous }: { event: RunEvent; previous: string }): string {
   switch (event.type) {
     case "pause":
@@ -101,7 +110,7 @@ export function applyRunEvent({ run, event }: { run: RunSnapshot; event: RunEven
     items = updateItem({
       items,
       itemId: event.itemId,
-      update: { status: run.kind === "create" ? "created" : "deleted", rssLink: event.rssLink, errorMessage: "" },
+      update: { status: statusAfterDone({ action: itemActionOf({ items, itemId: event.itemId }) }), rssLink: event.rssLink, errorMessage: "" },
     });
   }
   if (resultMayArrive && event.type === "row_failed") {
@@ -109,7 +118,7 @@ export function applyRunEvent({ run, event }: { run: RunSnapshot; event: RunEven
   }
   if (run.status === "completed" && event.type === "links_filled") {
     items = items.map((item: RunItem) =>
-      item.status === "created" && item.rssLink === ""
+      (item.status === "created" || item.status === "updated") && item.rssLink === ""
         ? { ...item, rssLink: event.linksByQuery[normaliseQuery({ query: item.query })] ?? "" }
         : item,
     );
@@ -132,6 +141,7 @@ export function countByStatus({ run }: { run: RunSnapshot }): Record<RunItem["st
   const counts: Record<RunItem["status"], number> = {
     pending: 0,
     created: 0,
+    updated: 0,
     skipped: 0,
     failed: 0,
     deleted: 0,

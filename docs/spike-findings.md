@@ -50,3 +50,11 @@ A new row appears with empty text for a short time after Create. The list reader
 - Dropdown texts read in edit mode: "At most once a day", "Only the best results", "English", "Any Region", "Automatic".
 - The delivery dropdown shows the account email address for an email alert.
 - Tested by reading the DOM of the real page with a real click. The built extension was not loaded in this test.
+
+## Update in edit mode (tested 2026-10-21 for the upsert)
+
+- The edit form has the button `#save_alert` with the text "Update alert". It has the class `jfk-button-disabled` until an option changes.
+- A click on the enabled button saves at once and hides the form. About 300 milliseconds later the page draws the row again as a new element. The update code waits for that new row.
+- When the options equal the saved options, the button stays disabled. The code treats this as done and changes nothing.
+- A script that sets `input.value` changes no DOM node. A wait that only watches DOM changes never sees it, so `waitFor` also checks every 100 milliseconds.
+- Tested with an injected bundle of `updateAlert` and `readAlertOptions` on one alert: a real change, a change back, an unchanged update, and a read right after each. The alert count stayed at 1.

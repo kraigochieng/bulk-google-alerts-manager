@@ -14,6 +14,11 @@ describe("parsePanelRequest", () => {
     expect(parsePanelRequest({ value })).toEqual(value);
   });
 
+  it("accepts an update request with valid options", () => {
+    const value = { kind: "update_alert", query: "q", options: DEFAULT_ALERT_OPTIONS };
+    expect(parsePanelRequest({ value })).toEqual(value);
+  });
+
   it("accepts a delete request", () => {
     expect(parsePanelRequest({ value: { kind: "delete_alert", query: "q" } })).toEqual({
       kind: "delete_alert",

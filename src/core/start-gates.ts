@@ -3,19 +3,21 @@ import { checkAlertCap } from "src/core/alert-cap";
 /** Result of a start gate: allowed, or refused with the reason that the user sees. */
 export type GateResult = { readonly allowed: true } | { readonly allowed: false; readonly reason: string };
 
-/** Decide whether a create run may start. */
+/** Decide whether a create run may start. Updates do not count against the alert limit. */
 export function checkCreateGate({
   liveCount,
   createCount,
+  updateCount,
   cap,
   risksAccepted,
 }: {
   liveCount: number;
   createCount: number;
+  updateCount: number;
   cap: number;
   risksAccepted: boolean;
 }): GateResult {
-  if (createCount === 0) {
+  if (createCount + updateCount === 0) {
     return { allowed: false, reason: "No rows are checked. Check at least one row." };
   }
   const capCheck = checkAlertCap({ liveCount, newCount: createCount, cap });

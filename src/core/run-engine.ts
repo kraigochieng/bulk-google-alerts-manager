@@ -25,7 +25,10 @@ function requestFor({ run, item }: { run: RunSnapshot; item: RunItem }): PanelRe
   if (run.kind === "delete") {
     return { kind: "delete_alert", query: item.query };
   }
-  return item.options === null ? null : { kind: "create_alert", query: item.query, options: item.options };
+  if (item.options === null) return null;
+  return item.action === "update"
+    ? { kind: "update_alert", query: item.query, options: item.options }
+    : { kind: "create_alert", query: item.query, options: item.options };
 }
 
 /** Check that the page answers and shows in the foreground. Returns false when the run must pause. */
@@ -94,7 +97,7 @@ async function runItem({
     dependencies.dispatch({
       type: "row_done",
       itemId: item.id,
-      rssLink: reply.kind === "created" ? (reply.feedUrl ?? "") : "",
+      rssLink: reply.kind === "created" || reply.kind === "updated" ? (reply.feedUrl ?? "") : "",
     });
     return true;
   }
