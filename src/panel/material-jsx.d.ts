@@ -34,6 +34,18 @@ interface MaterialCheckboxAttributes extends HTMLAttributes<HTMLElement> {
   disabled?: boolean;
 }
 
+interface MaterialTabsAttributes extends HTMLAttributes<HTMLElement> {
+  activeTabIndex?: number;
+}
+
+interface MaterialTabAttributes extends HTMLAttributes<HTMLElement> {
+  active?: boolean;
+}
+
+interface MaterialDialogAttributes extends HTMLAttributes<HTMLElement> {
+  open?: boolean;
+}
+
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
@@ -46,6 +58,9 @@ declare module "react" {
       "md-outlined-select": DetailedHTMLProps<MaterialSelectAttributes, HTMLElement>;
       "md-select-option": DetailedHTMLProps<MaterialSelectOptionAttributes, HTMLElement>;
       "md-checkbox": DetailedHTMLProps<MaterialCheckboxAttributes, HTMLElement>;
+      "md-tabs": DetailedHTMLProps<MaterialTabsAttributes, HTMLElement>;
+      "md-primary-tab": DetailedHTMLProps<MaterialTabAttributes, HTMLElement>;
+      "md-dialog": DetailedHTMLProps<MaterialDialogAttributes, HTMLElement>;
       "md-linear-progress": DetailedHTMLProps<MaterialProgressAttributes, HTMLElement>;
     }
   }

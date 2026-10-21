@@ -7,7 +7,7 @@ import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
 import { AccountUsage } from "src/panel/components/account-usage";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "src/panel/ui/tabs";
+import { Tabs } from "src/panel/ui/tabs";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { SettingsForm } from "src/panel/components/settings-form";
 import { openAlertsTab } from "src/panel/chrome-bridge";
@@ -110,14 +110,13 @@ export function App(): JSX.Element {
         onValueChange={(value: string) => {
           if (value !== view) changeView(value as ViewName);
         }}
+        tabs={[
+          { value: "create", label: "Add" },
+          { value: "delete", label: "Delete" },
+          { value: "export", label: "Export" },
+        ]}
         className="mt-3"
-      >
-        <TabsList className="w-full">
-          <TabsTrigger value="create">Add</TabsTrigger>
-          <TabsTrigger value="delete">Delete</TabsTrigger>
-          <TabsTrigger value="export">Export</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      />
       {view === "create" && (
         <SettingsForm settings={settings} onChange={setSettings} saveStatus={saveStatus} locked={runActive} />
       )}

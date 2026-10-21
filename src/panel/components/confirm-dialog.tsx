@@ -1,7 +1,9 @@
+import { useRef } from "react";
 import type { JSX } from "react";
 
+import "src/panel/material-elements";
 import { Button } from "src/panel/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "src/panel/ui/dialog";
+import { useElementEvent } from "src/panel/ui/use-element-event";
 
 /** Render a confirmation dialog for a destructive action. The text names the item. Pure: state comes as props. */
 export function ConfirmDialog({
@@ -21,35 +23,39 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onOpenChange: (open: boolean) => void;
 }): JSX.Element {
+  const dialogRef = useRef<HTMLElement | null>(null);
+  useElementEvent({
+    elementRef: dialogRef,
+    eventName: "close",
+    handler: () => {
+      if (open) onOpenChange(false);
+    },
+  });
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false);
-            }}
-          >
-            {keepLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => {
-              onOpenChange(false);
-              onConfirm();
-            }}
-          >
-            {confirmLabel}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <md-dialog ref={dialogRef} open={open}>
+      <div slot="headline">{title}</div>
+      <div slot="content">{description}</div>
+      <div slot="actions">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => {
+            onOpenChange(false);
+          }}
+        >
+          {keepLabel}
+        </Button>
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={() => {
+            onOpenChange(false);
+            onConfirm();
+          }}
+        >
+          {confirmLabel}
+        </Button>
+      </div>
+    </md-dialog>
   );
 }

@@ -9,3 +9,6 @@ import "@material/web/textfield/outlined-text-field.js";
 import "@material/web/select/outlined-select.js";
 import "@material/web/select/select-option.js";
 import "@material/web/checkbox/checkbox.js";
+import "@material/web/dialog/dialog.js";
+import "@material/web/tabs/primary-tab.js";
+import "@material/web/tabs/tabs.js";
