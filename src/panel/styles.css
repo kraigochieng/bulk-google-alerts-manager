@@ -125,23 +125,6 @@ md-outlined-select {
   min-width: 0;
 }
 
-input[type="file"] {
-  font-size: 0.75rem;
-  color: var(--md-sys-color-on-surface-variant);
-}
-
-input[type="file"]::file-selector-button {
-  margin-right: 8px;
-  padding: 6px 12px;
-  border: 1px solid var(--md-sys-color-outline);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--md-sys-color-primary);
-  font: inherit;
-  font-weight: 500;
-  cursor: pointer;
-}
-
 /*
  * The Tailwind reset sets padding to 0 on every element. That overrides the :host padding of the Material buttons.
  * Restore the padding from the tokens that each button defines.

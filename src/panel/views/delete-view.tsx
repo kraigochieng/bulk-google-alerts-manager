@@ -12,7 +12,7 @@ import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
-import { Input } from "src/panel/ui/input";
+import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { Label } from "src/panel/ui/label";
 import { DataTable } from "src/panel/components/data-table";
 import { RUN_TABLE_SCHEMA, RunPanel } from "src/panel/components/run-panel";
@@ -45,6 +45,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
   );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
   const [matchReport, setMatchReport] = useState<string>("");
+  const [queriesFileName, setQueriesFileName] = useState<string>("");
   const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
   const [runState, setRunState] = useTableUrlState({ schema: RUN_TABLE_SCHEMA });
 
@@ -114,15 +115,11 @@ export function DeleteView({ controller, live }: { controller: RunController; li
             <>
               <div className="mt-2 space-y-1">
                 <Label htmlFor="queries-csv" className="text-xs">Select alerts by a CSV file of queries</Label>
-                <Input
+                <FileDropzone
                   id="queries-csv"
-                  accept=".csv,text/csv"
-                  aria-label="Choose a CSV file of queries to select"
-                  onChange={(event) => {
-                    const file: File | undefined = event.target.files?.[0];
-                    if (file !== undefined) void importQueries(file);
-                  }}
-                  className="text-xs"
+                  label="Choose a CSV file of queries to select"
+                  chosenFileName={queriesFileName}
+                  onFile={(file: File) => { setQueriesFileName(file.name); void importQueries(file); }}
                 />
               </div>
               {matchReport !== "" && <p className="mt-1 text-xs">{matchReport}</p>}

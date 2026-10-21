@@ -20,7 +20,7 @@ import type { Settings } from "src/core/settings";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
-import { Input } from "src/panel/ui/input";
+import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { Label } from "src/panel/ui/label";
 import { Select } from "src/panel/ui/select";
 import { SettingsForm } from "src/panel/components/settings-form";
@@ -207,14 +207,10 @@ export function CreateView({
             >
               Download template CSV
             </Button>
-            <Input
-              accept=".csv,text/csv"
-              aria-label="Choose a CSV file"
-              onChange={(event) => {
-                const file: File | undefined = event.target.files?.[0];
-                if (file !== undefined) void importFile(file);
-              }}
-              className="text-xs"
+            <FileDropzone
+              label="Choose a CSV file"
+              chosenFileName={fileName}
+              onFile={(file: File) => { void importFile(file); }}
             />
           </div>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
