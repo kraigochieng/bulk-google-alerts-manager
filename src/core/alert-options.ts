@@ -61,3 +61,28 @@ export function parseHowOften({ text }: { text: string }): HowOften | null {
   if (["weekly", "atmostonceaweek", "week", "onceweekly"].includes(simple)) return "weekly";
   return null;
 }
+
+/** The text of the six dropdowns of one alert, as the Alerts page shows them. */
+export interface PageOptionTexts {
+  readonly delivery: string;
+  readonly frequency: string;
+  readonly sources: string;
+  readonly language: string;
+  readonly region: string;
+  readonly volume: string;
+}
+
+/** Turn the dropdown texts of an alert into its options. Return null when the frequency or the volume text is unknown. */
+export function optionsFromPageTexts({ texts }: { texts: PageOptionTexts }): AlertOptions | null {
+  const howOften: HowOften | null = parseHowOften({ text: texts.frequency });
+  const howMany: HowMany | null = parseHowMany({ text: texts.volume });
+  if (howOften === null || howMany === null) return null;
+  return {
+    howOften,
+    howMany,
+    deliverTo: parseDeliverTo({ text: texts.delivery }) ?? "email",
+    sources: texts.sources.trim(),
+    language: texts.language.trim(),
+    region: texts.region.trim(),
+  };
+}
