@@ -27,9 +27,9 @@ describe("parseRunSnapshot", () => {
   });
 
   it("gives an item saved without an action the action of its run kind", () => {
-    const saved = { id: 0, query: "a", label: "", status: "pending", rssLink: "", errorMessage: "", options: null };
-    expect(parseRunSnapshot({ value: { kind: "delete", status: "ready", notice: "", items: [saved] } })?.items[0]?.action).toBe("delete");
-    expect(parseRunSnapshot({ value: { kind: "create", status: "ready", notice: "", items: [saved] } })?.items[0]?.action).toBe("create");
+    const saved = { id: 0, query: "a", label: "", status: "pending", errorMessage: "", options: null };
+    expect(parseRunSnapshot({ value: { kind: "delete", status: "paused", notice: "", items: [saved] } })?.items[0]?.action).toBe("delete");
+    expect(parseRunSnapshot({ value: { kind: "create", status: "paused", notice: "", items: [saved] } })?.items[0]?.action).toBe("create");
   });
 
   it.each([

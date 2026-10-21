@@ -1,4 +1,3 @@
-import { normaliseQuery } from "src/core/query-normaliser";
 import type { RowStatus, RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 export type RunEvent =
@@ -7,14 +6,12 @@ export type RunEvent =
   | { readonly type: "resume" }
   | { readonly type: "cancel" }
   | { readonly type: "interrupted" }
-  | { readonly type: "row_done"; readonly itemId: number; readonly rssLink: string }
+  | { readonly type: "row_done"; readonly itemId: number }
   | { readonly type: "row_failed"; readonly itemId: number; readonly message: string }
   | { readonly type: "queue_empty" }
   | { readonly type: "captcha_seen" }
   | { readonly type: "captcha_cleared" }
-  | { readonly type: "layout_changed"; readonly message: string }
-  | { readonly type: "retry_failed" }
-  | { readonly type: "links_filled"; readonly linksByQuery: Readonly<Record<string, string>> };
+  | { readonly type: "layout_changed"; readonly message: string };
 
 const CAPTCHA_NOTICE: string = "Google shows a bot check. Solve it in the Alerts tab, then continue.";
 
@@ -22,7 +19,6 @@ const CAPTCHA_NOTICE: string = "Google shows a bot check. Solve it in the Alerts
 export function nextRunStatus({ status, event }: { status: RunStatus; event: RunEvent }): RunStatus {
   switch (status) {
     case "idle":
-    case "ready":
       return event.type === "start" ? "running" : status;
     case "running":
       return runningTransition({ event });
@@ -34,7 +30,7 @@ export function nextRunStatus({ status, event }: { status: RunStatus; event: Run
       return event.type === "cancel" ? "cancelled" : status;
     case "completed":
     case "cancelled":
-      return event.type === "retry_failed" ? "ready" : status;
+      return status;
   }
 }
 
@@ -89,7 +85,6 @@ function noticeFor({ event, previous }: { event: RunEvent; previous: string }): 
     case "start":
     case "resume":
     case "captcha_cleared":
-    case "retry_failed":
     case "queue_empty":
       return "";
     default:
@@ -105,28 +100,16 @@ export function applyRunEvent({ run, event }: { run: RunSnapshot; event: RunEven
   const status: RunStatus = nextRunStatus({ status: run.status, event });
   const changed: boolean = status !== run.status;
   let items: readonly RunItem[] = run.items;
-  const resultMayArrive: boolean = !["idle", "ready"].includes(run.status);
+  const resultMayArrive: boolean = run.status !== "idle";
   if (resultMayArrive && event.type === "row_done") {
     items = updateItem({
       items,
       itemId: event.itemId,
-      update: { status: statusAfterDone({ action: itemActionOf({ items, itemId: event.itemId }) }), rssLink: event.rssLink, errorMessage: "" },
+      update: { status: statusAfterDone({ action: itemActionOf({ items, itemId: event.itemId }) }), errorMessage: "" },
     });
   }
   if (resultMayArrive && event.type === "row_failed") {
     items = updateItem({ items, itemId: event.itemId, update: { status: "failed", errorMessage: event.message } });
-  }
-  if (run.status === "completed" && event.type === "links_filled") {
-    items = items.map((item: RunItem) =>
-      (item.status === "created" || item.status === "updated") && item.rssLink === ""
-        ? { ...item, rssLink: event.linksByQuery[normaliseQuery({ query: item.query })] ?? "" }
-        : item,
-    );
-  }
-  if (changed && event.type === "retry_failed") {
-    items = items.map((item: RunItem) =>
-      item.status === "failed" ? { ...item, status: "pending", errorMessage: "" } : item,
-    );
   }
   return { ...run, status, items, notice: changed || event.type === "row_done" ? noticeFor({ event, previous: run.notice }) : run.notice };
 }

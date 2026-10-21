@@ -23,7 +23,6 @@ export function buildCreateRun({
       options: resolveOptions({ defaults, overrides: entry.row.overrides }),
       label: entry.row.label,
       status: entry.action === "skip" ? "skipped" : "pending",
-      rssLink: "",
       errorMessage: "",
     }),
   );
@@ -40,7 +39,6 @@ export function buildDeleteRun({ queries }: { queries: readonly string[] }): Run
       options: null,
       label: "",
       status: "pending",
-      rssLink: "",
       errorMessage: "",
     }),
   );

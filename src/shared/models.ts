@@ -41,7 +41,6 @@ export type RunKind = "create" | "delete";
 
 export type RunStatus =
   | "idle"
-  | "ready"
   | "running"
   | "paused"
   | "awaiting_captcha"
@@ -56,7 +55,6 @@ export interface RunItem {
   readonly options: AlertOptions | null;
   readonly label: string;
   readonly status: RowStatus;
-  readonly rssLink: string;
   readonly errorMessage: string;
 }
 

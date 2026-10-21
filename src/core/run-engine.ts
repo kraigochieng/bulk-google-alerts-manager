@@ -1,9 +1,8 @@
 import { pickDelayMilliseconds } from "src/core/delay";
 import { nextPendingItem } from "src/core/run-machine";
 import type { RunEvent } from "src/core/run-machine";
-import { normaliseQuery } from "src/core/query-normaliser";
 import type { ContentReply, PanelRequest } from "src/shared/messages";
-import type { LiveAlert, RunItem, RunSnapshot } from "src/shared/models";
+import type { RunItem, RunSnapshot } from "src/shared/models";
 
 /** Everything that the run loop needs from the outside. Side effects stay behind these. */
 export interface RunEngineDependencies {
@@ -51,28 +50,6 @@ async function pageIsReady({ dependencies }: { dependencies: RunEngineDependenci
   return true;
 }
 
-/** Turn live alerts into a map from normalised query to feed link. Pure. */
-export function linksByQuery({ alerts }: { alerts: readonly LiveAlert[] }): Record<string, string> {
-  const links: Record<string, string> = {};
-  for (const alert of alerts) {
-    if (alert.feedUrl !== null) {
-      links[normaliseQuery({ query: alert.query })] = alert.feedUrl;
-    }
-  }
-  return links;
-}
-
-async function fillLinksFromLiveList({ dependencies }: { dependencies: RunEngineDependencies }): Promise<void> {
-  try {
-    const reply: ContentReply = await dependencies.sendToPage({ kind: "read_alerts" });
-    if (reply.ok && reply.kind === "alerts") {
-      dependencies.dispatch({ type: "links_filled", linksByQuery: linksByQuery({ alerts: reply.alerts }) });
-    }
-  } catch {
-    // The run is complete. A missing link list does not fail it. The result CSV shows empty links.
-  }
-}
-
 /** Run one queued item on the page and dispatch its result. Returns false when the loop must stop. */
 async function runItem({
   dependencies,
@@ -94,11 +71,7 @@ async function runItem({
     return false;
   }
   if (reply.ok) {
-    dependencies.dispatch({
-      type: "row_done",
-      itemId: item.id,
-      rssLink: reply.kind === "created" || reply.kind === "updated" ? (reply.feedUrl ?? "") : "",
-    });
+    dependencies.dispatch({ type: "row_done", itemId: item.id });
     return true;
   }
   if (reply.botCheck) {
@@ -122,9 +95,6 @@ export async function runQueue({ dependencies }: { dependencies: RunEngineDepend
     const item: RunItem | null = nextPendingItem({ run: dependencies.getRun() });
     if (item === null) {
       dependencies.dispatch({ type: "queue_empty" });
-      if (dependencies.getRun().kind === "create") {
-        await fillLinksFromLiveList({ dependencies });
-      }
       return;
     }
     if (!(await pageIsReady({ dependencies }))) {

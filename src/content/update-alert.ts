@@ -60,7 +60,7 @@ async function waitForReplacedRow({
 }
 
 /**
- * Set the six options of the alert that has this query and return its feed link (null for email).
+ * Set the six options of the alert that has this query.
  * Side effect: opens the alert in edit mode, changes it, and saves it. An alert that already has the options stays as it is.
  */
 export async function updateAlert({
@@ -69,7 +69,7 @@ export async function updateAlert({
 }: {
   query: string;
   options: AlertOptions;
-}): Promise<string | null> {
+}): Promise<void> {
   throwIfBotCheck();
   await expandAllAlerts();
   const normalisedQuery: string = normaliseQuery({ query });
@@ -98,13 +98,11 @@ export async function updateAlert({
     try {
       const updateButton: HTMLElement = await waitForEnabledUpdateButton();
       syntheticClick({ element: updateButton });
-      const savedRow: AlertRowElement = await waitForReplacedRow({ previousRow: row.element, normalisedQuery, query });
-      return savedRow.alert.feedUrl;
+      await waitForReplacedRow({ previousRow: row.element, normalisedQuery, query });
     } catch (error: unknown) {
       if (!(error instanceof AlertUnchangedError)) throw error;
     }
   } finally {
     await resetFormIfNeeded();
   }
-  return findRow({ normalisedQuery })?.alert.feedUrl ?? null;
 }

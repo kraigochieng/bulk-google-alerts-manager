@@ -5,7 +5,7 @@ import type { RunEvent } from "src/core/run-machine";
 import type { RunItem, RunSnapshot, RunStatus } from "src/shared/models";
 
 function item({ id, status, action = "create" }: { id: number; status: RunItem["status"]; action?: RunItem["action"] }): RunItem {
-  return { id, query: `q${String(id)}`, action, options: null, label: "", status, rssLink: "", errorMessage: "" };
+  return { id, query: `q${String(id)}`, action, options: null, label: "", status, errorMessage: "" };
 }
 
 function run({ status, items }: { status: RunStatus; items: RunItem[] }): RunSnapshot {
@@ -14,8 +14,7 @@ function run({ status, items }: { status: RunStatus; items: RunItem[] }): RunSna
 
 const TABLE: [RunStatus, RunEvent, RunStatus][] = [
   ["idle", { type: "start" }, "running"],
-  ["ready", { type: "start" }, "running"],
-  ["running", { type: "row_done", itemId: 1, rssLink: "" }, "running"],
+  ["running", { type: "row_done", itemId: 1 }, "running"],
   ["running", { type: "row_failed", itemId: 1, message: "x" }, "running"],
   ["running", { type: "queue_empty" }, "completed"],
   ["running", { type: "pause", reason: "r" }, "paused"],
@@ -27,14 +26,12 @@ const TABLE: [RunStatus, RunEvent, RunStatus][] = [
   ["paused", { type: "cancel" }, "cancelled"],
   ["awaiting_captcha", { type: "captcha_cleared" }, "running"],
   ["awaiting_captcha", { type: "cancel" }, "cancelled"],
-  ["completed", { type: "retry_failed" }, "ready"],
-  ["cancelled", { type: "retry_failed" }, "ready"],
   // ignored pairs
   ["idle", { type: "pause", reason: "r" }, "idle"],
   ["idle", { type: "resume" }, "idle"],
   ["paused", { type: "start" }, "paused"],
   ["paused", { type: "queue_empty" }, "paused"],
-  ["paused", { type: "row_done", itemId: 1, rssLink: "" }, "paused"],
+  ["paused", { type: "row_done", itemId: 1 }, "paused"],
   ["cancelled", { type: "row_failed", itemId: 1, message: "x" }, "cancelled"],
   ["awaiting_captcha", { type: "resume" }, "awaiting_captcha"],
   ["completed", { type: "start" }, "completed"],
@@ -51,27 +48,27 @@ describe("nextRunStatus", () => {
 describe("applyRunEvent", () => {
   const items: RunItem[] = [item({ id: 1, status: "pending" }), item({ id: 2, status: "pending" })];
 
-  it("records a created row with its RSS link", () => {
+  it("records a created row", () => {
     const next = applyRunEvent({
       run: run({ status: "running", items }),
-      event: { type: "row_done", itemId: 1, rssLink: "https://x/feed" },
+      event: { type: "row_done", itemId: 1 },
     });
-    expect(next.items[0]).toMatchObject({ status: "created", rssLink: "https://x/feed" });
+    expect(next.items[0]).toMatchObject({ status: "created" });
     expect(next.items[1]?.status).toBe("pending");
   });
 
   it("records an updated row for an update item", () => {
     const next = applyRunEvent({
       run: run({ status: "running", items: [item({ id: 1, status: "pending", action: "update" })] }),
-      event: { type: "row_done", itemId: 1, rssLink: "https://x/feed" },
+      event: { type: "row_done", itemId: 1 },
     });
-    expect(next.items[0]).toMatchObject({ status: "updated", rssLink: "https://x/feed" });
+    expect(next.items[0]).toMatchObject({ status: "updated" });
   });
 
   it("records a deleted row in a delete run", () => {
     const next = applyRunEvent({
       run: { ...run({ status: "running", items: [item({ id: 1, status: "pending", action: "delete" }), item({ id: 2, status: "pending", action: "delete" })] }), kind: "delete" },
-      event: { type: "row_done", itemId: 2, rssLink: "" },
+      event: { type: "row_done", itemId: 2 },
     });
     expect(next.items[1]?.status).toBe("deleted");
   });
@@ -86,14 +83,14 @@ describe("applyRunEvent", () => {
 
   it("records a row result that arrives after a pause and keeps the run paused", () => {
     const paused = run({ status: "paused", items });
-    const next = applyRunEvent({ run: paused, event: { type: "row_done", itemId: 1, rssLink: "" } });
+    const next = applyRunEvent({ run: paused, event: { type: "row_done", itemId: 1 } });
     expect(next.status).toBe("paused");
     expect(next.items[0]?.status).toBe("created");
   });
 
   it("ignores a row result before the run starts", () => {
-    const ready = run({ status: "ready", items });
-    expect(applyRunEvent({ run: ready, event: { type: "row_done", itemId: 1, rssLink: "" } }).items[0]?.status).toBe("pending");
+    const idle = run({ status: "idle", items });
+    expect(applyRunEvent({ run: idle, event: { type: "row_done", itemId: 1 } }).items[0]?.status).toBe("pending");
   });
 
   it("sets a notice for a bot check and clears it on resume", () => {
@@ -110,37 +107,6 @@ describe("applyRunEvent", () => {
       event: { type: "layout_changed", message: "layout" },
     });
     expect(next).toMatchObject({ status: "paused", notice: "layout" });
-  });
-
-  it("puts failed rows back to pending on retry", () => {
-    const done = run({ status: "completed", items: [item({ id: 1, status: "failed" }), item({ id: 2, status: "created" })] });
-    const next = applyRunEvent({ run: done, event: { type: "retry_failed" } });
-    expect(next.status).toBe("ready");
-    expect(next.items.map((entry) => entry.status)).toEqual(["pending", "created"]);
-  });
-});
-
-describe("links_filled", () => {
-  it("fills missing RSS links of created rows after completion", () => {
-    const done = run({
-      status: "completed",
-      items: [
-        { ...item({ id: 1, status: "created" }), query: "Solar  Power" },
-        { ...item({ id: 2, status: "created" }), query: "kept", rssLink: "old" },
-        item({ id: 3, status: "failed" }),
-      ],
-    });
-    const next = applyRunEvent({
-      run: done,
-      event: { type: "links_filled", linksByQuery: { "solar power": "https://x/solar", kept: "new" } },
-    });
-    expect(next.items.map((entry) => entry.rssLink)).toEqual(["https://x/solar", "old", ""]);
-  });
-
-  it("is ignored while the run is not completed", () => {
-    const paused = run({ status: "paused", items: [item({ id: 1, status: "created" })] });
-    const next = applyRunEvent({ run: paused, event: { type: "links_filled", linksByQuery: { q1: "u" } } });
-    expect(next.items[0]?.rssLink).toBe("");
   });
 });
 

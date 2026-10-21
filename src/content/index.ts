@@ -31,17 +31,11 @@ async function handleRequest({ request }: { request: PanelRequest }): Promise<Co
     case "read_alerts":
       return { ok: true, kind: "alerts", alerts: await readAllAlerts() };
     case "create_alert":
-      return {
-        ok: true,
-        kind: "created",
-        feedUrl: await createAlert({ query: request.query, options: request.options }),
-      };
+      await createAlert({ query: request.query, options: request.options });
+      return { ok: true, kind: "created" };
     case "update_alert":
-      return {
-        ok: true,
-        kind: "updated",
-        feedUrl: await updateAlert({ query: request.query, options: request.options }),
-      };
+      await updateAlert({ query: request.query, options: request.options });
+      return { ok: true, kind: "updated" };
     case "read_alert_options":
       return { ok: true, kind: "alert_options", options: await readAlertOptions({ query: request.query }) };
     case "delete_alert":
