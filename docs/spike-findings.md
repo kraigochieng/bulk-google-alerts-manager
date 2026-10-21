@@ -42,3 +42,11 @@ A new row appears with empty text for a short time after Create. The list reader
 - The alert cap of 1000 and the page behavior at the cap.
 - A real CAPTCHA or throttle page.
 - The loaded extension itself in Chrome (content script, side panel).
+
+## Edit mode (tested 2026-10-21 for the Export tab)
+
+- The row has `.edit_button` next to `.delete_button`.
+- Edit mode reuses `#create-alert-div`. The query box holds the alert query, the options show without the toggle, and `.close_icon` closes the form without a change.
+- Dropdown texts read in edit mode: "At most once a day", "Only the best results", "English", "Any Region", "Automatic".
+- The delivery dropdown shows the account email address for an email alert.
+- Tested by reading the DOM of the real page with a real click. The built extension was not loaded in this test.
