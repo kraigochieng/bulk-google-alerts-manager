@@ -25,7 +25,7 @@ Add
 - Set all alert options: RSS or email, how often, sources, language, region, how many.
 - A row with the same query as an existing alert updates that alert. See warnings for alerts that look alike.
 - See the alert limit (1000 alerts for each account) before you start.
-- Random wait between alerts, set by the extension. Pause, resume, cancel, and retry.
+- Pause, resume, and cancel of a run.
 - A dialog shows the result when a run ends.
 
 Export

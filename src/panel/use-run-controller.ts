@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { RUN_DELAY_RANGE_MILLISECONDS } from "src/core/delay";
 import { applyRunEvent } from "src/core/run-machine";
 import type { RunEvent } from "src/core/run-machine";
 import { runQueue } from "src/core/run-engine";
@@ -53,13 +52,6 @@ export function useRunController(): RunController {
       },
       dispatch: send,
       sendToPage: (request) => sendToAlertsTab({ request }),
-      sleep: (milliseconds: number) =>
-        new Promise<void>((resolve) => {
-          window.setTimeout(resolve, milliseconds);
-        }),
-      random: () => Math.random(),
-      minimumDelayMilliseconds: RUN_DELAY_RANGE_MILLISECONDS.minimum,
-      maximumDelayMilliseconds: RUN_DELAY_RANGE_MILLISECONDS.maximum,
     };
     runQueue({ dependencies }).finally(() => {
       loopActive.current = false;

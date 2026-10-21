@@ -12,8 +12,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
   A CSV column overrides the default for its row.
 - A row with the same query as an existing alert updates that alert (upsert). Warning for same-word and similar alerts: skip a row or create it anyway.
 - Alert cap check (1000 alerts for each account).
-- Random wait between alerts. The extension sets the wait. It is not a user setting.
-- Pause, resume, cancel, and retry of failed rows. A run that was interrupted comes back as paused.
+- Pause, resume, and cancel of a run. A run that was interrupted comes back as paused.
 - A foggy loader with a progress bar shows while a run works. A dialog shows the result when it ends.
 - Export every alert with its six options and its feed link to one CSV file. The file downloads by itself. Import the file in the Add tab of another account.
 - Delete with a list of the alerts to delete and a confirmation dialog that names the count.
@@ -27,7 +26,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - It works for the one Google account that is signed in to the browser profile.
 - Keep the Alerts tab open and in the foreground during a run.
 - Deletion is permanent. The extension cannot undo it.
-- A random wait lowers the load on the page. It does not guarantee that no bot check appears.
+- A run does its rows one after the other with no wait. On a large batch Google can show a bot check. The run then stops and asks you to solve it.
 
 ## Privacy
 

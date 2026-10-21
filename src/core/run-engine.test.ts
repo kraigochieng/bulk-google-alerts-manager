@@ -19,8 +19,8 @@ function harness({
 }: {
   initial: RunSnapshot;
   respond: (request: PanelRequest) => ContentReply | Error;
-}): { dependencies: RunEngineDependencies; state: { run: RunSnapshot; sleeps: number[]; requests: PanelRequest[] } } {
-  const state = { run: initial, sleeps: [] as number[], requests: [] as PanelRequest[] };
+}): { dependencies: RunEngineDependencies; state: { run: RunSnapshot; requests: PanelRequest[] } } {
+  const state = { run: initial, requests: [] as PanelRequest[] };
   const dependencies: RunEngineDependencies = {
     getRun: () => state.run,
     dispatch: (event: RunEvent) => {
@@ -31,13 +31,6 @@ function harness({
       const reply = respond(request);
       return reply instanceof Error ? Promise.reject(reply) : Promise.resolve(reply);
     },
-    sleep: (milliseconds: number) => {
-      state.sleeps.push(milliseconds);
-      return Promise.resolve();
-    },
-    random: () => 0,
-    minimumDelayMilliseconds: 6000,
-    maximumDelayMilliseconds: 14000,
   };
   return { dependencies, state };
 }
@@ -58,7 +51,7 @@ function createRun({ queries }: { queries: string[] }): RunSnapshot {
 }
 
 describe("runQueue", () => {
-  it("creates every row and waits between rows", async () => {
+  it("creates every row one after the other", async () => {
     const { dependencies, state } = harness({
       initial: createRun({ queries: ["a", "b"] }),
       respond: (request) => {
@@ -69,7 +62,6 @@ describe("runQueue", () => {
     await runQueue({ dependencies });
     expect(state.run.status).toBe("completed");
     expect(state.run.items.map((item) => item.status)).toEqual(["created", "created"]);
-    expect(state.sleeps).toEqual([6000]);
   });
 
   it("sends an update request for an update item", async () => {
