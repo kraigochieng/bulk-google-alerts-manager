@@ -1,5 +1,5 @@
 import { CONNECT_MESSAGE_KIND } from "src/shared/frame-messages";
-import type { FrameToPage, PageToFrame } from "src/shared/frame-messages";
+import type { FrameToPage, PageCommand, PageToFrame } from "src/shared/frame-messages";
 import type { ContentReply, PanelRequest } from "src/shared/messages";
 import type { LiveAlert } from "src/shared/models";
 
@@ -7,6 +7,7 @@ let pagePort: MessagePort | null = null;
 let nextRequestId: number = 0;
 let checkedAlerts: readonly LiveAlert[] = [];
 const selectionListeners: Set<() => void> = new Set();
+const commandListeners: Set<(command: PageCommand) => void> = new Set();
 const pendingReplies: Map<number, (reply: ContentReply) => void> = new Map();
 
 /** Wait for the page to hand over its private port. Side effect: listens for one window message. */
@@ -29,6 +30,10 @@ export function connectToPage(): Promise<void> {
         if (message.kind === "selection") {
           checkedAlerts = message.alerts;
           selectionListeners.forEach((listener: () => void) => { listener(); });
+          return;
+        }
+        if (message.kind === "command") {
+          commandListeners.forEach((listener: (command: PageCommand) => void) => { listener(message.command); });
           return;
         }
         const resolveReply: ((reply: ContentReply) => void) | undefined = pendingReplies.get(message.id);
@@ -76,5 +81,18 @@ export function subscribeToCheckedAlerts({ listener }: { listener: () => void })
   selectionListeners.add(listener);
   return (): void => {
     selectionListeners.delete(listener);
+  };
+}
+
+/** Ask the page to open the app. Side effect: messages the page. */
+export function requestOpen(): void {
+  post({ message: { kind: "open" } });
+}
+
+/** Call the listener when the user starts an action from the bar. Return a function that stops the calls. */
+export function subscribeToCommands({ listener }: { listener: (command: PageCommand) => void }): () => void {
+  commandListeners.add(listener);
+  return (): void => {
+    commandListeners.delete(listener);
   };
 }

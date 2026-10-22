@@ -2,7 +2,7 @@ import { chooseFrameLayout } from "src/core/frame-layout";
 import type { FrameLayout } from "src/core/frame-layout";
 import { dispatchPageRequest } from "src/content/page-requests";
 import { CONNECT_MESSAGE_KIND, parseFrameToPage } from "src/shared/frame-messages";
-import type { FrameToPage, PageToFrame } from "src/shared/frame-messages";
+import type { FrameToPage, PageCommand, PageToFrame } from "src/shared/frame-messages";
 import type { ContentReply } from "src/shared/messages";
 import type { LiveAlert } from "src/shared/models";
 
@@ -29,6 +29,8 @@ function applyLayout({ element }: { element: HTMLIFrameElement }): void {
 function handleFrameMessage({ message, port, element }: { message: FrameToPage; port: MessagePort; element: HTMLIFrameElement }): void {
   if (message.kind === "close") {
     frameOpen = false;
+  } else if (message.kind === "open") {
+    frameOpen = true;
   } else if (message.kind === "busy") {
     frameBusy = message.busy;
   } else {
@@ -44,6 +46,16 @@ function handleFrameMessage({ message, port, element }: { message: FrameToPage; 
 /** Send the checked alerts to the app frame, when it is connected. Side effect: messages the frame. */
 function sendCheckedAlerts(): void {
   const message: PageToFrame = { kind: "selection", alerts: checkedAlerts };
+  framePort?.postMessage(message);
+}
+
+/** Send a command of the bar to the app frame. The Add command also opens the drawer. Side effect: messages the frame. */
+export function sendCommand({ command }: { command: PageCommand }): void {
+  if (command === "add") {
+    frameOpen = true;
+    if (frame !== null) applyLayout({ element: frame });
+  }
+  const message: PageToFrame = { kind: "command", command };
   framePort?.postMessage(message);
 }
 

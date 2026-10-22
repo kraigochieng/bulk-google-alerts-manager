@@ -6,7 +6,7 @@ describe("buildDeleteConfirmation", () => {
   it("names the count in the title and every query when the list is short", () => {
     expect(buildDeleteConfirmation({ queries: ["a", "b"], previewLimit: 5 })).toEqual({
       title: "Delete 2 alerts permanently?",
-      description: "You cannot undo this. Use the Export tab first to keep a copy.\n\n- a\n- b",
+      description: "You cannot undo this. Use Export first to keep a copy.\n\n- a\n- b",
     });
   });
 

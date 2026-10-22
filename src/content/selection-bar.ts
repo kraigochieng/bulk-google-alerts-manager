@@ -1,3 +1,5 @@
+import type { PageCommand } from "src/shared/frame-messages";
+
 const BAR_STYLE: string = `
   :host { all: initial; }
   .bar {
@@ -11,8 +13,32 @@ const BAR_STYLE: string = `
   label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
   input { width: 18px; height: 18px; margin: 0; accent-color: #1a73e8; cursor: pointer; }
   button { border: 0; background: none; color: #1a73e8; font: inherit; cursor: pointer; padding: 4px 8px; }
+  .actions { display: flex; gap: 4px; margin-left: 8px; padding-left: 8px; border-left: 1px solid #dadce0; }
+  .actions button { border-radius: 16px; padding: 4px 12px; }
+  .actions button.primary { background: #1a73e8; color: #ffffff; }
+  .actions button.danger { color: #d93025; }
+  .actions button.primary:disabled, .actions button.danger:disabled { background: none; color: #9aa0a6; }
   button:disabled { color: #9aa0a6; cursor: default; }
 `;
+
+/** Make one action button. A click calls onCommand with the command. */
+function createActionButton({
+  label,
+  command,
+  onCommand,
+}: {
+  label: string;
+  command: PageCommand;
+  onCommand: (command: PageCommand) => void;
+}): HTMLButtonElement {
+  const button: HTMLButtonElement = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  button.addEventListener("click", () => {
+    onCommand(command);
+  });
+  return button;
+}
 
 /** What the bar shows. */
 export interface SelectionBarView {
@@ -25,13 +51,15 @@ export interface SelectionBar {
   readonly update: (view: SelectionBarView) => void;
 }
 
-/** Add a floating bar with a check-all checkbox, the count, and a clear button. Side effect: adds an element to the page. */
+/** Add a floating bar with a check-all checkbox, the count, a clear button, and the action buttons. Side effect: adds an element to the page. */
 export function createSelectionBar({
   onSelectAll,
   onClear,
+  onCommand,
 }: {
   onSelectAll: () => void;
   onClear: () => void;
+  onCommand: (command: PageCommand) => void;
 }): SelectionBar {
   const host: HTMLElement = document.createElement("div");
   const shadowRoot: ShadowRoot = host.attachShadow({ mode: "open" });
@@ -48,7 +76,15 @@ export function createSelectionBar({
   const clear: HTMLButtonElement = document.createElement("button");
   clear.type = "button";
   clear.textContent = "Clear";
-  bar.append(label, clear);
+  const actions: HTMLDivElement = document.createElement("div");
+  actions.className = "actions";
+  const exportButton: HTMLButtonElement = createActionButton({ label: "Export", command: "export", onCommand });
+  const deleteButton: HTMLButtonElement = createActionButton({ label: "Delete", command: "delete", onCommand });
+  deleteButton.className = "danger";
+  const addButton: HTMLButtonElement = createActionButton({ label: "Add alerts", command: "add", onCommand });
+  addButton.className = "primary";
+  actions.append(exportButton, deleteButton, addButton);
+  bar.append(label, clear, actions);
   shadowRoot.append(style, bar);
   document.body.append(host);
 
@@ -65,6 +101,8 @@ export function createSelectionBar({
       checkAll.indeterminate = selectedCount > 0 && selectedCount < totalCount;
       count.textContent = selectedCount === 0 ? "Select all" : `${String(selectedCount)} selected`;
       clear.disabled = selectedCount === 0;
+      exportButton.disabled = selectedCount === 0;
+      deleteButton.disabled = selectedCount === 0;
     },
   };
 }

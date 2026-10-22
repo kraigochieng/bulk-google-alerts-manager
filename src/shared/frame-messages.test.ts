@@ -7,6 +7,10 @@ describe("parseFrameToPage", () => {
     expect(parseFrameToPage({ value: { kind: "close" } })).toEqual({ kind: "close" });
   });
 
+  it("accepts open", () => {
+    expect(parseFrameToPage({ value: { kind: "open" } })).toEqual({ kind: "open" });
+  });
+
   it("accepts busy with a boolean", () => {
     expect(parseFrameToPage({ value: { kind: "busy", busy: true } })).toEqual({ kind: "busy", busy: true });
   });
