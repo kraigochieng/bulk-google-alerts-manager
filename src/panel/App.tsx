@@ -104,8 +104,8 @@ export function App(): JSX.Element {
         className="mt-3"
       />
       {view === "create" && <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />}
-      {view === "delete" && <DeleteView controller={controller} live={live} />}
-      {view === "export" && <ExportView exporter={exporter} live={live} />}
+      {view === "delete" && <DeleteView controller={controller} />}
+      {view === "export" && <ExportView exporter={exporter} />}
       </main>
       {run !== null && runActive && (
         <RunOverlay
