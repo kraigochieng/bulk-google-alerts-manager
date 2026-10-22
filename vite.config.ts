@@ -9,5 +9,6 @@ import manifest from "./manifest.config";
 export default defineConfig({
   plugins: [react(), tailwindcss(), crx({ manifest })],
   resolve: { alias: { src: resolve(__dirname, "src") } },
+  build: { rollupOptions: { input: { app: resolve(__dirname, "app.html") } } },
   test: { include: ["src/**/*.test.ts"] },
 });

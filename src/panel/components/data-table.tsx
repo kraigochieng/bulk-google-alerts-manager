@@ -4,7 +4,6 @@ import type { JSX, ReactNode } from "react";
 import { DEFAULT_PAGE_SIZE, pageRangeLabel, queryTable } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { SortDirection, TableSchema, TableState } from "src/core/table-state";
-import type { HistoryMode } from "src/panel/use-table-url-state";
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
 import { TextField } from "src/panel/ui/text-field";
@@ -24,7 +23,7 @@ export interface DataTableProps<Row, Key extends string | number> {
   readonly renderCell: (row: Row, columnKey: string) => ReactNode;
   readonly schema: TableSchema;
   readonly state: TableState;
-  readonly onStateChange: (next: TableState, options: { history: HistoryMode }) => void;
+  readonly onStateChange: (next: TableState) => void;
   readonly filters: Readonly<Record<string, (row: Row) => boolean>>;
   readonly filterLabels: Readonly<Record<string, string>>;
   readonly selection?: RowSelection<Key>;
@@ -53,12 +52,12 @@ export function DataTable<Row, Key extends string | number>({
   const allSelected: boolean =
     selection !== undefined && selectableKeys.length > 0 && selectableKeys.every((key: Key) => selection.selected.has(key));
 
-  const change = (partial: Partial<TableState>, history: HistoryMode): void => {
-    onStateChange({ ...state, ...partial }, { history });
+  const change = (partial: Partial<TableState>): void => {
+    onStateChange({ ...state, ...partial });
   };
   const toggleSort = (key: string): void => {
     const direction: SortDirection = state.sortKey === key && state.sortDirection === "asc" ? "desc" : "asc";
-    change({ sortKey: key, sortDirection: direction, page: 0 }, "replace");
+    change({ sortKey: key, sortDirection: direction, page: 0 });
   };
 
   return (
@@ -71,7 +70,7 @@ export function DataTable<Row, Key extends string | number>({
             placeholder="Search"
             value={state.search}
             onValueChange={(search: string) => {
-              change({ search, page: 0 }, "replace");
+              change({ search, page: 0 });
             }}
             className="w-full"
           />
@@ -82,7 +81,7 @@ export function DataTable<Row, Key extends string | number>({
               size="icon"
               aria-label="Clear search"
               onClick={() => {
-                change({ search: "", page: 0 }, "replace");
+                change({ search: "", page: 0 });
               }}
               className="absolute right-0 top-0 size-8"
             >
@@ -94,7 +93,7 @@ export function DataTable<Row, Key extends string | number>({
           <Select
             value={state.filter}
             onValueChange={(value: string) => {
-              change({ filter: value, page: 0 }, "replace");
+              change({ filter: value, page: 0 });
             }}
             aria-label="Filter the table"
             className="w-40"
@@ -168,13 +167,13 @@ export function DataTable<Row, Key extends string | number>({
         </Table>
       </div>
       <div className="mt-1 flex items-center justify-between text-xs">
-        <Button type="button" variant="outline" size="sm" disabled={page.page === 0} onClick={() => { change({ page: page.page - 1 }, "push"); }}>
+        <Button type="button" variant="outline" size="sm" disabled={page.page === 0} onClick={() => { change({ page: page.page - 1 }); }}>
           Previous
         </Button>
         <span>
           {pageRangeLabel({ page: page.page, pageSize: DEFAULT_PAGE_SIZE, totalMatching: page.totalMatching })} · Page {String(page.page + 1)} of {String(page.pageCount)}
         </span>
-        <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }, "push"); }}>
+        <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }); }}>
           Next
         </Button>
       </div>

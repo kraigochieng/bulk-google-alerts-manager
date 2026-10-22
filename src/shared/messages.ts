@@ -68,3 +68,8 @@ export function parsePanelRequest({ value }: { value: unknown }): PanelRequest |
   }
   return null;
 }
+
+/** Tell whether an unknown value is the message that the toolbar icon sends to open or close the app. */
+export function parseToggleMessage({ value }: { value: unknown }): boolean {
+  return asRecord({ value })?.kind === "toggle_app";
+}
