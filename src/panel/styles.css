@@ -64,7 +64,7 @@
   }
 }
 
-/* Compact Material buttons for the side panel. */
+/* Compact Material buttons for the app. */
 .app-button[data-size="sm"] {
   --md-filled-button-container-height: 32px;
   --md-outlined-button-container-height: 32px;

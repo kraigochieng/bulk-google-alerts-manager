@@ -1,0 +1,27 @@
+import { parsePanelRequest } from "src/shared/messages";
+import type { ContentReply, PanelRequest } from "src/shared/messages";
+
+/** The message that the page sends to the app frame to give it a private port. */
+export const CONNECT_MESSAGE_KIND: string = "bulk-alerts:connect";
+
+/** Messages that the app frame sends to the page. */
+export type FrameToPage =
+  | { readonly kind: "request"; readonly id: number; readonly request: PanelRequest }
+  | { readonly kind: "busy"; readonly busy: boolean }
+  | { readonly kind: "close" };
+
+/** Messages that the page sends to the app frame. */
+export type PageToFrame = { readonly kind: "reply"; readonly id: number; readonly reply: ContentReply };
+
+/** Return the frame message in an unknown value, or null when the value is not one. */
+export function parseFrameToPage({ value }: { value: unknown }): FrameToPage | null {
+  if (typeof value !== "object" || value === null) return null;
+  const record: Record<string, unknown> = value as Record<string, unknown>;
+  if (record.kind === "close") return { kind: "close" };
+  if (record.kind === "busy" && typeof record.busy === "boolean") return { kind: "busy", busy: record.busy };
+  if (record.kind === "request" && typeof record.id === "number") {
+    const request: PanelRequest | null = parsePanelRequest({ value: record.request });
+    return request === null ? null : { kind: "request", id: record.id, request };
+  }
+  return null;
+}

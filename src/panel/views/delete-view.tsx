@@ -12,11 +12,10 @@ import { Button } from "src/panel/ui/button";
 import { DataTable } from "src/panel/components/data-table";
 import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
-import { useTableUrlState } from "src/panel/use-table-url-state";
+import { useTableState } from "src/panel/use-table-state";
 import type { LiveAlert } from "src/shared/models";
 
 export const ALERTS_TABLE_SCHEMA: TableSchema = {
-  prefix: "alerts",
   sortKeys: ["query"],
   filters: ["all"],
   defaultState: { search: "", sortKey: "query", sortDirection: "asc", page: 0, filter: "all" },
@@ -38,7 +37,7 @@ export function DeleteView({ controller, live }: { controller: RunController; li
   );
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set());
   const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
-  const [tableState, setTableState] = useTableUrlState({ schema: ALERTS_TABLE_SCHEMA });
+  const [tableState, setTableState] = useTableState({ schema: ALERTS_TABLE_SCHEMA });
 
   useEffect(() => {
     setSelected(new Set());

@@ -2,11 +2,12 @@ import { defineManifest } from "@crxjs/vite-plugin";
 
 export default defineManifest({
   manifest_version: 3,
+  minimum_chrome_version: "120",
   name: "Bulk Google Alerts Manager",
   version: "0.1.0",
   description:
     "Unofficial tool. Not affiliated with Google. Create and delete many alerts from CSV files.",
-  permissions: ["sidePanel", "storage"],
+  permissions: ["storage"],
   host_permissions: ["https://www.google.com/alerts*"],
   background: { service_worker: "src/background/index.ts", type: "module" },
   content_scripts: [
@@ -15,7 +16,7 @@ export default defineManifest({
       js: ["src/content/index.ts"],
     },
   ],
-  side_panel: { default_path: "sidepanel.html" },
+  web_accessible_resources: [{ resources: ["app.html"], matches: ["https://www.google.com/*"] }],
   icons: {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_ALERT_OPTIONS } from "src/core/alert-options";
-import { parsePanelRequest } from "src/shared/messages";
+import { parsePanelRequest, parseToggleMessage } from "src/shared/messages";
 
 describe("parsePanelRequest", () => {
   it("accepts ping and read_alerts", () => {
@@ -46,5 +46,19 @@ describe("parsePanelRequest", () => {
     { kind: "create_alert", query: "q", options: { ...DEFAULT_ALERT_OPTIONS, howMany: "some" } },
   ])("rejects %j", (value: unknown) => {
     expect(parsePanelRequest({ value })).toBeNull();
+  });
+});
+
+describe("parseToggleMessage", () => {
+  it("accepts the toggle message", () => {
+    expect(parseToggleMessage({ value: { kind: "toggle_app" } })).toBe(true);
+  });
+
+  it.each<[string, unknown]>([
+    ["another kind", { kind: "ping" }],
+    ["null", null],
+    ["a string", "toggle_app"],
+  ])("refuses %s", (_label, value) => {
+    expect(parseToggleMessage({ value })).toBe(false);
   });
 });

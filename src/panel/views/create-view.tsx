@@ -29,11 +29,10 @@ import { DataTable } from "src/panel/components/data-table";
 import { downloadTextFile } from "src/panel/chrome-bridge";
 import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
-import { useTableUrlState } from "src/panel/use-table-url-state";
+import { useTableState } from "src/panel/use-table-state";
 import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
 
 export const ROWS_TABLE_SCHEMA: TableSchema = {
-  prefix: "rows",
   sortKeys: ["row", "query", "notes"],
   filters: ["all", "problems", "matches", "checked"],
   defaultState: { search: "", sortKey: "row", sortDirection: "asc", page: 0, filter: "all" },
@@ -80,7 +79,7 @@ export function CreateView({
   const [actionOverrides, setActionOverrides] = useState<Readonly<Record<number, RowAction>>>({});
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [acknowledged, setAcknowledged] = useState<boolean>(false);
-  const [rowsState, setRowsState] = useTableUrlState({ schema: ROWS_TABLE_SCHEMA });
+  const [rowsState, setRowsState] = useTableState({ schema: ROWS_TABLE_SCHEMA });
 
   const rows: readonly ImportRow[] = useMemo(
     () =>
@@ -120,7 +119,7 @@ export function CreateView({
         setMapping(guessed);
         setActionOverrides({});
         setAcknowledged(false);
-        setRowsState(ROWS_TABLE_SCHEMA.defaultState, { history: "replace" });
+        setRowsState(ROWS_TABLE_SCHEMA.defaultState);
         live.refresh();
       } catch (error: unknown) {
         setImportError(error instanceof Error ? error.message : "The file could not be read.");
