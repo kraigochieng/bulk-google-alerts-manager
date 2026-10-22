@@ -44,3 +44,14 @@ export function allRowsSelected({
 }): boolean {
   return liveQueries.length > 0 && liveQueries.every((query: string) => selection.has(query));
 }
+
+/** Count the live rows that are checked. Two rows with one query both count. */
+export function countSelectedRows({
+  selection,
+  liveQueries,
+}: {
+  selection: PageSelection;
+  liveQueries: readonly string[];
+}): number {
+  return liveQueries.filter((query: string) => selection.has(query)).length;
+}

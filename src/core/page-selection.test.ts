@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { allRowsSelected, applySelectionEvent, EMPTY_SELECTION } from "src/core/page-selection";
+import { allRowsSelected, applySelectionEvent, countSelectedRows, EMPTY_SELECTION } from "src/core/page-selection";
 import type { PageSelection } from "src/core/page-selection";
 
 const selectionOf = (...queries: string[]): PageSelection => new Set(queries);
@@ -58,5 +58,19 @@ describe("allRowsSelected", () => {
     ["extra checked query", ["a", "z"], ["a"], true],
   ])("%s", (_label, checked, live, expected) => {
     expect(allRowsSelected({ selection: selectionOf(...checked), liveQueries: live })).toBe(expected);
+  });
+});
+
+describe("countSelectedRows", () => {
+  it("counts the live rows that are checked", () => {
+    expect(countSelectedRows({ selection: selectionOf("a", "z"), liveQueries: ["a", "b"] })).toBe(1);
+  });
+
+  it("counts two rows that share a query", () => {
+    expect(countSelectedRows({ selection: selectionOf("a"), liveQueries: ["a", "a", "b"] })).toBe(2);
+  });
+
+  it("gives 0 for an empty selection", () => {
+    expect(countSelectedRows({ selection: EMPTY_SELECTION, liveQueries: ["a"] })).toBe(0);
   });
 });
