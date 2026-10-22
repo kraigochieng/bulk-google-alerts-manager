@@ -2,7 +2,7 @@ import { DEFAULT_ALERT_OPTIONS } from "src/core/alert-options";
 import { parseAlertOptions } from "src/shared/messages";
 import type { AlertOptions } from "src/shared/models";
 
-/** Settings that the panel saves as the user types. Unknown saved keys are ignored. */
+/** Settings that the app saves as the user types. Unknown saved keys are ignored. */
 export interface Settings {
   readonly risksAccepted: boolean;
   readonly defaults: AlertOptions;

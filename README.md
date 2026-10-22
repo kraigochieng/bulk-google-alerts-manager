@@ -14,8 +14,8 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - Alert cap check (1000 alerts for each account).
 - Pause, resume, and cancel of a run. A run that was interrupted comes back as paused.
 - A foggy loader with a progress bar shows while a run works. A dialog shows the result when it ends.
-- Export every alert with its six options and its feed link to one CSV file. The file downloads by itself. Import the file in the Add tab of another account.
-- Delete with a list of the alerts to delete and a confirmation dialog that names the count.
+- Export the alerts that you check on the page, with their six options and their feed links, to one CSV file. The file downloads by itself. Import the file in the Add tab of another account.
+- Delete the alerts that you check on the page, with a confirmation dialog that names the count.
   Use the Export tab first to keep a copy. The Add tab can import that copy again.
 - The tool never bypasses a bot check. It stops and asks you to solve the check.
 
@@ -39,7 +39,7 @@ It reads and stores no password. See [docs/privacy-policy.md](docs/privacy-polic
 2. Run `npm run build`.
 3. Open `chrome://extensions` and turn on developer mode.
 4. Choose "Load unpacked" and select the `dist` folder.
-5. Open `https://www.google.com/alerts`. Click the extension icon to open the side panel.
+5. Open `https://www.google.com/alerts`. Click the bell button at the bottom right of the page, or the extension icon. The app opens at the right edge of the page.
 
 ## CSV format
 

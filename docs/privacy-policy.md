@@ -16,7 +16,7 @@ Last updated: 2026-10-20.
 - The state of the current run: the queries, their options, and their results.
 
 The extension stores this data in your browser with `chrome.storage.local`.
-The data stays on your device. You can remove it with "Close results" in the panel or by removing the extension.
+The data stays on your device. You can remove it with "Close results" in the app or by removing the extension.
 
 ## What the extension does not do
 
@@ -31,7 +31,6 @@ The data stays on your device. You can remove it with "Close results" in the pan
 | Permission | Reason |
 |---|---|
 | Host access to `https://www.google.com/alerts*` | Read the alert list and drive the create and delete controls on that page. |
-| `sidePanel` | Show the tool in the Chrome side panel. |
 | `storage` | Keep your settings and the current run in your browser. |
 
 ## Contact

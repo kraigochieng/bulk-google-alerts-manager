@@ -12,7 +12,7 @@ export interface AlertOptions {
   readonly deliverTo: DeliverTo;
 }
 
-/** Alert options that a CSV row sets. A missing key uses the panel default. */
+/** Alert options that a CSV row sets. A missing key uses the app default. */
 export type AlertOptionOverrides = Partial<AlertOptions>;
 
 /** One alert that exists in the account, read from the live list. */
@@ -56,7 +56,7 @@ export interface RunItem {
   readonly errorMessage: string;
 }
 
-/** The whole state of a run. The panel saves it after every change. */
+/** The whole state of a run. The app saves it after every change. */
 export interface RunSnapshot {
   readonly kind: RunKind;
   readonly status: RunStatus;

@@ -22,7 +22,7 @@ const EXPORT_HEADERS: readonly string[] = [
 
 /**
  * Write the export CSV. The Add tab imports it without a column change.
- * An alert with unread options gets empty option cells, so the import uses the panel defaults.
+ * An alert with unread options gets empty option cells, so the import uses the app defaults.
  */
 export function buildExportCsv({ entries }: { entries: readonly ExportEntry[] }): string {
   return writeCsv({

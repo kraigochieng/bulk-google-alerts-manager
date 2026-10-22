@@ -52,7 +52,6 @@ Productivity
 | Permission | Justification |
 |---|---|
 | `https://www.google.com/alerts*` | The content script reads the alert list and operates the create and delete controls on the Google Alerts page. No other site is accessed. |
-| `sidePanel` | The user interface is a Chrome side panel. |
 | `storage` | Keeps the settings and the current run state in the browser so an interrupted run can resume. |
 
 ## Data usage disclosures
