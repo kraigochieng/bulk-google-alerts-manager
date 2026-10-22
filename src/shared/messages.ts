@@ -1,6 +1,6 @@
 import type { AlertOptions, LiveAlert } from "src/shared/models";
 
-/** Requests that the side panel sends to the content script. */
+/** Requests that the app frame sends to the page. */
 export type PanelRequest =
   | { readonly kind: "ping" }
   | { readonly kind: "read_alerts" }
@@ -18,7 +18,7 @@ export type ContentSuccess =
   | { readonly ok: true; readonly kind: "deleted" }
   | { readonly ok: true; readonly kind: "alert_options"; readonly options: AlertOptions };
 
-/** The content script failed. The flags let the panel pick the right action. */
+/** The content script failed. The flags let the app pick the right action. */
 export interface ContentFailure {
   readonly ok: false;
   readonly errorName: string;
@@ -50,7 +50,7 @@ export function parseAlertOptions({ value }: { value: unknown }): AlertOptions |
   return null;
 }
 
-/** Return the panel request in an unknown value, or null when the value is not one. */
+/** Return the request in an unknown value, or null when the value is not one. */
 export function parsePanelRequest({ value }: { value: unknown }): PanelRequest | null {
   const record: Record<string, unknown> | null = asRecord({ value });
   if (record === null) return null;

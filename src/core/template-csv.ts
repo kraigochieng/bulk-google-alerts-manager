@@ -19,7 +19,7 @@ const TEMPLATE_ROWS: readonly (readonly string[])[] = [
   ['site:example.com "annual report"', "email", "daily", "best", "", "French", ""],
 ];
 
-/** Build the template CSV. An empty cell means: use the default from the panel. */
+/** Build the template CSV. An empty cell means: use the default from the app. */
 export function buildTemplateCsv(): string {
   return writeCsv({ table: { headers: TEMPLATE_HEADERS, records: TEMPLATE_ROWS } });
 }

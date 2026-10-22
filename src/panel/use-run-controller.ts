@@ -20,7 +20,7 @@ export interface RunController {
 
 /**
  * Own the one active run: state, saving, and the run loop. Side effect: drives the Alerts tab.
- * A run that was running when the panel closed comes back as paused.
+ * A run that was running when the page closed comes back as paused.
  */
 export function useRunController(): RunController {
   const [run, setRun] = useState<RunSnapshot | null>(null);

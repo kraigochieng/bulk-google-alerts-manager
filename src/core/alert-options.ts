@@ -15,7 +15,7 @@ export const DEFAULT_ALERT_OPTIONS: AlertOptions = {
   deliverTo: "rss",
 };
 
-/** Combine the panel defaults with the overrides of one row. RSS forces as-it-happens. */
+/** Combine the app defaults with the overrides of one row. RSS forces as-it-happens. */
 export function resolveOptions({
   defaults,
   overrides,

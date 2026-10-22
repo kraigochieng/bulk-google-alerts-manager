@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from "react";
 import { Progress } from "src/panel/ui/progress";
 
 /**
- * Cover the panel with a foggy layer while work runs. A progress bar runs at the top edge.
+ * Cover the app with a foggy layer while work runs. A progress bar runs at the top edge.
  * A card in the middle holds the title and the controls. The page below stays visible but out of reach.
  */
 export function BusyOverlay({
