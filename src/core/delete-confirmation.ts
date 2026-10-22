@@ -14,7 +14,7 @@ export function buildDeleteConfirmation({
 }): DeleteConfirmation {
   const shown: string[] = queries.slice(0, previewLimit).map((query: string) => `- ${query}`);
   const hiddenCount: number = queries.length - shown.length;
-  const lines: string[] = ["You cannot undo this. Use the Export tab first to keep a copy.", "", ...shown];
+  const lines: string[] = ["You cannot undo this. Use Export first to keep a copy.", "", ...shown];
   if (hiddenCount > 0) {
     lines.push(`...and ${String(hiddenCount)} more`);
   }

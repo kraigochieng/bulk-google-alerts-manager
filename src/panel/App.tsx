@@ -5,7 +5,6 @@ import { DEFAULT_SETTINGS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
 import { AccountUsage } from "src/panel/components/account-usage";
-import { Tabs } from "src/panel/ui/tabs";
 import { buildExportSummary, exportIsEnded } from "src/core/export-progress";
 import { buildRunSummary, runIsFinished } from "src/core/run-summary";
 import { chooseScreen } from "src/core/screen-state";
@@ -13,29 +12,48 @@ import { ExportOverlay } from "src/panel/components/export-overlay";
 import { RunOverlay } from "src/panel/components/run-overlay";
 import { RunResultDialog } from "src/panel/components/run-result-dialog";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
-import { closeApp, reportBusy } from "src/panel/page-link";
+import { DeleteConfirm } from "src/panel/components/delete-confirm";
+import { closeApp, reportBusy, requestOpen } from "src/panel/page-link";
+import { buildDeleteRun } from "src/core/run-builders";
+import { checkDeleteGate, checkExportGate } from "src/core/start-gates";
+import { useCheckedAlerts } from "src/panel/use-checked-alerts";
+import { usePageCommands } from "src/panel/use-page-commands";
+import type { PageCommand } from "src/shared/frame-messages";
 import { Button } from "src/panel/ui/button";
 import { useAutosave } from "src/panel/use-autosave";
 import { useLiveAlerts } from "src/panel/use-live-alerts";
 import { useExport } from "src/panel/use-export";
 import { useRunController } from "src/panel/use-run-controller";
 import type { ScreenName } from "src/core/screen-state";
-import { DEFAULT_VIEW } from "src/core/view-state";
-import type { ViewName } from "src/core/view-state";
-import { ExportView } from "src/panel/views/export-view";
 import { CreateView } from "src/panel/views/create-view";
-import { DeleteView } from "src/panel/views/delete-view";
 import { loadSettings, saveSettings } from "src/storage/run-repository";
 
-/** Render the app on the Alerts page: first-run notice, settings, and the active view. Holds the app state. */
+/** Render the app on the Alerts page: first-run notice, settings, the Add flow, and the dialogs of the bar actions. Holds the app state. */
 export function App(): JSX.Element {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [settingsLoaded, setSettingsLoaded] = useState<boolean>(false);
-  const [view, setView] = useState<ViewName>(DEFAULT_VIEW);
   const controller = useRunController();
   const exporter = useExport();
   const live = useLiveAlerts({ runStatus: controller.run?.status ?? null });
-  const needsFullPage: boolean = controller.run !== null || exporter.state.status !== "idle";
+  const checkedAlerts = useCheckedAlerts();
+  const [confirmingDelete, setConfirmingDelete] = useState<boolean>(false);
+  const needsFullPage: boolean = controller.run !== null || exporter.state.status !== "idle" || confirmingDelete;
+
+  usePageCommands({
+    onCommand: (command: PageCommand): void => {
+      if (command === "add") return;
+      if (!settings.risksAccepted) {
+        requestOpen();
+        return;
+      }
+      if (command === "delete" && checkDeleteGate({ selectedCount: checkedAlerts.length }).allowed) {
+        setConfirmingDelete(true);
+      }
+      if (command === "export" && checkExportGate({ selectedCount: checkedAlerts.length }).allowed) {
+        exporter.start({ alerts: checkedAlerts });
+      }
+    },
+  });
 
   useEffect(() => {
     reportBusy({ busy: needsFullPage });
@@ -91,22 +109,16 @@ export function App(): JSX.Element {
         refreshing={live.refreshing}
         onRefresh={live.refresh}
       />
-      <Tabs
-        value={view}
-        onValueChange={(value: string) => {
-          if (value !== view) setView(value as ViewName);
-        }}
-        tabs={[
-          { value: "create", label: "Add" },
-          { value: "delete", label: "Delete" },
-          { value: "export", label: "Export" },
-        ]}
-        className="mt-3"
-      />
-      {view === "create" && <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />}
-      {view === "delete" && <DeleteView controller={controller} />}
-      {view === "export" && <ExportView exporter={exporter} />}
+      <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />
       </main>
+      <DeleteConfirm
+        open={confirmingDelete}
+        queries={checkedAlerts.map((alert) => alert.query)}
+        onConfirm={() => {
+          controller.begin(buildDeleteRun({ queries: checkedAlerts.map((alert) => alert.query) }));
+        }}
+        onOpenChange={setConfirmingDelete}
+      />
       {run !== null && runActive && (
         <RunOverlay
           run={run}

@@ -6,6 +6,7 @@ import { SELECTORS } from "src/content/selectors";
 import { applySelectionEvent, countSelectedRows, EMPTY_SELECTION } from "src/core/page-selection";
 import type { PageSelection, SelectionEvent } from "src/core/page-selection";
 import { normaliseQuery } from "src/core/query-normaliser";
+import type { PageCommand } from "src/shared/frame-messages";
 import type { LiveAlert } from "src/shared/models";
 
 const CHECKBOX_STYLE: string =
@@ -42,9 +43,16 @@ function ensureCheckbox({ row, onToggle }: { row: AlertRowElement; onToggle: (qu
  * Put a checkbox in each alert row and a bar that checks all rows.
  * A row that Google draws again gets its checkbox again. The selection is keyed by the normalised query.
  * It calls onChange with the checked alerts, in page order, when they change.
+ * It calls onCommand when the user clicks a button of the bar.
  * Side effect: changes the page and watches it.
  */
-export function startRowSelection({ onChange }: { onChange: (alerts: readonly LiveAlert[]) => void }): void {
+export function startRowSelection({
+  onChange,
+  onCommand,
+}: {
+  onChange: (alerts: readonly LiveAlert[]) => void;
+  onCommand: (command: PageCommand) => void;
+}): void {
   let selection: PageSelection = EMPTY_SELECTION;
   let rows: AlertRowElement[] = [];
   let bar: SelectionBar | null = null;
@@ -79,6 +87,7 @@ export function startRowSelection({ onChange }: { onChange: (alerts: readonly Li
   };
 
   bar = createSelectionBar({
+    onCommand,
     onSelectAll: () => {
       dispatch({ type: "select_all", queries: rows.map((row: AlertRowElement) => rowKey({ row })) });
     },
