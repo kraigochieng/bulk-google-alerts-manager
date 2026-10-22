@@ -1,9 +1,12 @@
 import { CONNECT_MESSAGE_KIND } from "src/shared/frame-messages";
 import type { FrameToPage, PageToFrame } from "src/shared/frame-messages";
 import type { ContentReply, PanelRequest } from "src/shared/messages";
+import type { LiveAlert } from "src/shared/models";
 
 let pagePort: MessagePort | null = null;
 let nextRequestId: number = 0;
+let checkedAlerts: readonly LiveAlert[] = [];
+const selectionListeners: Set<() => void> = new Set();
 const pendingReplies: Map<number, (reply: ContentReply) => void> = new Map();
 
 /** Wait for the page to hand over its private port. Side effect: listens for one window message. */
@@ -21,10 +24,16 @@ export function connectToPage(): Promise<void> {
       window.removeEventListener("message", onMessage);
       const port: MessagePort | undefined = event.ports[0];
       if (port === undefined) return;
-      port.onmessage = (replyEvent: MessageEvent<PageToFrame>): void => {
-        const resolveReply: ((reply: ContentReply) => void) | undefined = pendingReplies.get(replyEvent.data.id);
-        pendingReplies.delete(replyEvent.data.id);
-        resolveReply?.(replyEvent.data.reply);
+      port.onmessage = (messageEvent: MessageEvent<PageToFrame>): void => {
+        const message: PageToFrame = messageEvent.data;
+        if (message.kind === "selection") {
+          checkedAlerts = message.alerts;
+          selectionListeners.forEach((listener: () => void) => { listener(); });
+          return;
+        }
+        const resolveReply: ((reply: ContentReply) => void) | undefined = pendingReplies.get(message.id);
+        pendingReplies.delete(message.id);
+        resolveReply?.(message.reply);
       };
       pagePort = port;
       resolve();
@@ -55,4 +64,17 @@ export function reportBusy({ busy }: { busy: boolean }): void {
 /** Ask the page to close the app. Side effect: messages the page. */
 export function closeApp(): void {
   post({ message: { kind: "close" } });
+}
+
+/** Return the alerts that the user checked on the page. The array changes only when the selection changes. */
+export function readCheckedAlerts(): readonly LiveAlert[] {
+  return checkedAlerts;
+}
+
+/** Call the listener when the checked alerts change. Return a function that stops the calls. */
+export function subscribeToCheckedAlerts({ listener }: { listener: () => void }): () => void {
+  selectionListeners.add(listener);
+  return (): void => {
+    selectionListeners.delete(listener);
+  };
 }

@@ -36,7 +36,15 @@ export function checkCreateGate({
 /** Decide whether a delete run may start. At least one alert must be selected. */
 export function checkDeleteGate({ selectedCount }: { selectedCount: number }): GateResult {
   if (selectedCount === 0) {
-    return { allowed: false, reason: "No alerts are selected. Select at least one alert." };
+    return { allowed: false, reason: "No alerts are selected. Check at least one alert on the page." };
+  }
+  return { allowed: true };
+}
+
+/** Decide whether an export may start. At least one alert must be checked. */
+export function checkExportGate({ selectedCount }: { selectedCount: number }): GateResult {
+  if (selectedCount === 0) {
+    return { allowed: false, reason: "No alerts are checked. Check at least one alert on the page." };
   }
   return { allowed: true };
 }

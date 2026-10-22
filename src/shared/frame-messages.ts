@@ -1,5 +1,6 @@
 import { parsePanelRequest } from "src/shared/messages";
 import type { ContentReply, PanelRequest } from "src/shared/messages";
+import type { LiveAlert } from "src/shared/models";
 
 /** The message that the page sends to the app frame to give it a private port. */
 export const CONNECT_MESSAGE_KIND: string = "bulk-alerts:connect";
@@ -11,7 +12,9 @@ export type FrameToPage =
   | { readonly kind: "close" };
 
 /** Messages that the page sends to the app frame. */
-export type PageToFrame = { readonly kind: "reply"; readonly id: number; readonly reply: ContentReply };
+export type PageToFrame =
+  | { readonly kind: "reply"; readonly id: number; readonly reply: ContentReply }
+  | { readonly kind: "selection"; readonly alerts: readonly LiveAlert[] };
 
 /** Return the frame message in an unknown value, or null when the value is not one. */
 export function parseFrameToPage({ value }: { value: unknown }): FrameToPage | null {

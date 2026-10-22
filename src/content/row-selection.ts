@@ -6,6 +6,7 @@ import { SELECTORS } from "src/content/selectors";
 import { applySelectionEvent, countSelectedRows, EMPTY_SELECTION } from "src/core/page-selection";
 import type { PageSelection, SelectionEvent } from "src/core/page-selection";
 import { normaliseQuery } from "src/core/query-normaliser";
+import type { LiveAlert } from "src/shared/models";
 
 const CHECKBOX_STYLE: string =
   "position:absolute;left:-36px;top:50%;transform:translateY(-50%);width:20px;height:20px;margin:0;cursor:pointer;accent-color:#1a73e8;";
@@ -40,12 +41,14 @@ function ensureCheckbox({ row, onToggle }: { row: AlertRowElement; onToggle: (qu
 /**
  * Put a checkbox in each alert row and a bar that checks all rows.
  * A row that Google draws again gets its checkbox again. The selection is keyed by the normalised query.
+ * It calls onChange with the checked alerts, in page order, when they change.
  * Side effect: changes the page and watches it.
  */
-export function startRowSelection(): void {
+export function startRowSelection({ onChange }: { onChange: (alerts: readonly LiveAlert[]) => void }): void {
   let selection: PageSelection = EMPTY_SELECTION;
   let rows: AlertRowElement[] = [];
   let bar: SelectionBar | null = null;
+  let reportedKey: string = "";
 
   const render = (): void => {
     const liveQueries: string[] = rows.map((row: AlertRowElement) => rowKey({ row }));
@@ -53,6 +56,12 @@ export function startRowSelection(): void {
       ensureCheckbox({ row, onToggle: (query: string) => { dispatch({ type: "toggle", query }); } }).checked = selection.has(rowKey({ row }));
     }
     bar?.update({ selectedCount: countSelectedRows({ selection, liveQueries }), totalCount: rows.length });
+    const selectedAlerts: LiveAlert[] = rows.filter((row: AlertRowElement) => selection.has(rowKey({ row }))).map((row: AlertRowElement) => row.alert);
+    const selectedKey: string = JSON.stringify(selectedAlerts);
+    if (selectedKey !== reportedKey) {
+      reportedKey = selectedKey;
+      onChange(selectedAlerts);
+    }
   };
 
   const dispatch = (event: SelectionEvent): void => {

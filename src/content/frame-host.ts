@@ -4,6 +4,7 @@ import { dispatchPageRequest } from "src/content/page-requests";
 import { CONNECT_MESSAGE_KIND, parseFrameToPage } from "src/shared/frame-messages";
 import type { FrameToPage, PageToFrame } from "src/shared/frame-messages";
 import type { ContentReply } from "src/shared/messages";
+import type { LiveAlert } from "src/shared/models";
 
 const FRAME_STYLES: Record<FrameLayout, string> = {
   hidden: "display:none;",
@@ -16,6 +17,8 @@ const FRAME_BASE_STYLE: string = "z-index:2147483000;background:#f1f3f4;color-sc
 let frame: HTMLIFrameElement | null = null;
 let frameOpen: boolean = false;
 let frameBusy: boolean = false;
+let framePort: MessagePort | null = null;
+let checkedAlerts: readonly LiveAlert[] = [];
 
 /** Apply the layout to the frame. Side effect: changes the style of the frame. */
 function applyLayout({ element }: { element: HTMLIFrameElement }): void {
@@ -38,6 +41,18 @@ function handleFrameMessage({ message, port, element }: { message: FrameToPage; 
   applyLayout({ element });
 }
 
+/** Send the checked alerts to the app frame, when it is connected. Side effect: messages the frame. */
+function sendCheckedAlerts(): void {
+  const message: PageToFrame = { kind: "selection", alerts: checkedAlerts };
+  framePort?.postMessage(message);
+}
+
+/** Remember the checked alerts and send them to the app frame. Side effect: messages the frame. */
+export function updateCheckedAlerts({ alerts }: { alerts: readonly LiveAlert[] }): void {
+  checkedAlerts = alerts;
+  sendCheckedAlerts();
+}
+
 /** Create the frame that holds the app and give it a private port. Side effect: adds an element to the page. */
 function createFrame(): HTMLIFrameElement {
   const element: HTMLIFrameElement = document.createElement("iframe");
@@ -46,11 +61,13 @@ function createFrame(): HTMLIFrameElement {
   element.title = "Bulk Google Alerts Manager";
   element.addEventListener("load", () => {
     const channel: MessageChannel = new MessageChannel();
+    framePort = channel.port1;
     channel.port1.onmessage = (event: MessageEvent<unknown>): void => {
       const message: FrameToPage | null = parseFrameToPage({ value: event.data });
       if (message !== null) handleFrameMessage({ message, port: channel.port1, element });
     };
     element.contentWindow?.postMessage({ kind: CONNECT_MESSAGE_KIND }, new URL(frameUrl).origin, [channel.port2]);
+    sendCheckedAlerts();
   });
   applyLayout({ element });
   document.body.append(element);

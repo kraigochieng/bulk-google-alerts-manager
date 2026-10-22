@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { checkCreateGate, checkDeleteGate } from "src/core/start-gates";
+import { checkCreateGate, checkDeleteGate, checkExportGate } from "src/core/start-gates";
 
 describe("checkCreateGate", () => {
   const ok = { liveCount: 10, createCount: 5, updateCount: 0, cap: 1000, risksAccepted: true };
@@ -40,6 +40,18 @@ describe("checkDeleteGate", () => {
   it("refuses a run with no selected alerts", () => {
     const result = checkDeleteGate({ selectedCount: 0 });
     expect(result.allowed).toBe(false);
-    expect(!result.allowed && result.reason).toContain("Select at least one");
+    expect(!result.allowed && result.reason).toContain("Check at least one");
+  });
+});
+
+describe("checkExportGate", () => {
+  it("allows an export with checked alerts", () => {
+    expect(checkExportGate({ selectedCount: 2 })).toEqual({ allowed: true });
+  });
+
+  it("refuses an export with no checked alerts", () => {
+    const result = checkExportGate({ selectedCount: 0 });
+    expect(result.allowed).toBe(false);
+    expect(!result.allowed && result.reason).toContain("Check at least one");
   });
 });
