@@ -19,6 +19,7 @@ export const SELECTORS = {
   alertRowDeleteButton: ".delete_button",
   alertRowEditButton: ".edit_button",
   showAllAlerts: ".show_all_alerts",
+  rowCheckbox: "[data-bulk-alerts-row-checkbox]",
 } as const;
 
 export const TIMING = {
