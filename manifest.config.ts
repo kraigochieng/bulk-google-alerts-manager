@@ -16,7 +16,7 @@ export default defineManifest({
       js: ["src/content/index.ts"],
     },
   ],
-  web_accessible_resources: [{ resources: ["app.html"], matches: ["https://www.google.com/*"] }],
+  web_accessible_resources: [{ resources: ["app.html", "icons/icon-32.png"], matches: ["https://www.google.com/*"] }],
   icons: {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",

@@ -9,6 +9,7 @@ const BAR_STYLE: string = `
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     font: 14px/20px Roboto, Arial, sans-serif;
   }
+  .logo { width: 24px; height: 24px; flex: none; }
   label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
   input { width: 18px; height: 18px; margin: 0; accent-color: #1a73e8; cursor: pointer; }
   button { border: 0; background: none; color: #1a73e8; font: inherit; cursor: pointer; padding: 4px 8px; }
@@ -103,7 +104,11 @@ export function createSelectionBar({
   const addButton: HTMLButtonElement = createActionButton({ label: "Add", command: "add", onCommand });
   addButton.className = "primary";
   actions.append(exportButton, deleteButton, addButton);
-  bar.append(label, clear, actions);
+  const logo: HTMLImageElement = document.createElement("img");
+  logo.className = "logo";
+  logo.src = chrome.runtime.getURL("icons/icon-32.png");
+  logo.alt = "";
+  bar.append(logo, label, clear, actions);
   shadowRoot.append(style, bar);
   document.body.append(host);
 
