@@ -1,14 +1,15 @@
 # Privacy policy
 
-Bulk Google Alerts Manager is an unofficial tool. It is not affiliated with Google.
+Bulk Alerts Manager for Google Alerts is an unofficial tool. It is not affiliated with Google.
 
-Last updated: 2026-10-20.
+Last updated: 2026-10-23.
 
 ## What the extension does with data
 
 - The extension reads the Google Alerts page that you open (`https://www.google.com/alerts`) to list your alerts.
 - It creates and deletes alerts on that page when you start a run.
 - It reads the CSV files that you choose, in your browser.
+- It adds a bar, a checkbox on each alert row, and a dialog to the Alerts page. It changes the heading text of the list to show the remaining count.
 
 ## What the extension stores
 
@@ -16,7 +17,7 @@ Last updated: 2026-10-20.
 - The state of the current run: the queries, their options, and their results.
 
 The extension stores this data in your browser with `chrome.storage.local`.
-The data stays on your device. You can remove it with "Close results" in the app or by removing the extension.
+The data stays on your device. The extension removes the run when you close the result dialog. You can also remove all data by removing the extension.
 
 ## What the extension does not do
 
