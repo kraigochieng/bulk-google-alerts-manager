@@ -3,16 +3,11 @@ import { describe, expect, it } from "vitest";
 import { parseFrameToPage } from "src/shared/frame-messages";
 
 describe("parseFrameToPage", () => {
-  it("accepts close", () => {
-    expect(parseFrameToPage({ value: { kind: "close" } })).toEqual({ kind: "close" });
-  });
-
-  it("accepts open", () => {
-    expect(parseFrameToPage({ value: { kind: "open" } })).toEqual({ kind: "open" });
-  });
-
-  it("accepts busy with a boolean", () => {
-    expect(parseFrameToPage({ value: { kind: "busy", busy: true } })).toEqual({ kind: "busy", busy: true });
+  it("accepts interactive with a boolean", () => {
+    expect(parseFrameToPage({ value: { kind: "interactive", interactive: true } })).toEqual({
+      kind: "interactive",
+      interactive: true,
+    });
   });
 
   it("accepts a request with an id", () => {
@@ -22,8 +17,9 @@ describe("parseFrameToPage", () => {
 
   it.each<[string, unknown]>([
     ["null", null],
-    ["a string", "close"],
-    ["busy without a boolean", { kind: "busy", busy: "yes" }],
+    ["a string", "interactive"],
+    ["interactive without a boolean", { kind: "interactive", interactive: "yes" }],
+    ["a removed kind", { kind: "close" }],
     ["a request without an id", { kind: "request", request: { kind: "read_alerts" } }],
     ["a request that is not valid", { kind: "request", id: 1, request: { kind: "format_disk" } }],
     ["an unknown kind", { kind: "other" }],

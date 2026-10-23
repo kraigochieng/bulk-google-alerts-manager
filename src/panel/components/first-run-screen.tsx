@@ -2,10 +2,10 @@ import type { JSX } from "react";
 
 import { Button } from "src/panel/ui/button";
 
-/** Render the first-run notice. The user must accept it before the tool shows. */
+/** Render the first-run notice. The user must accept it before the first action. */
 export function FirstRunScreen({ onAccept }: { onAccept: () => void }): JSX.Element {
   return (
-    <main className="m-3 rounded-lg border bg-card p-4 text-sm">
+    <div className="text-sm">
       <h1 className="text-lg font-semibold">Before you start</h1>
       <p className="mt-2 font-medium">Bulk Google Alerts Manager is an unofficial tool. It is not affiliated with Google.</p>
       <ul className="mt-3 list-disc space-y-2 pl-5">
@@ -20,6 +20,6 @@ export function FirstRunScreen({ onAccept }: { onAccept: () => void }): JSX.Elem
       <Button className="mt-4" onClick={onAccept}>
         I understand and accept
       </Button>
-    </main>
+    </div>
   );
 }

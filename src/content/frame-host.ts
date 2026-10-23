@@ -6,41 +6,31 @@ import type { FrameToPage, PageCommand, PageToFrame } from "src/shared/frame-mes
 import type { ContentReply } from "src/shared/messages";
 import type { LiveAlert } from "src/shared/models";
 
+const FRAME_BASE_STYLE: string =
+  "position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483000;background:transparent;color-scheme:light;";
 const FRAME_STYLES: Record<FrameLayout, string> = {
-  hidden: "display:none;",
-  drawer:
-    "display:block;position:fixed;top:0;right:0;width:26rem;max-width:100vw;height:100vh;border:0;border-left:1px solid #dadce0;box-shadow:-2px 0 12px rgba(0,0,0,0.2);",
-  full: "display:block;position:fixed;inset:0;width:100vw;height:100vh;border:0;",
+  passive: "pointer-events:none;",
+  active: "pointer-events:auto;",
 };
-const FRAME_BASE_STYLE: string = "z-index:2147483000;background:#f1f3f4;color-scheme:light;";
 
-let frame: HTMLIFrameElement | null = null;
-let frameOpen: boolean = false;
-let frameBusy: boolean = false;
 let framePort: MessagePort | null = null;
 let checkedAlerts: readonly LiveAlert[] = [];
 
 /** Apply the layout to the frame. Side effect: changes the style of the frame. */
-function applyLayout({ element }: { element: HTMLIFrameElement }): void {
-  element.style.cssText = `${FRAME_BASE_STYLE}${FRAME_STYLES[chooseFrameLayout({ open: frameOpen, busy: frameBusy })]}`;
+function applyLayout({ element, interactive }: { element: HTMLIFrameElement; interactive: boolean }): void {
+  element.style.cssText = `${FRAME_BASE_STYLE}${FRAME_STYLES[chooseFrameLayout({ interactive })]}`;
 }
 
 /** Answer the messages of the app frame. Side effect: drives the Alerts page. */
 function handleFrameMessage({ message, port, element }: { message: FrameToPage; port: MessagePort; element: HTMLIFrameElement }): void {
-  if (message.kind === "close") {
-    frameOpen = false;
-  } else if (message.kind === "open") {
-    frameOpen = true;
-  } else if (message.kind === "busy") {
-    frameBusy = message.busy;
-  } else {
-    void dispatchPageRequest({ request: message.request }).then((reply: ContentReply) => {
-      const answer: PageToFrame = { kind: "reply", id: message.id, reply };
-      port.postMessage(answer);
-    });
+  if (message.kind === "interactive") {
+    applyLayout({ element, interactive: message.interactive });
     return;
   }
-  applyLayout({ element });
+  void dispatchPageRequest({ request: message.request }).then((reply: ContentReply) => {
+    const answer: PageToFrame = { kind: "reply", id: message.id, reply };
+    port.postMessage(answer);
+  });
 }
 
 /** Send the checked alerts to the app frame, when it is connected. Side effect: messages the frame. */
@@ -49,12 +39,8 @@ function sendCheckedAlerts(): void {
   framePort?.postMessage(message);
 }
 
-/** Send a command of the bar to the app frame. The Add command also opens the drawer. Side effect: messages the frame. */
+/** Send a command of the bar to the app frame. Side effect: messages the frame. */
 export function sendCommand({ command }: { command: PageCommand }): void {
-  if (command === "add") {
-    frameOpen = true;
-    if (frame !== null) applyLayout({ element: frame });
-  }
   const message: PageToFrame = { kind: "command", command };
   framePort?.postMessage(message);
 }
@@ -65,8 +51,8 @@ export function updateCheckedAlerts({ alerts }: { alerts: readonly LiveAlert[] }
   sendCheckedAlerts();
 }
 
-/** Create the frame that holds the app and give it a private port. Side effect: adds an element to the page. */
-function createFrame(): HTMLIFrameElement {
+/** Add the frame that holds the app and give it a private port. The frame covers the page. Side effect: adds an element to the page. */
+export function addFrame(): void {
   const element: HTMLIFrameElement = document.createElement("iframe");
   const frameUrl: string = chrome.runtime.getURL("app.html");
   element.src = frameUrl;
@@ -81,17 +67,6 @@ function createFrame(): HTMLIFrameElement {
     element.contentWindow?.postMessage({ kind: CONNECT_MESSAGE_KIND }, new URL(frameUrl).origin, [channel.port2]);
     sendCheckedAlerts();
   });
-  applyLayout({ element });
+  applyLayout({ element, interactive: false });
   document.body.append(element);
-  return element;
-}
-
-/** Open the app frame, or close it when it is open. The first call creates the frame. Side effect: changes the page. */
-export function toggleFrame(): void {
-  frameOpen = !frameOpen;
-  if (frame === null) {
-    frame = createFrame();
-    return;
-  }
-  applyLayout({ element: frame });
 }
