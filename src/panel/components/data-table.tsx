@@ -157,7 +157,7 @@ export function DataTable<Row, Key extends string | number>({
                     </TableCell>
                   )}
                   {columns.map((column: TableColumn<Row>) => (
-                    <TableCell key={column.key} className="px-2 py-1 whitespace-normal break-words">
+                    <TableCell key={column.key} className="px-2 py-1 whitespace-normal! break-words">
                       {renderCell(row, column.key)}
                     </TableCell>
                   ))}
