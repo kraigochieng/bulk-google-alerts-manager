@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { canAdvance, nextStep, previousStep, stepNumber } from "src/core/add-steps";
+import { canAdvance, nextStep, previousStep, stepNumber, stepProgressPercent } from "src/core/add-steps";
 import type { AddStepFacts } from "src/core/add-steps";
 
-const READY: AddStepFacts = { step: "file", hasFile: true, queryColumnMapped: true, checkedRowCount: 2 };
+const READY: AddStepFacts = { step: "file", hasFile: true, queryColumnMapped: true, checkedRowCount: 2, withinAlertLimit: true };
 
 describe("step order", () => {
   it("numbers the steps from 1", () => {
@@ -38,7 +38,19 @@ describe("canAdvance", () => {
     expect(canAdvance({ ...READY, step: "review", checkedRowCount: 0 })).toBe(false);
   });
 
+  it("blocks the review step when the run passes the alert limit", () => {
+    expect(canAdvance({ ...READY, step: "review", withinAlertLimit: false })).toBe(false);
+  });
+
   it("never advances from the start step", () => {
     expect(canAdvance({ ...READY, step: "start" })).toBe(false);
+  });
+});
+
+describe("stepProgressPercent", () => {
+  it("gives one quarter for each step", () => {
+    expect(stepProgressPercent({ step: "file" })).toBe(25);
+    expect(stepProgressPercent({ step: "review" })).toBe(75);
+    expect(stepProgressPercent({ step: "start" })).toBe(100);
   });
 });

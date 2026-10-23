@@ -3,12 +3,26 @@ export const ADD_STEPS = ["file", "columns", "review", "start"] as const;
 
 export type AddStep = (typeof ADD_STEPS)[number];
 
+/** The label of each step, as the dialog shows it. */
+export const STEP_LABELS: Record<AddStep, string> = {
+  file: "File",
+  columns: "Columns",
+  review: "Review",
+  start: "Start",
+};
+
+/** Return how far the user is, from 25 to 100 percent, with one quarter for each step. Pure. */
+export function stepProgressPercent({ step }: { step: AddStep }): number {
+  return (stepNumber({ step }) / ADD_STEPS.length) * 100;
+}
+
 /** What the Add dialog knows when it decides about a step change. */
 export interface AddStepFacts {
   readonly step: AddStep;
   readonly hasFile: boolean;
   readonly queryColumnMapped: boolean;
   readonly checkedRowCount: number;
+  readonly withinAlertLimit: boolean;
 }
 
 /** Return the number of a step, counting from 1. Pure. */
@@ -27,9 +41,9 @@ export function nextStep({ step }: { step: AddStep }): AddStep | null {
 }
 
 /** Decide whether the user may leave the step forward. The last step never advances. Pure. */
-export function canAdvance({ step, hasFile, queryColumnMapped, checkedRowCount }: AddStepFacts): boolean {
+export function canAdvance({ step, hasFile, queryColumnMapped, checkedRowCount, withinAlertLimit }: AddStepFacts): boolean {
   if (step === "file") return hasFile;
   if (step === "columns") return queryColumnMapped;
-  if (step === "review") return checkedRowCount > 0;
+  if (step === "review") return checkedRowCount > 0 && withinAlertLimit;
   return false;
 }
