@@ -64,8 +64,8 @@ export function DataTable<Row, Key extends string | number>({
 
   return (
     <div className="mt-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative min-w-32 flex-1">
+      <div className="flex flex-col gap-3">
+        <div className="relative">
           <TextField
             type="search"
             aria-label="Search the table"
@@ -93,8 +93,7 @@ export function DataTable<Row, Key extends string | number>({
         </div>
         {schema.filters.length > 1 && (
           <RadioGroup
-            legend="Filter the table"
-            hideLegend
+            legend="Show"
             value={state.filter}
             onValueChange={(value: string) => {
               change({ filter: value, page: 0 });
