@@ -25,7 +25,7 @@ Copy the text from [store-listing.md](store-listing.md).
 1. **Owner.** Upload the zip as a new item.
 2. Fill in the name, the short description, the long description, and the category.
 3. Upload the icon `public/icons/icon-128.png`.
-4. **Owner.** Take 3 to 5 screenshots of 1280x800 pixels. Use the real Alerts page and test queries that start with `bam test`. Do not show personal queries.
+4. Use the screenshots in `docs/store-assets/`. **Owner.** Replace the files 1, 2, and 4 with captures from a signed-in account (see the limit in [store-listing.md](store-listing.md)). Use test queries that start with `bam test`. Do not show personal queries.
 5. **Owner.** Make the small promo tile of 440x280 pixels.
 6. Set the support link to `https://github.com/kraigochieng/bulk-google-alerts-manager/issues`.
 

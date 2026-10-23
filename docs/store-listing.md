@@ -68,15 +68,19 @@ The extension has no `tabs`, `activeTab`, or `sidePanel` permission. It declares
 
 https://github.com/kraigochieng/bulk-google-alerts-manager/blob/main/docs/privacy-policy.md
 
-## Screenshots (1280x800) — owner action
+## Screenshots (1280x800)
 
-Take these from the loaded extension next to the real Alerts page. Do not show personal alert queries.
+The files are in `docs/store-assets/`. They show the extension next to the Alerts page.
 
-1. Review step: CSV rows with checkboxes and similar-alert warnings.
-2. The bar at the bottom of the Alerts page, with three alerts checked.
-3. A create run in progress with the loader and progress bar.
-4. Delete with a confirmation dialog.
-5. The columns step, with the step labels and the progress bar.
+| File | Shows |
+|---|---|
+| `1-review-step.png` | Review step: CSV rows with checkboxes and similar-alert warnings. |
+| `2-bar-with-checked-alerts.png` | The bar at the bottom of the page with three alerts checked, and the heading with the remaining count. |
+| `3-start-step.png` | The start step with the notice and the Start button. |
+| `4-delete-confirmation.png` | Delete with a confirmation dialog that names the alerts. |
+| `5-columns-step.png` | The columns step, with the step labels and the progress bar. |
+
+Limit: the author made these files on a logged-out Alerts page. A script added the sample alert rows to the page. The extension dialogs and the bar are real. **Owner.** The store asks for screenshots that show the real product. Replace files 1, 2, and 4 with captures from a signed-in account before you submit. Use test queries.
 
 The store also needs one small promo tile (440x280). A marquee tile (1400x560) is optional.
 
