@@ -39,7 +39,7 @@ It reads and stores no password. See [docs/privacy-policy.md](docs/privacy-polic
 2. Run `npm run build`.
 3. Open `chrome://extensions` and turn on developer mode.
 4. Choose "Load unpacked" and select the `dist` folder.
-5. Open `https://www.google.com/alerts`. Expect a bar at the bottom of the page when the list has alerts. Click Add alerts in the bar, or click the extension icon, to open the Add dialog.
+5. Open `https://www.google.com/alerts`. Expect a bar at the bottom of the page. Click Add in the bar, or click the extension icon, to open the Add dialog.
 
 ## CSV format
 
