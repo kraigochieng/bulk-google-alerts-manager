@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import type { JSX } from "react";
 
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
-import { ADD_STEPS, canAdvance, nextStep, previousStep, stepNumber } from "src/core/add-steps";
+import { canAdvance, nextStep, previousStep } from "src/core/add-steps";
 import type { AddStep } from "src/core/add-steps";
 import { buildImportRows, guessMapping } from "src/core/column-mapping";
 import type { ColumnMapping } from "src/core/column-mapping";
@@ -18,6 +18,7 @@ import { checkCreateGate } from "src/core/start-gates";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import type { Settings } from "src/core/settings";
+import { StepProgress } from "src/panel/components/step-progress";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
@@ -161,13 +162,11 @@ export function CreateView({
   const queryColumnMapped: boolean = mapping !== null && mapping.query !== null;
   const previous: AddStep | null = previousStep({ step });
   const next: AddStep | null = nextStep({ step });
-  const advanceAllowed: boolean = canAdvance({ step, hasFile: csvTable !== null, queryColumnMapped, checkedRowCount: entries.length });
+  const advanceAllowed: boolean = canAdvance({ step, hasFile: csvTable !== null, queryColumnMapped, checkedRowCount: entries.length, withinAlertLimit: gate.allowed });
 
   return (
     <div>
-      <p className="mt-3 text-xs font-medium text-muted-foreground" aria-live="polite">
-        Step {String(stepNumber({ step }))} of {String(ADD_STEPS.length)}
-      </p>
+      <StepProgress step={step} />
       {step === "file" && (
         <section aria-label="Import">
           <h2 className="mt-4 text-sm font-semibold">Import a CSV file</h2>
@@ -206,6 +205,9 @@ export function CreateView({
       {step === "columns" && csvTable !== null && mapping !== null && (
         <section aria-label="Columns">
           <h2 className="mt-4 text-sm font-semibold">Match the columns</h2>
+          <p className="text-xs text-muted-foreground">
+            File: <span className="font-medium text-foreground">{fileName}</span> ({String(csvTable.records.length)} data rows)
+          </p>
           <ColumnMapper headers={csvTable.headers} mapping={mapping} onChange={setMapping} />
           {mapping.query === null && <Banner tone="warning">Choose the column that holds the queries.</Banner>}
           <details className="mt-3">
@@ -218,12 +220,10 @@ export function CreateView({
         <section aria-label="Review">
           <h2 className="mt-4 text-sm font-semibold">Check the rows</h2>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <Button type="button" variant="outline" size="sm" fullWidth onClick={live.refresh}>
-              Read my alerts again
-            </Button>
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>
           {live.error !== "" && <Banner tone="error">{live.error}</Banner>}
+          {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
           <DataTable<ImportRow, number>
             rows={rows}
