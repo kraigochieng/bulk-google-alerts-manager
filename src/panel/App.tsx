@@ -11,6 +11,9 @@ import { RunResultDialog } from "src/panel/components/run-result-dialog";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { DeleteConfirm } from "src/panel/components/delete-confirm";
 import { reportInteractive } from "src/panel/page-link";
+import { Snackbar } from "src/panel/ui/snackbar";
+import { useSnackbar } from "src/panel/use-snackbar";
+import type { SnackbarState } from "src/panel/use-snackbar";
 import { Modal } from "src/panel/ui/modal";
 import { buildDeleteRun } from "src/core/run-builders";
 import { checkDeleteGate, checkExportGate } from "src/core/start-gates";
@@ -37,6 +40,8 @@ export function App(): JSX.Element {
   const [pendingCommand, setPendingCommand] = useState<PageCommand | null>(null);
   const interactive: boolean =
     addOpen || pendingCommand !== null || confirmingDelete || controller.run !== null || exporter.state.status !== "idle";
+
+  const snackbar: SnackbarState = useSnackbar();
 
   const perform = (command: PageCommand): void => {
     if (command === "add") {
@@ -107,8 +112,9 @@ export function App(): JSX.Element {
           setAddOpen(false);
         }}
       >
-        <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />
+        <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} onNotify={snackbar.show} />
       </Modal>
+      <Snackbar message={snackbar.message} onDismiss={snackbar.dismiss} />
       <DeleteConfirm
         open={confirmingDelete}
         queries={checkedAlerts.map((alert) => alert.query)}
