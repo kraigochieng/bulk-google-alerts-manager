@@ -1,6 +1,8 @@
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import type { JSX, ReactNode } from "react";
 
+import { pageNumbers } from "src/core/page-numbers";
+import type { PageNumberItem } from "src/core/page-numbers";
 import { DEFAULT_PAGE_SIZE, pageRangeLabel, queryTable } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { SortDirection, TableSchema, TableState } from "src/core/table-state";
@@ -166,17 +168,34 @@ export function DataTable<Row, Key extends string | number>({
           </TableBody>
         </Table>
       </div>
-      <div className="mt-1 flex items-center justify-between text-xs">
+      <p className="mt-1 text-center text-xs">
+        {pageRangeLabel({ page: page.page, pageSize: DEFAULT_PAGE_SIZE, totalMatching: page.totalMatching })}
+      </p>
+      <nav aria-label="Pages" className="mt-1 flex flex-wrap items-center justify-center gap-1 text-xs">
         <Button type="button" variant="outline" size="sm" disabled={page.page === 0} onClick={() => { change({ page: page.page - 1 }); }}>
           Previous
         </Button>
-        <span>
-          {pageRangeLabel({ page: page.page, pageSize: DEFAULT_PAGE_SIZE, totalMatching: page.totalMatching })} · Page {String(page.page + 1)} of {String(page.pageCount)}
-        </span>
+        {pageNumbers({ page: page.page, pageCount: page.pageCount }).map((item: PageNumberItem, position: number) =>
+          item === "gap" ? (
+            <span key={`gap-${String(position)}`} aria-hidden="true">…</span>
+          ) : (
+            <Button
+              key={item}
+              type="button"
+              size="sm"
+              variant={item === page.page ? "default" : "ghost"}
+              aria-label={`Page ${String(item + 1)}`}
+              aria-current={item === page.page ? "page" : undefined}
+              onClick={() => { change({ page: item }); }}
+            >
+              {String(item + 1)}
+            </Button>
+          ),
+        )}
         <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }); }}>
           Next
         </Button>
-      </div>
+      </nav>
     </div>
   );
 }
