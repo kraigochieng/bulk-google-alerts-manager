@@ -11,6 +11,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - All six alert options: deliver to (RSS or email), how often, sources, language, region, how many.
   A CSV column overrides the default for its row.
 - A row with the same query as an existing alert updates that alert (upsert). Warning for same-word and similar alerts: skip a row or create it anyway.
+- The Add dialog has four steps: file, columns, review, start.
 - Alert cap check (1000 alerts for each account).
 - Pause, resume, and cancel of a run. A run that was interrupted comes back as paused.
 - A foggy loader with a progress bar shows while a run works. A dialog shows the result when it ends.

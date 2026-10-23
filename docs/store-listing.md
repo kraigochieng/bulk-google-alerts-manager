@@ -68,7 +68,7 @@ https://github.com/kraigochieng/bulk-google-alerts-manager/blob/main/docs/privac
 
 Take these from the loaded extension next to the real Alerts page. Do not show personal alert queries.
 
-1. Review step: CSV rows with checkboxes, similar-alert warnings, and the notice.
+1. Review step: CSV rows with checkboxes and similar-alert warnings.
 2. A create run in progress with the progress bar and result table.
 3. Delete with a confirmation dialog.
 

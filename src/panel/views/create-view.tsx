@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from "react";
 import type { JSX } from "react";
 
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
+import { ADD_STEPS, canAdvance, nextStep, previousStep, stepNumber } from "src/core/add-steps";
+import type { AddStep } from "src/core/add-steps";
 import { buildImportRows, guessMapping } from "src/core/column-mapping";
 import type { ColumnMapping } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
@@ -18,9 +20,7 @@ import type { TableSchema } from "src/core/table-state";
 import type { Settings } from "src/core/settings";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
-import { Checkbox } from "src/panel/ui/checkbox";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
-import { Label } from "src/panel/ui/label";
 import { Select } from "src/panel/ui/select";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
@@ -57,7 +57,7 @@ function defaultChecked({ row }: { row: ImportRow }): boolean {
   return row.issues.length === 0;
 }
 
-/** Render the Add flow: import, map, review, notice, run. Holds the state of the flow. */
+/** Render the Add flow as four steps: file, columns, review, start. Holds the state of the flow. */
 export function CreateView({
   settings,
   onSettingsChange,
@@ -78,7 +78,7 @@ export function CreateView({
   const [checkedRows, setCheckedRows] = useState<ReadonlySet<number>>(new Set());
   const [actionOverrides, setActionOverrides] = useState<Readonly<Record<number, RowAction>>>({});
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
-  const [acknowledged, setAcknowledged] = useState<boolean>(false);
+  const [step, setStep] = useState<AddStep>("file");
   const [rowsState, setRowsState] = useTableState({ schema: ROWS_TABLE_SCHEMA });
 
   const rows: readonly ImportRow[] = useMemo(
@@ -118,7 +118,7 @@ export function CreateView({
         setCsvTable(table);
         setMapping(guessed);
         setActionOverrides({});
-        setAcknowledged(false);
+        setStep("columns");
         setRowsState(ROWS_TABLE_SCHEMA.defaultState);
         live.refresh();
       } catch (error: unknown) {
@@ -142,7 +142,7 @@ export function CreateView({
   const createCount: number = entries.filter((entry: CreateEntry) => entry.action === "create").length;
   const updateCount: number = entries.filter((entry: CreateEntry) => entry.action === "update").length;
   const liveCount: number = liveAlerts?.length ?? 0;
-  const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT, risksAccepted: acknowledged });
+  const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
   const columns: readonly TableColumn<ImportRow>[] = [
@@ -158,12 +158,19 @@ export function CreateView({
 
   const run = controller.run;
   const runActive: boolean = run !== null && ["running", "paused", "awaiting_captcha"].includes(run.status);
+  const queryColumnMapped: boolean = mapping !== null && mapping.query !== null;
+  const previous: AddStep | null = previousStep({ step });
+  const next: AddStep | null = nextStep({ step });
+  const advanceAllowed: boolean = canAdvance({ step, hasFile: csvTable !== null, queryColumnMapped, checkedRowCount: entries.length });
 
   return (
     <div>
-      {!runActive && (
+      <p className="mt-3 text-xs font-medium text-muted-foreground" aria-live="polite">
+        Step {String(stepNumber({ step }))} of {String(ADD_STEPS.length)}
+      </p>
+      {step === "file" && (
         <section aria-label="Import">
-          <h2 className="mt-5 text-sm font-semibold">1. Import a CSV file</h2>
+          <h2 className="mt-4 text-sm font-semibold">Import a CSV file</h2>
           <p className="text-xs text-muted-foreground">The file needs a column with the queries. Other columns are optional.</p>
           <details className="mt-1 text-xs">
             <summary className="cursor-pointer font-medium">Columns and allowed values</summary>
@@ -193,28 +200,30 @@ export function CreateView({
             />
           </div>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
-          {csvTable !== null && mapping !== null && (
-            <>
-              <p className="mt-1 text-xs">
-                {fileName}: {String(csvTable.records.length)} data rows.
-              </p>
-              <ColumnMapper headers={csvTable.headers} mapping={mapping} onChange={setMapping} />
-              {mapping.query === null && <Banner tone="warning">Choose the column that holds the queries.</Banner>}
-            </>
-          )}
+          {importError !== "" && <Banner tone="error">{importError}</Banner>}
         </section>
       )}
-      <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
-      {!runActive && rows.length > 0 && (
+      {step === "columns" && csvTable !== null && mapping !== null && (
+        <section aria-label="Columns">
+          <h2 className="mt-4 text-sm font-semibold">Match the columns</h2>
+          <ColumnMapper headers={csvTable.headers} mapping={mapping} onChange={setMapping} />
+          {mapping.query === null && <Banner tone="warning">Choose the column that holds the queries.</Banner>}
+          <details className="mt-3">
+            <summary className="cursor-pointer text-xs font-medium">Default alert options</summary>
+            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+          </details>
+        </section>
+      )}
+      {step === "review" && (
         <section aria-label="Review">
-          <h2 className="mt-5 text-sm font-semibold">2. Check the rows</h2>
+          <h2 className="mt-4 text-sm font-semibold">Check the rows</h2>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <Button type="button" variant="outline" size="sm" fullWidth onClick={live.refresh}>
               Read my alerts again
             </Button>
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>
-          
+          {live.error !== "" && <Banner tone="error">{live.error}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
           <DataTable<ImportRow, number>
             rows={rows}
@@ -288,31 +297,23 @@ export function CreateView({
           />
         </section>
       )}
-      {!runActive && rows.length > 0 && (
+      {step === "start" && (
         <section aria-label="Start">
-          <h2 className="mt-5 text-sm font-semibold">3. Read the notice and start</h2>
+          <h2 className="mt-4 text-sm font-semibold">Read the notice and start</h2>
           <Banner tone="warning">
             This run creates {String(createCount)} alerts and updates {String(updateCount)} alerts. Google can slow, throttle, or show a bot check on large batches.
             If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
             {String(liveCount)}. Keep the Alerts tab open and in the foreground.
           </Banner>
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Checkbox
-              id="notice-read"
-              checked={acknowledged}
-              onCheckedChange={(checked) => { setAcknowledged(checked); }}
-            />
-            <Label htmlFor="notice-read" className="text-xs">I have read this notice.</Label>
-          </div>
           {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
           {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-destructive">Wait until your existing alerts are read.</p>}
+          <p className="mt-3 text-xs text-muted-foreground">When you click Start, you accept this notice.</p>
           <Button
             type="button"
             fullWidth
-            className="mt-3"
+            className="mt-2"
             disabled={!canStart}
             onClick={() => {
-              setAcknowledged(false);
               controller.begin(buildCreateRun({ entries, defaults: settings.defaults }));
             }}
           >
@@ -320,6 +321,16 @@ export function CreateView({
           </Button>
         </section>
       )}
+      <footer className="sticky -bottom-4 -mx-4 mt-4 flex items-center justify-between gap-2 border-t bg-background px-4 py-3">
+        <Button type="button" variant="outline" size="sm" disabled={previous === null} onClick={() => { if (previous !== null) setStep(previous); }}>
+          Back
+        </Button>
+        {next !== null && (
+          <Button type="button" size="sm" disabled={!advanceAllowed} onClick={() => { setStep(next); }}>
+            Next
+          </Button>
+        )}
+      </footer>
     </div>
   );
 }
