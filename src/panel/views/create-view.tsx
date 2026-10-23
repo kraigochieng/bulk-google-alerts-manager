@@ -252,8 +252,7 @@ export function CreateView({
                   ))}
                   {matches.length > 0 && checkedRows.has(row.sourceRowNumber) && (
                     <RadioGroup
-                      legend={`Action for row ${String(row.sourceRowNumber)}`}
-                      hideLegend
+                      legend="What to do with this row"
                       value={actionFor({ row })}
                       onValueChange={(value: string) => {
                         setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: value as RowAction });
