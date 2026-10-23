@@ -56,7 +56,7 @@ Productivity
 | `https://www.google.com/alerts*` | The content script reads the alert list and operates the create and delete controls on the Google Alerts page. No other site is accessed. |
 | `storage` | Keeps the settings and the current run state in the browser so an interrupted run can resume. |
 
-The extension has no `tabs`, `activeTab`, or `sidePanel` permission. It declares `app.html` and one icon as web-accessible resources, for the Google Alerts page only. The page shows the extension dialog in a frame with `app.html`.
+The extension has no `tabs`, `activeTab`, or `sidePanel` permission. It declares `app.html` and one icon as web-accessible resources for `https://www.google.com/*`. The Alerts page shows the extension dialog in a frame with `app.html`. The content script runs only on `https://www.google.com/alerts*`. A narrower pattern for the resources breaks the frame, because Chrome checks only the origin.
 
 ## Data usage disclosures
 
