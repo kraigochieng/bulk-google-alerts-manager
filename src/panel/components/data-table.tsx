@@ -9,7 +9,7 @@ import type { SortDirection, TableSchema, TableState } from "src/core/table-stat
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
 import { TextField } from "src/panel/ui/text-field";
-import { Select } from "src/panel/ui/select";
+import { RadioGroup } from "src/panel/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "src/panel/ui/table";
 
 export interface RowSelection<Key extends string | number> {
@@ -92,13 +92,13 @@ export function DataTable<Row, Key extends string | number>({
           )}
         </div>
         {schema.filters.length > 1 && (
-          <Select
+          <RadioGroup
+            legend="Filter the table"
+            hideLegend
             value={state.filter}
             onValueChange={(value: string) => {
               change({ filter: value, page: 0 });
             }}
-            aria-label="Filter the table"
-            className="w-40"
             choices={schema.filters.map((filter: string) => ({ value: filter, label: filterLabels[filter] ?? filter }))}
           />
         )}

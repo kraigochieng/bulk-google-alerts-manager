@@ -34,6 +34,13 @@ interface MaterialCheckboxAttributes extends HTMLAttributes<HTMLElement> {
   disabled?: boolean;
 }
 
+interface MaterialRadioAttributes extends HTMLAttributes<HTMLElement> {
+  name?: string;
+  value?: string;
+  checked?: boolean;
+  disabled?: boolean;
+}
+
 interface MaterialTabsAttributes extends HTMLAttributes<HTMLElement> {
   activeTabIndex?: number;
 }
@@ -57,6 +64,7 @@ declare module "react" {
       "md-outlined-select": DetailedHTMLProps<MaterialSelectAttributes, HTMLElement>;
       "md-select-option": DetailedHTMLProps<MaterialSelectOptionAttributes, HTMLElement>;
       "md-checkbox": DetailedHTMLProps<MaterialCheckboxAttributes, HTMLElement>;
+      "md-radio": DetailedHTMLProps<MaterialRadioAttributes, HTMLElement>;
       "md-tabs": DetailedHTMLProps<MaterialTabsAttributes, HTMLElement>;
       "md-primary-tab": DetailedHTMLProps<MaterialTabAttributes, HTMLElement>;
       "md-dialog": DetailedHTMLProps<MaterialDialogAttributes, HTMLElement>;

@@ -22,7 +22,7 @@ import { StepProgress } from "src/panel/components/step-progress";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
-import { Select } from "src/panel/ui/select";
+import { RadioGroup } from "src/panel/ui/radio-group";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { ColumnMapper } from "src/panel/components/column-mapper";
@@ -245,13 +245,13 @@ export function CreateView({
                     </p>
                   ))}
                   {matches.length > 0 && checkedRows.has(row.sourceRowNumber) && (
-                    <Select
+                    <RadioGroup
+                      legend={`Action for row ${String(row.sourceRowNumber)}`}
+                      hideLegend
                       value={actionFor({ row })}
                       onValueChange={(value: string) => {
                         setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: value as RowAction });
                       }}
-                      aria-label={`Action for row ${String(row.sourceRowNumber)}`}
-                      className="mt-0.5 w-full"
                       choices={
                         matches[0]?.similarity === "exact"
                           ? [
