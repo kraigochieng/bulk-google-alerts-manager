@@ -22,7 +22,7 @@ import { StepProgress } from "src/panel/components/step-progress";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
-import { Select } from "src/panel/ui/select";
+import { RadioGroup } from "src/panel/ui/radio-group";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { ColumnMapper } from "src/panel/components/column-mapper";
@@ -65,12 +65,14 @@ export function CreateView({
   saveStatus,
   controller,
   live,
+  onNotify,
 }: {
   settings: Settings;
   onSettingsChange: (next: Settings) => void;
   saveStatus: SaveStatus;
   controller: RunController;
   live: LiveAlertsState;
+  onNotify: (message: string) => void;
 }): JSX.Element {
   const [fileName, setFileName] = useState<string>("");
   const [csvTable, setCsvTable] = useState<CsvTable | null>(null);
@@ -116,6 +118,7 @@ export function CreateView({
         const table: CsvTable = parseCsv({ text: await file.text() });
         const guessed: ColumnMapping = guessMapping({ headers: table.headers });
         setFileName(file.name);
+        onNotify(`Read ${String(table.records.length)} rows from ${file.name}.`);
         setCsvTable(table);
         setMapping(guessed);
         setActionOverrides({});
@@ -126,7 +129,7 @@ export function CreateView({
         setImportError(error instanceof Error ? error.message : "The file could not be read.");
       }
     },
-    [live, setRowsState],
+    [live, setRowsState, onNotify],
   );
 
   // Reset the checked rows whenever the rows change (new file or new mapping).
@@ -188,7 +191,10 @@ export function CreateView({
               variant="outline"
               size="sm"
               fullWidth
-              onClick={() => { downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() }); }}
+              onClick={() => {
+                downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() });
+                onNotify(`Saved ${TEMPLATE_FILE_NAME}.`);
+              }}
             >
               Download template CSV
             </Button>
@@ -245,13 +251,13 @@ export function CreateView({
                     </p>
                   ))}
                   {matches.length > 0 && checkedRows.has(row.sourceRowNumber) && (
-                    <Select
+                    <RadioGroup
+                      legend={`Action for row ${String(row.sourceRowNumber)}`}
+                      hideLegend
                       value={actionFor({ row })}
                       onValueChange={(value: string) => {
                         setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: value as RowAction });
                       }}
-                      aria-label={`Action for row ${String(row.sourceRowNumber)}`}
-                      className="mt-0.5 w-full"
                       choices={
                         matches[0]?.similarity === "exact"
                           ? [

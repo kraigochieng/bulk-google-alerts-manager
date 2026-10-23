@@ -6,7 +6,7 @@ import type { SaveStatus } from "src/panel/use-autosave";
 import { Button } from "src/panel/ui/button";
 import { TextField } from "src/panel/ui/text-field";
 import { Label } from "src/panel/ui/label";
-import { Select } from "src/panel/ui/select";
+import { RadioGroup } from "src/panel/ui/radio-group";
 import type { DeliverTo, HowMany, HowOften } from "src/shared/models";
 
 const STATUS_TEXT: Record<SaveStatus, string> = {
@@ -55,7 +55,7 @@ function ClearableText({
   );
 }
 
-function OptionSelect({
+function OptionChoice({
   label,
   value,
   disabled,
@@ -69,17 +69,13 @@ function OptionSelect({
   options: readonly (readonly [string, string])[];
 }): JSX.Element {
   return (
-    <div className="min-w-0 space-y-1">
-      <Label className="text-xs">{label}</Label>
-      <Select
-        value={value}
-        disabled={disabled}
-        onValueChange={onChange}
-        aria-label={label}
-        className="w-full"
-        choices={options.map(([optionValue, optionLabel]) => ({ value: optionValue, label: optionLabel }))}
-      />
-    </div>
+    <RadioGroup
+      legend={label}
+      value={value}
+      disabled={disabled}
+      onValueChange={onChange}
+      choices={options.map(([optionValue, optionLabel]) => ({ value: optionValue, label: optionLabel }))}
+    />
   );
 }
 
@@ -106,21 +102,21 @@ export function SettingsForm({
       {locked && <p className="text-xs text-amber-800">Locked while a run is active.</p>}
       <p className="text-xs text-muted-foreground">A CSV column overrides a default for its row.</p>
       <div className="mt-3 grid grid-cols-1 gap-3 @sm:grid-cols-2">
-        <OptionSelect
+        <OptionChoice
           label="Deliver to"
           value={defaults.deliverTo}
           disabled={locked}
           onChange={(value) => { setDefaults({ deliverTo: value as DeliverTo }); }}
           options={[["rss", "RSS feed"], ["email", "Email"]]}
         />
-        <OptionSelect
+        <OptionChoice
           label="How often"
           value={isRss ? "as_it_happens" : defaults.howOften}
           disabled={locked || isRss}
           onChange={(value) => { setDefaults({ howOften: value as HowOften }); }}
           options={[["as_it_happens", "As-it-happens"], ["daily", "At most once a day"], ["weekly", "At most once a week"]]}
         />
-        <OptionSelect
+        <OptionChoice
           label="How many"
           value={defaults.howMany}
           disabled={locked}

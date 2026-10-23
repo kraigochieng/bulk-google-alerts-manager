@@ -28,7 +28,7 @@ export function RunOverlay({
   const waitingText: string =
     run.status === "paused" ? "Paused." : run.status === "awaiting_captcha" ? "Waiting for you to solve a bot check." : "";
   return (
-    <BusyOverlay title={isCreate ? "Adding alerts" : "Deleting alerts"} progress={(finished / Math.max(total, 1)) * 100}>
+    <BusyOverlay title={isCreate ? "Adding alerts" : "Deleting alerts"} progress={(finished / Math.max(total, 1)) * 100} working={run.status === "running"}>
       <p className="mt-1 text-sm text-muted-foreground">
         {String(finished)} of {String(total)} done. {waitingText}
       </p>

@@ -31,6 +31,9 @@
   --md-sys-color-on-surface-variant: #5f6368;
   --md-sys-color-outline: #80868b;
   --md-sys-color-outline-variant: #dadce0;
+  --md-sys-color-inverse-surface: #303134;
+  --md-sys-color-inverse-on-surface: #f1f3f4;
+  --md-sys-color-inverse-primary: #8ab4f8;
   --md-sys-color-error: #d93025;
   --md-sys-color-on-error: #ffffff;
   --md-sys-color-shadow: #000000;
@@ -164,4 +167,32 @@ md-linear-progress[data-tone="warning"] {
 md-linear-progress[data-tone="error"] {
   --md-linear-progress-active-indicator-color: var(--md-sys-color-error);
   --md-linear-progress-track-color: #fce8e6;
+}
+
+/* The M3 snackbar: an inverse surface with 4px corners, above the page bar. */
+.app-snackbar {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 288px;
+  max-width: min(560px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  padding: 4px 8px 4px 16px;
+  border-radius: 4px;
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  font-size: 14px;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.3);
+  pointer-events: auto;
+}
+
+.app-snackbar md-text-button {
+  --md-text-button-label-text-color: var(--md-sys-color-inverse-primary);
+  --md-text-button-hover-label-text-color: var(--md-sys-color-inverse-primary);
+  --md-text-button-focus-label-text-color: var(--md-sys-color-inverse-primary);
+  --md-text-button-pressed-label-text-color: var(--md-sys-color-inverse-primary);
 }

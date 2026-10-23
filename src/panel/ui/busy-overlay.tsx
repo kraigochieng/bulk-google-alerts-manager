@@ -4,15 +4,18 @@ import { Progress } from "src/panel/ui/progress";
 
 /**
  * Cover the app with a foggy layer while work runs. A progress bar runs at the top edge.
+ * A second, moving bar in the card shows that work goes on while no count changes.
  * A card in the middle holds the title and the controls. The page below stays visible but out of reach.
  */
 export function BusyOverlay({
   title,
   progress,
+  working = false,
   children,
 }: {
   title: string;
   progress: number | null;
+  working?: boolean;
   children: ReactNode;
 }): JSX.Element {
   return (
@@ -30,6 +33,7 @@ export function BusyOverlay({
       />
       <div className="w-full max-w-sm rounded-2xl border bg-card p-5 shadow-lg">
         <h2 className="text-base font-medium">{title}</h2>
+        {working && <Progress value={0} indeterminate className="mt-3 block w-full" aria-label="Waiting for Google" />}
         {children}
       </div>
     </div>
