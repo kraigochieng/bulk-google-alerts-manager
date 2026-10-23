@@ -61,14 +61,9 @@ export function requestFromPage({ request }: { request: PanelRequest }): Promise
   });
 }
 
-/** Tell the page whether the app needs the full page for an overlay. Side effect: messages the page. */
-export function reportBusy({ busy }: { busy: boolean }): void {
-  post({ message: { kind: "busy", busy } });
-}
-
-/** Ask the page to close the app. Side effect: messages the page. */
-export function closeApp(): void {
-  post({ message: { kind: "close" } });
+/** Tell the page whether the app shows a dialog or an overlay, so that the frame takes the pointer. Side effect: messages the page. */
+export function reportInteractive({ interactive }: { interactive: boolean }): void {
+  post({ message: { kind: "interactive", interactive } });
 }
 
 /** Return the alerts that the user checked on the page. The array changes only when the selection changes. */
@@ -82,11 +77,6 @@ export function subscribeToCheckedAlerts({ listener }: { listener: () => void })
   return (): void => {
     selectionListeners.delete(listener);
   };
-}
-
-/** Ask the page to open the app. Side effect: messages the page. */
-export function requestOpen(): void {
-  post({ message: { kind: "open" } });
 }
 
 /** Call the listener when the user starts an action from the bar. Return a function that stops the calls. */

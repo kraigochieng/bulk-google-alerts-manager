@@ -1,9 +1,8 @@
-import { sendCommand, toggleFrame, updateCheckedAlerts } from "src/content/frame-host";
-import { addLauncher } from "src/content/launcher";
+import { addFrame, sendCommand, updateCheckedAlerts } from "src/content/frame-host";
 import { startRowSelection } from "src/content/row-selection";
 import { parseToggleMessage } from "src/shared/messages";
 
-addLauncher({ onClick: toggleFrame });
+addFrame();
 startRowSelection({
   onChange: (alerts) => { updateCheckedAlerts({ alerts }); },
   onCommand: (command) => { sendCommand({ command }); },
@@ -11,7 +10,7 @@ startRowSelection({
 
 chrome.runtime.onMessage.addListener((message: unknown): boolean => {
   if (parseToggleMessage({ value: message })) {
-    toggleFrame();
+    sendCommand({ command: "add" });
   }
   return false;
 });

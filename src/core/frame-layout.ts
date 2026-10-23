@@ -1,10 +1,9 @@
-export type FrameLayout = "hidden" | "drawer" | "full";
+export type FrameLayout = "passive" | "active";
 
 /**
- * Choose how the app frame shows on the page.
- * Busy work needs the full page for its overlay, even when the user closed the drawer.
+ * Choose how the app frame reacts to the pointer.
+ * The frame covers the page. It passes clicks to the Google page, unless the app shows a dialog or an overlay.
  */
-export function chooseFrameLayout({ open, busy }: { open: boolean; busy: boolean }): FrameLayout {
-  if (busy) return "full";
-  return open ? "drawer" : "hidden";
+export function chooseFrameLayout({ interactive }: { interactive: boolean }): FrameLayout {
+  return interactive ? "active" : "passive";
 }

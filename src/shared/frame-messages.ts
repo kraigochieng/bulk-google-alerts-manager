@@ -11,9 +11,7 @@ export type PageCommand = "add" | "delete" | "export";
 /** Messages that the app frame sends to the page. */
 export type FrameToPage =
   | { readonly kind: "request"; readonly id: number; readonly request: PanelRequest }
-  | { readonly kind: "busy"; readonly busy: boolean }
-  | { readonly kind: "open" }
-  | { readonly kind: "close" };
+  | { readonly kind: "interactive"; readonly interactive: boolean };
 
 /** Messages that the page sends to the app frame. */
 export type PageToFrame =
@@ -25,9 +23,9 @@ export type PageToFrame =
 export function parseFrameToPage({ value }: { value: unknown }): FrameToPage | null {
   if (typeof value !== "object" || value === null) return null;
   const record: Record<string, unknown> = value as Record<string, unknown>;
-  if (record.kind === "close") return { kind: "close" };
-  if (record.kind === "open") return { kind: "open" };
-  if (record.kind === "busy" && typeof record.busy === "boolean") return { kind: "busy", busy: record.busy };
+  if (record.kind === "interactive" && typeof record.interactive === "boolean") {
+    return { kind: "interactive", interactive: record.interactive };
+  }
   if (record.kind === "request" && typeof record.id === "number") {
     const request: PanelRequest | null = parsePanelRequest({ value: record.request });
     return request === null ? null : { kind: "request", id: record.id, request };
