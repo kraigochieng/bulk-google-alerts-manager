@@ -26,7 +26,7 @@ Copy the text from [store-listing.md](store-listing.md).
 2. Fill in the name, the short description, the long description, and the category.
 3. Upload the icon `public/icons/icon-128.png`.
 4. Use the screenshots in `docs/store-assets/`. **Owner.** Replace the files 1, 2, and 4 with captures from a signed-in account (see the limit in [store-listing.md](store-listing.md)). Use test queries that start with `bam test`. Do not show personal queries.
-5. **Owner.** Make the small promo tile of 440x280 pixels.
+5. Use the promo tiles in `docs/store-assets/`: the small tile (440x280) and the optional marquee tile (1400x560).
 6. Set the support link to `https://github.com/kraigochieng/bulk-google-alerts-manager/issues`.
 
 ## Privacy tab
