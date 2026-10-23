@@ -14,7 +14,7 @@ export function ExportOverlay({
   onCancel: () => void;
 }): JSX.Element {
   return (
-    <BusyOverlay title="Exporting alerts" progress={(readCount / Math.max(total, 1)) * 100}>
+    <BusyOverlay title="Exporting alerts" progress={(readCount / Math.max(total, 1)) * 100} working>
       <p className="mt-1 text-sm text-muted-foreground">
         {String(readCount)} of {String(total)} alerts read. The CSV file downloads when the export ends.
       </p>
