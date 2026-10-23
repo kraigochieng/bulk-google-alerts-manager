@@ -3,6 +3,7 @@ import type { JSX } from "react";
 
 import { DEFAULT_SETTINGS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
+import { buildExportCsv, EXPORT_FILE_NAME } from "src/core/export-csv";
 import { buildExportSummary, exportIsEnded } from "src/core/export-progress";
 import { buildRunSummary, runIsFinished } from "src/core/run-summary";
 import { ExportOverlay } from "src/panel/components/export-overlay";
@@ -10,6 +11,7 @@ import { RunOverlay } from "src/panel/components/run-overlay";
 import { RunResultDialog } from "src/panel/components/run-result-dialog";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { DeleteConfirm } from "src/panel/components/delete-confirm";
+import { copyTextToClipboard, downloadTextFile } from "src/panel/chrome-bridge";
 import { reportInteractive } from "src/panel/page-link";
 import { Snackbar } from "src/panel/ui/snackbar";
 import { useSnackbar } from "src/panel/use-snackbar";
@@ -27,6 +29,14 @@ import { useRunController } from "src/panel/use-run-controller";
 import { CreateView } from "src/panel/views/create-view";
 import { loadSettings, saveSettings } from "src/storage/run-repository";
 
+type CopyStatus = "idle" | "copied" | "failed";
+
+const COPY_LABELS: Record<CopyStatus, string> = {
+  idle: "Copy to clipboard",
+  copied: "Copied",
+  failed: "Copy failed, use Download",
+};
+
 /** Render the app on the Alerts page: first-run notice, settings, the Add dialog, and the dialogs of the bar actions. Holds the app state. */
 export function App(): JSX.Element {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -42,6 +52,7 @@ export function App(): JSX.Element {
     addOpen || pendingCommand !== null || confirmingDelete || controller.run !== null || exporter.state.status !== "idle";
 
   const snackbar: SnackbarState = useSnackbar();
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
 
   const perform = (command: PageCommand): void => {
     if (command === "add") {
@@ -150,7 +161,30 @@ export function App(): JSX.Element {
             total: exporter.state.total,
             notice: exporter.state.notice,
           })}
-          onClose={exporter.reset}
+          onClose={() => {
+            setCopyStatus("idle");
+            exporter.reset();
+          }}
+          actions={
+            exporter.state.status === "finished"
+              ? [
+                  {
+                    label: COPY_LABELS[copyStatus],
+                    onClick: (): void => {
+                      void copyTextToClipboard({ text: buildExportCsv({ entries: exporter.state.entries }) }).then((copied: boolean) => {
+                        setCopyStatus(copied ? "copied" : "failed");
+                      });
+                    },
+                  },
+                  {
+                    label: "Download CSV",
+                    onClick: (): void => {
+                      downloadTextFile({ fileName: EXPORT_FILE_NAME, text: buildExportCsv({ entries: exporter.state.entries }) });
+                    },
+                  },
+                ]
+              : []
+          }
         />
       )}
     </>

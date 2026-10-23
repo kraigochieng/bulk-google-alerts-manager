@@ -56,6 +56,7 @@ export function addFrame(): void {
   const element: HTMLIFrameElement = document.createElement("iframe");
   const frameUrl: string = chrome.runtime.getURL("app.html");
   element.src = frameUrl;
+  element.allow = "clipboard-write";
   element.title = "Bulk Alerts Manager for Google Alerts";
   element.addEventListener("load", () => {
     const channel: MessageChannel = new MessageChannel();

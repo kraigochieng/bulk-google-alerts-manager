@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { buildExportCsv, EXPORT_FILE_NAME } from "src/core/export-csv";
 import type { ExportEntry } from "src/core/export-csv";
-import { exportJustFinished } from "src/core/export-progress";
 import type { ExportStatus } from "src/core/export-progress";
-import { downloadTextFile, sendToAlertsTab } from "src/panel/chrome-bridge";
+import { sendToAlertsTab } from "src/panel/chrome-bridge";
 import type { AlertOptions, LiveAlert } from "src/shared/models";
 
 /** The state of one export. */
@@ -35,20 +33,11 @@ async function readOptions({ query }: { query: string }): Promise<AlertOptions |
 
 /**
  * Hold one export of all alerts. Side effect: reads each alert in edit mode, one after the other.
- * It downloads the CSV file by itself when the export finishes.
  * An alert that cannot be read stays in the result with empty options. A bot check stops the export.
  */
 export function useExport(): ExportController {
   const [state, setState] = useState<ExportState>(IDLE_STATE);
   const cancelledRef = useRef<boolean>(false);
-  const previousStatus = useRef<ExportStatus>("idle");
-
-  useEffect(() => {
-    if (exportJustFinished({ previous: previousStatus.current, current: state.status })) {
-      downloadTextFile({ fileName: EXPORT_FILE_NAME, text: buildExportCsv({ entries: state.entries }) });
-    }
-    previousStatus.current = state.status;
-  }, [state.status, state.entries]);
 
   useEffect(() => {
     return (): void => {
