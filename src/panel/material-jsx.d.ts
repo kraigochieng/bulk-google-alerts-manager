@@ -13,7 +13,8 @@ interface MaterialProgressAttributes extends HTMLAttributes<HTMLElement> {
 
 interface MaterialTextFieldAttributes extends HTMLAttributes<HTMLElement> {
   value?: string;
-  type?: "text" | "search";
+  type?: "text" | "search" | "textarea";
+  rows?: number;
   disabled?: boolean;
   placeholder?: string;
   label?: string;
