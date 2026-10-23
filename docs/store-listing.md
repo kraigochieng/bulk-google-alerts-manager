@@ -30,11 +30,11 @@ Add
 
 Export
 - Write all alerts with their options and feed links to one CSV file. It downloads by itself.
-- Import the file in the Add tab of another account.
+- Import the file in the Add dialog of another account.
 
 Delete
 - See all your alerts with search, filter, and checkboxes.
-- Use the Export tab first to keep a copy of your alerts.
+- Use Export first to keep a copy of your alerts.
 - Confirm in a dialog that names the count. Deletion is permanent.
 
 Important
