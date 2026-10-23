@@ -13,12 +13,33 @@ const BAR_STYLE: string = `
   input { width: 18px; height: 18px; margin: 0; accent-color: #1a73e8; cursor: pointer; }
   button { border: 0; background: none; color: #1a73e8; font: inherit; cursor: pointer; padding: 4px 8px; }
   .actions { display: flex; gap: 4px; margin-left: 8px; padding-left: 8px; border-left: 1px solid #dadce0; }
-  .actions button { border-radius: 16px; padding: 4px 12px; }
+  .actions button { display: inline-flex; align-items: center; gap: 6px; border-radius: 16px; padding: 4px 12px; }
+  .actions svg { width: 18px; height: 18px; fill: currentColor; }
   .actions button.primary { background: #1a73e8; color: #ffffff; }
   .actions button.danger { color: #d93025; }
   .actions button.primary:disabled, .actions button.danger:disabled { background: none; color: #9aa0a6; }
   button:disabled { color: #9aa0a6; cursor: default; }
 `;
+
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg" as const;
+
+/** The Material Symbols path of the icon of each command. */
+const COMMAND_ICON_PATHS: Record<PageCommand, string> = {
+  export: "M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z",
+  delete: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
+  add: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
+};
+
+/** Make the icon of a command as an inline SVG. The icon hides from screen readers. */
+function createCommandIcon({ command }: { command: PageCommand }): SVGSVGElement {
+  const icon: SVGSVGElement = document.createElementNS(SVG_NAMESPACE, "svg");
+  icon.setAttribute("viewBox", "0 0 24 24");
+  icon.setAttribute("aria-hidden", "true");
+  const path: SVGPathElement = document.createElementNS(SVG_NAMESPACE, "path");
+  path.setAttribute("d", COMMAND_ICON_PATHS[command]);
+  icon.append(path);
+  return icon;
+}
 
 /** Make one action button. A click calls onCommand with the command. */
 function createActionButton({
@@ -32,7 +53,7 @@ function createActionButton({
 }): HTMLButtonElement {
   const button: HTMLButtonElement = document.createElement("button");
   button.type = "button";
-  button.textContent = label;
+  button.append(createCommandIcon({ command }), label);
   button.addEventListener("click", () => {
     onCommand(command);
   });
