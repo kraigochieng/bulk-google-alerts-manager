@@ -49,7 +49,7 @@ Copy the text from [store-listing.md](store-listing.md).
 
 | Risk | Effect | Action |
 |---|---|---|
-| The name contains "Google". | The review can reject the name as a claim of affiliation. | The name and the first lines of the description say "Unofficial" and "Not affiliated with Google". If the review rejects the name, use a name such as "Bulk Alerts Manager for Google Alerts". |
+| The name contains "Google". | The review can reject the name as a claim of affiliation. | The name uses the form "for Google Alerts". The name and the first lines of the description say "Unofficial" and "Not affiliated with Google". |
 | The extension edits a Google page. | The reviewer can ask why. | The single purpose and the permission reasons name the Alerts page only. |
 | The web-accessible resources match `https://www.google.com/*`. | The reviewer can ask why the pattern is wider than the Alerts page. | Answer that Chrome checks only the origin for this field. I tested that a narrower pattern stops the dialog from loading. |
 | Google changes the Alerts page. | The extension stops with a clear message. | Fix the selectors in `src/content/selectors.ts`. Raise the version. Upload again. |

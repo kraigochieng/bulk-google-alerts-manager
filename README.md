@@ -1,6 +1,6 @@
-# Bulk Google Alerts Manager
+# Bulk Alerts Manager for Google Alerts
 
-Bulk Google Alerts Manager is an unofficial Chrome extension. It is not affiliated with Google.
+Bulk Alerts Manager for Google Alerts is an unofficial Chrome extension. It is not affiliated with Google.
 It adds, exports, and deletes many Google Alerts at once, in your own logged-in browser.
 
 Google Alerts has no API and no bulk tools. This extension drives the Alerts page for you.

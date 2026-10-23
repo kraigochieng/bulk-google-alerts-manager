@@ -7,7 +7,7 @@ export function FirstRunScreen({ onAccept }: { onAccept: () => void }): JSX.Elem
   return (
     <div className="text-sm">
       <h1 className="text-lg font-semibold">Before you start</h1>
-      <p className="mt-2 font-medium">Bulk Google Alerts Manager is an unofficial tool. It is not affiliated with Google.</p>
+      <p className="mt-2 font-medium">Bulk Alerts Manager for Google Alerts is an unofficial tool. It is not affiliated with Google.</p>
       <ul className="mt-3 list-disc space-y-2 pl-5">
         <li>The tool drives the Google Alerts page in your own logged-in browser tab.</li>
         <li>It works only for the Google account that is signed in to this browser profile.</li>

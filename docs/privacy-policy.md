@@ -1,6 +1,6 @@
 # Privacy policy
 
-Bulk Google Alerts Manager is an unofficial tool. It is not affiliated with Google.
+Bulk Alerts Manager for Google Alerts is an unofficial tool. It is not affiliated with Google.
 
 Last updated: 2026-10-23.
 
