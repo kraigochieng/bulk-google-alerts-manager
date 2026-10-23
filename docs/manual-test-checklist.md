@@ -15,3 +15,7 @@ Use throwaway queries that start with `bam test`. Use your own account.
 11. Layout change check: rename a selector in `src/content/selectors.ts`, rebuild, run. Expect the message "Google's page layout changed, update the extension."
 12. Checkbox position: expect each row to show a checkbox at its left edge. Check two rows that have the same query, if you have them. Expect both rows to check together.
 13. Hidden tab: switch tab during a run. Expect a pause notice.
+14. Heading: expect the list heading to read `My alerts (N created, M remaining)`. Add one alert and expect both numbers to change.
+15. Limit: import more rows than the remaining count. Expect a warning on the review step and a Next button that stays off.
+16. Page numbers: import more than 25 rows. Expect page numbers under the table. Click page 2.
+17. Narrow window: make the browser window 600 pixels wide. Open the Add dialog. Expect all steps to stay usable.
