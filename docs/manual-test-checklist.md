@@ -9,7 +9,7 @@ Use throwaway queries that start with `bam test`. Use your own account.
 5. Add the same file again: expect 5 updated rows and no new alert. Change `how_often` in one row first and expect that alert to change.
 6. Pause, resume, and cancel in a second run. Expect finished rows to stay.
 7. Reload the page during a run. Open the Add dialog and resume. Expect no repeated creates.
-8. Export: check 3 rows on the page. Expect the bar at the bottom of the page to show 3 selected. Click Export in the bar and wait. Expect the foggy loader, a dialog, and a downloaded CSV with one row per checked alert, all six options, and the feed link. Import it in Add and expect no warnings.
+8. Export: check 3 rows on the page. Expect the bar at the bottom of the page to show 3 selected. Click Export in the bar and wait. Expect the foggy loader, then a dialog with the buttons "Copy to clipboard" and "Download CSV". Click Download CSV and expect a CSV with one row per checked alert, all six options, and the feed link. Import it in Add and expect no warnings.
 9. Delete: use the check-all box in the bar. Click Delete and confirm in the dialog. Expect the foggy loader, then a dialog with Deleted: 5.
 10. With 11 or more alerts: click Show all alerts, then use check-all. Expect the count of all alerts. Expect the checkboxes to stay after you edit one alert.
 11. Layout change check: rename a selector in `src/content/selectors.ts`, rebuild, run. Expect the message "Google's page layout changed, update the extension."
@@ -19,3 +19,4 @@ Use throwaway queries that start with `bam test`. Use your own account.
 15. Limit: import more rows than the remaining count. Expect a warning on the review step and a Next button that stays off.
 16. Page numbers: import more than 25 rows. Expect page numbers under the table. Click page 2.
 17. Narrow window: make the browser window 600 pixels wide. Open the Add dialog. Expect all steps to stay usable.
+18. Copy and paste: export 3 alerts and click "Copy to clipboard". Expect the button to read Copied. Open Add, paste in the text box of step 1, and click "Read pasted text". Expect 3 data rows in step 2.

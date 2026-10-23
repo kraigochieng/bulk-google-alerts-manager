@@ -10,7 +10,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 | Action | What happens |
 |---|---|
 | Add | Reads a CSV file. Creates a new alert for each row. Updates an alert when the query already exists. |
-| Export | Writes the alerts that you check on the page to one CSV file. |
+| Export | Reads the alerts that you check on the page. The result dialog lets you copy the CSV text to the clipboard or download it as a file. |
 | Delete | Deletes the alerts that you check on the page. A dialog asks you to confirm. |
 
 ## How to use it
@@ -19,11 +19,11 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 2. Look at the bar at the bottom of the page. It holds a check-all box, the count of checked alerts, and the buttons Clear, Export, Delete, and Add.
 3. The heading of the list shows the alerts that you have and the alerts that you can still add. Example: `My alerts (4 created, 996 remaining)`.
 4. To add alerts, click Add in the bar, or click the extension icon. Follow the four steps:
-   1. **File.** Choose a CSV file. Click "Download template CSV" for a start file.
+   1. **File.** Choose a CSV file, or paste CSV text. Click "Download template CSV" for a start file.
    2. **Columns.** Check which CSV column holds each field. Open "Default alert options" to set the options for empty cells.
    3. **Review.** Check the rows that you want. A row with a problem cannot be checked. Search, filter, and sort the rows.
    4. **Start.** Read the notice. Click Start. The click accepts the notice.
-5. To export or delete, check alerts on the page. Click Export or Delete in the bar.
+5. To export or delete, check alerts on the page. Click Export or Delete in the bar. After an export, click "Copy to clipboard" or "Download CSV" in the result dialog. To import a copy, paste it in step 1 of the Add dialog.
 6. A loader covers the page while a run works. You can pause, resume, or cancel. A dialog shows the result when the run ends.
 
 ## Features

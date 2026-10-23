@@ -2,13 +2,14 @@
 
 Bulk Alerts Manager for Google Alerts is an unofficial tool. It is not affiliated with Google.
 
-Last updated: 2026-10-23.
+Last updated: 2026-10-24.
 
 ## What the extension does with data
 
 - The extension reads the Google Alerts page that you open (`https://www.google.com/alerts`) to list your alerts.
 - It creates and deletes alerts on that page when you start a run.
-- It reads the CSV files that you choose, in your browser.
+- It reads the CSV files that you choose, and the CSV text that you paste, in your browser.
+- It writes CSV text to your clipboard only when you click "Copy to clipboard".
 - It adds a bar, a checkbox on each alert row, and a dialog to the Alerts page. It changes the heading text of the list to show the remaining count.
 
 ## What the extension stores
