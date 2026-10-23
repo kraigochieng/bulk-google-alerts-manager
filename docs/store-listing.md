@@ -82,7 +82,14 @@ The files are in `docs/store-assets/`. They show the extension next to the Alert
 
 Limit: the author made these files on a logged-out Alerts page. A script added the sample alert rows to the page. The extension dialogs and the bar are real. **Owner.** The store asks for screenshots that show the real product. Replace files 1, 2, and 4 with captures from a signed-in account before you submit. Use test queries.
 
-The store also needs one small promo tile (440x280). A marquee tile (1400x560) is optional.
+## Promo tiles
+
+| File | Size | Use |
+|---|---|---|
+| `promo-tile-small-440x280.png` | 440x280 | Small promo tile |
+| `promo-tile-marquee-1400x560.png` | 1400x560 | Marquee promo tile |
+
+Both files are 24-bit PNG files with no alpha channel. The marquee tile uses `1-review-step.png`. Rebuild the marquee tile if you replace that screenshot.
 
 ## Package
 
