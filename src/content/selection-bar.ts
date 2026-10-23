@@ -9,7 +9,6 @@ const BAR_STYLE: string = `
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     font: 14px/20px Roboto, Arial, sans-serif;
   }
-  .bar[hidden] { display: none; }
   label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
   input { width: 18px; height: 18px; margin: 0; accent-color: #1a73e8; cursor: pointer; }
   button { border: 0; background: none; color: #1a73e8; font: inherit; cursor: pointer; padding: 4px 8px; }
@@ -67,7 +66,6 @@ export function createSelectionBar({
   style.textContent = BAR_STYLE;
   const bar: HTMLDivElement = document.createElement("div");
   bar.className = "bar";
-  bar.hidden = true;
   const label: HTMLLabelElement = document.createElement("label");
   const checkAll: HTMLInputElement = document.createElement("input");
   checkAll.type = "checkbox";
@@ -81,7 +79,7 @@ export function createSelectionBar({
   const exportButton: HTMLButtonElement = createActionButton({ label: "Export", command: "export", onCommand });
   const deleteButton: HTMLButtonElement = createActionButton({ label: "Delete", command: "delete", onCommand });
   deleteButton.className = "danger";
-  const addButton: HTMLButtonElement = createActionButton({ label: "Add alerts", command: "add", onCommand });
+  const addButton: HTMLButtonElement = createActionButton({ label: "Add", command: "add", onCommand });
   addButton.className = "primary";
   actions.append(exportButton, deleteButton, addButton);
   bar.append(label, clear, actions);
@@ -96,7 +94,7 @@ export function createSelectionBar({
 
   return {
     update: ({ selectedCount, totalCount }: SelectionBarView): void => {
-      bar.hidden = totalCount === 0;
+      checkAll.disabled = totalCount === 0;
       checkAll.checked = totalCount > 0 && selectedCount === totalCount;
       checkAll.indeterminate = selectedCount > 0 && selectedCount < totalCount;
       count.textContent = selectedCount === 0 ? "Select all" : `${String(selectedCount)} selected`;
