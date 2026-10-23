@@ -9,13 +9,11 @@ export function checkCreateGate({
   createCount,
   updateCount,
   cap,
-  risksAccepted,
 }: {
   liveCount: number;
   createCount: number;
   updateCount: number;
   cap: number;
-  risksAccepted: boolean;
 }): GateResult {
   if (createCount + updateCount === 0) {
     return { allowed: false, reason: "No rows are checked. Check at least one row." };
@@ -26,9 +24,6 @@ export function checkCreateGate({
       allowed: false,
       reason: `This run would pass the limit of ${String(cap)} alerts. ${String(capCheck.overflowCount)} too many. Uncheck some rows.`,
     };
-  }
-  if (!risksAccepted) {
-    return { allowed: false, reason: "Read the notice and accept it before the run." };
   }
   return { allowed: true };
 }

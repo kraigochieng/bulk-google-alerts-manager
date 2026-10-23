@@ -3,8 +3,6 @@ import type { JSX } from "react";
 
 import { DEFAULT_SETTINGS } from "src/core/settings";
 import type { Settings } from "src/core/settings";
-import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
-import { AccountUsage } from "src/panel/components/account-usage";
 import { buildExportSummary, exportIsEnded } from "src/core/export-progress";
 import { buildRunSummary, runIsFinished } from "src/core/run-summary";
 import { ExportOverlay } from "src/panel/components/export-overlay";
@@ -109,13 +107,6 @@ export function App(): JSX.Element {
           setAddOpen(false);
         }}
       >
-        <AccountUsage
-          count={live.alerts?.length ?? null}
-          cap={ALERT_CAP_PER_ACCOUNT}
-          error={live.error}
-          refreshing={live.refreshing}
-          onRefresh={live.refresh}
-        />
         <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} />
       </Modal>
       <DeleteConfirm

@@ -5,7 +5,7 @@ Use throwaway queries that start with `bam test`. Use your own account.
 1. Build with `npm run build`. Load `dist` in `chrome://extensions` (developer mode, unpacked).
 2. Open `https://www.google.com/alerts`. Expect no element at the page edge. Expect a bar at the bottom of the page. Click the extension icon, or click Add in the bar. The Add dialog opens. Click Close. Scroll and click on the Google page and expect them to work.
 3. Click Delete or Export in the bar before you accept the notice. Expect the first-run dialog. Accept it.
-4. Add: import `fixtures/sample-queries.csv`, map the columns, check 5 rows, start. Expect the foggy loader, then a dialog with Created: 5. Press OK.
+4. Add: import `fixtures/sample-queries.csv`. Expect the four steps (file, columns, review, start) with Back and Next. Check 5 rows and click Start. Expect the foggy loader, then a dialog with Created: 5. Press OK.
 5. Add the same file again: expect 5 updated rows and no new alert. Change `how_often` in one row first and expect that alert to change.
 6. Pause, resume, and cancel in a second run. Expect finished rows to stay.
 7. Reload the page during a run. Open the Add dialog and resume. Expect no repeated creates.
