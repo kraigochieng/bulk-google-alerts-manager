@@ -23,6 +23,7 @@ import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { RadioGroup } from "src/panel/ui/radio-group";
+import { TextField } from "src/panel/ui/text-field";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { ColumnMapper } from "src/panel/components/column-mapper";
@@ -78,6 +79,7 @@ export function CreateView({
   const [csvTable, setCsvTable] = useState<CsvTable | null>(null);
   const [mapping, setMapping] = useState<ColumnMapping | null>(null);
   const [importError, setImportError] = useState<string>("");
+  const [pastedText, setPastedText] = useState<string>("");
   const [checkedRows, setCheckedRows] = useState<ReadonlySet<number>>(new Set());
   const [actionOverrides, setActionOverrides] = useState<Readonly<Record<number, RowAction>>>({});
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
@@ -111,14 +113,14 @@ export function CreateView({
     [actionOverrides, matchesByRow],
   );
 
-  const importFile = useCallback(
-    async (file: File): Promise<void> => {
+  const importText = useCallback(
+    ({ text, sourceName }: { text: string; sourceName: string }): void => {
       setImportError("");
       try {
-        const table: CsvTable = parseCsv({ text: await file.text() });
+        const table: CsvTable = parseCsv({ text });
         const guessed: ColumnMapping = guessMapping({ headers: table.headers });
-        setFileName(file.name);
-        onNotify(`Read ${String(table.records.length)} rows from ${file.name}.`);
+        setFileName(sourceName);
+        onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
         setCsvTable(table);
         setMapping(guessed);
         setActionOverrides({});
@@ -126,10 +128,17 @@ export function CreateView({
         setRowsState(ROWS_TABLE_SCHEMA.defaultState);
         live.refresh();
       } catch (error: unknown) {
-        setImportError(error instanceof Error ? error.message : "The file could not be read.");
+        setImportError(error instanceof Error ? error.message : "The text could not be read.");
       }
     },
     [live, setRowsState, onNotify],
+  );
+
+  const importFile = useCallback(
+    async (file: File): Promise<void> => {
+      importText({ text: await file.text(), sourceName: file.name });
+    },
+    [importText],
   );
 
   // Reset the checked rows whenever the rows change (new file or new mapping).
@@ -204,7 +213,28 @@ export function CreateView({
               onFile={(file: File) => { void importFile(file); }}
             />
           </div>
-          {importError !== "" && <Banner tone="error">{importError}</Banner>}
+          <h3 className="mt-4 text-sm font-semibold">Or paste CSV text</h3>
+          <p className="text-xs text-muted-foreground">Paste the text that you copied from an export.</p>
+          <TextField
+            type="textarea"
+            rows={5}
+            aria-label="CSV text"
+            placeholder="query,deliver_to,how_often,how_many"
+            value={pastedText}
+            onValueChange={setPastedText}
+            className="mt-2 w-full"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            fullWidth
+            className="mt-2"
+            disabled={pastedText.trim() === ""}
+            onClick={() => { importText({ text: pastedText, sourceName: "Pasted text" }); }}
+          >
+            Read pasted text
+          </Button>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
         </section>
       )}

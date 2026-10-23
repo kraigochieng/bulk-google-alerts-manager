@@ -15,3 +15,13 @@ export function downloadTextFile({ fileName, text }: { fileName: string; text: s
   link.click();
   URL.revokeObjectURL(url);
 }
+
+/** Copy text to the clipboard. Return false when the browser refuses. Side effect: writes the clipboard. */
+export async function copyTextToClipboard({ text }: { text: string }): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -10,6 +10,7 @@ export function TextField({
   value,
   onValueChange,
   type = "text",
+  rows,
   disabled = false,
   placeholder,
   id,
@@ -18,7 +19,8 @@ export function TextField({
 }: {
   value: string;
   onValueChange: (value: string) => void;
-  type?: "text" | "search";
+  type?: "text" | "search" | "textarea";
+  rows?: number;
   disabled?: boolean;
   placeholder?: string;
   id?: string;
@@ -38,6 +40,7 @@ export function TextField({
       ref={fieldRef}
       value={value}
       type={type}
+      rows={rows}
       disabled={disabled}
       placeholder={placeholder}
       id={id}

@@ -21,7 +21,7 @@ This extension does both from a CSV file, in your own logged-in browser tab.
 
 Add
 - Click Add in the bar at the bottom of the Alerts page. A dialog guides you in four steps: file, columns, review, start.
-- Import a CSV file and map its columns to the alert fields.
+- Import a CSV file or paste CSV text, and map the columns to the alert fields.
 - Check the rows that you want.
 - Set all alert options: RSS or email, how often, sources, language, region, how many.
 - A row with the same query as an existing alert updates that alert. See warnings for alerts that look alike.
@@ -31,8 +31,9 @@ Add
 
 Export
 - Check alerts on the page. Click Export in the bar.
-- The extension writes the checked alerts, with their options and feed links, to one CSV file. It downloads by itself.
-- Import the file in the Add dialog of another account.
+- The extension reads the checked alerts, with their options and feed links.
+- Copy the CSV text to the clipboard, or download it as a file.
+- Import the file, or paste the text, in the Add dialog of another account.
 
 Delete
 - Check alerts on the page. Use the check-all box to check all of them. Click Delete in the bar.
