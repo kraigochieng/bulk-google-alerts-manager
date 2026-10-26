@@ -1,5 +1,11 @@
 # Bulk Alerts Manager for Google Alerts
 
+[![Chrome Web Store version](https://img.shields.io/chrome-web-store/v/pefmadnpngpopdobegahkffofikicakn)](https://chromewebstore.google.com/detail/bulk-alerts-manager-for-g/pefmadnpngpopdobegahkffofikicakn)
+[![CI](https://github.com/kraigochieng/bulk-google-alerts-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/kraigochieng/bulk-google-alerts-manager/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/kraigochieng/bulk-google-alerts-manager)](LICENSE)
+
+**[Install from the Chrome Web Store](https://chromewebstore.google.com/detail/bulk-alerts-manager-for-g/pefmadnpngpopdobegahkffofikicakn)**
+
 Bulk Alerts Manager for Google Alerts is an unofficial Chrome extension. It is not affiliated with Google.
 It adds, exports, and deletes many Google Alerts at once, in your own logged-in browser.
 
