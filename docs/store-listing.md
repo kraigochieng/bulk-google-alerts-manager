@@ -21,7 +21,7 @@ This extension does both from a CSV file, in your own logged-in browser tab.
 
 Add
 - Click Add in the bar at the bottom of the Alerts page. A dialog guides you in three steps: file, review, start.
-- Import a CSV file or paste CSV text. The file uses the column names of the template.
+- Import a CSV or xlsx file, or paste CSV text. The file uses the column names of the template. Download the xlsx template for dropdowns.
 - Check the rows that you want.
 - Set all alert options: RSS or email, how often, sources, language, region, how many.
 - A row with the same query as an existing alert updates that alert. See warnings for alerts that look alike.

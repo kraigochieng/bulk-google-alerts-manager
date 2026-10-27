@@ -16,6 +16,16 @@ export function downloadTextFile({ fileName, text }: { fileName: string; text: s
   URL.revokeObjectURL(url);
 }
 
+/** Offer bytes as a download. Side effect: starts a download from the app frame. */
+export function downloadBinaryFile({ fileName, bytes, mimeType }: { fileName: string; bytes: Uint8Array<ArrayBuffer>; mimeType: string }): void {
+  const url: string = URL.createObjectURL(new Blob([bytes], { type: mimeType }));
+  const link: HTMLAnchorElement = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 /** Copy text to the clipboard. Return false when the browser refuses. Side effect: writes the clipboard. */
 export async function copyTextToClipboard({ text }: { text: string }): Promise<boolean> {
   try {

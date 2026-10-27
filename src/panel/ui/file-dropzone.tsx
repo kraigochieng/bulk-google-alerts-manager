@@ -3,9 +3,9 @@ import type { DragEvent, JSX, KeyboardEvent } from "react";
 import { FileUp } from "lucide-react";
 import clsx from "clsx";
 
-import { isCsvFile } from "src/core/file-type";
+import { isCsvFile, isXlsxFile } from "src/core/file-type";
 
-/** Render a box that takes a CSV file by click, keyboard, or drop. It names the chosen file and refuses other file types. */
+/** Render a box that takes a CSV or xlsx file by click, keyboard, or drop. It names the chosen file and refuses other file types. */
 export function FileDropzone({
   onFile,
   chosenFileName,
@@ -23,8 +23,8 @@ export function FileDropzone({
 
   const accept = (file: File | undefined): void => {
     if (file === undefined) return;
-    if (!isCsvFile({ name: file.name, type: file.type })) {
-      setRefusal(`${file.name} is not a CSV file. Choose a file that ends in .csv.`);
+    if (!isCsvFile({ name: file.name, type: file.type }) && !isXlsxFile({ name: file.name, type: file.type })) {
+      setRefusal(`${file.name} is not a CSV or xlsx file. Choose a file that ends in .csv or .xlsx.`);
       return;
     }
     setRefusal("");
@@ -69,14 +69,14 @@ export function FileDropzone({
       >
         <FileUp className="size-6 text-primary" aria-hidden="true" />
         <span className="font-medium text-foreground">
-          {dragging ? "Drop the file to load it" : "Drop a CSV file here, or click to choose one"}
+          {dragging ? "Drop the file to load it" : "Drop a CSV or xlsx file here, or click to choose one"}
         </span>
         <span className="text-muted-foreground">{chosenFileName === "" ? "No file chosen" : chosenFileName}</span>
       </div>
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv"
+        accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         hidden
         onChange={(event) => {
           accept(event.target.files?.[0]);

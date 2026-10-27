@@ -18,7 +18,7 @@ describe("readTemplateWorkbook", () => {
   it("reads the filled Alerts sheet and never the Samples sheet", async () => {
     const { Workbook } = await loadExcelJs();
     const workbook: ExcelJsModule.Workbook = new Workbook();
-    await workbook.xlsx.load((await buildTemplateWorkbook()).buffer as ExcelJsModule.Buffer);
+    await workbook.xlsx.load((await buildTemplateWorkbook()).buffer);
     const alerts = workbook.getWorksheet("Alerts");
     if (alerts !== undefined) alerts.getCell("A2").value = "solar power";
     if (alerts !== undefined) alerts.getCell("B2").value = "email";

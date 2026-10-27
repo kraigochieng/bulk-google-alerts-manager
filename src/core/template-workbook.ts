@@ -46,7 +46,7 @@ function styleHeader({ sheet }: { sheet: ExcelJsModule.Worksheet }): void {
  * The Samples sheet has sample rows that the import never reads. The hidden Lists sheet feeds the dropdowns.
  * A dropdown suggests values and does not refuse a typed value.
  */
-export async function buildTemplateWorkbook(): Promise<Uint8Array> {
+export async function buildTemplateWorkbook(): Promise<Uint8Array<ArrayBuffer>> {
   const { Workbook } = await loadExcelJs();
   const workbook: ExcelJsModule.Workbook = new Workbook();
   const alerts: ExcelJsModule.Worksheet = workbook.addWorksheet(ALERTS_SHEET_NAME);

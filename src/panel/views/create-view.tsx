@@ -11,9 +11,13 @@ import type { CsvTable } from "src/core/csv";
 import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
+import { isXlsxFile } from "src/core/file-type";
 import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
 import type { HeaderReport } from "src/core/template-columns";
 import { TEMPLATE_FILE_NAME, buildTemplateCsv } from "src/core/template-csv";
+import { buildTemplateWorkbook } from "src/core/template-workbook";
+import { readTemplateWorkbook } from "src/core/workbook-reader";
+import { TEMPLATE_WORKBOOK_FILE_NAME, WORKBOOK_MIME_TYPE } from "src/core/workbook-sheets";
 import { buildCreateRun } from "src/core/run-builders";
 import type { CreateEntry } from "src/core/run-builders";
 import { checkCreateGate } from "src/core/start-gates";
@@ -29,10 +33,11 @@ import { TextField } from "src/panel/ui/text-field";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { DataTable } from "src/panel/components/data-table";
-import { downloadTextFile } from "src/panel/chrome-bridge";
+import { downloadBinaryFile, downloadTextFile } from "src/panel/chrome-bridge";
 import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
 import { useTableState } from "src/panel/use-table-state";
+import { BulkAlertsError } from "src/shared/errors";
 import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
 
 export const ROWS_TABLE_SCHEMA: TableSchema = {
@@ -118,39 +123,54 @@ export function CreateView({
     [actionOverrides, matchesByRow],
   );
 
-  const importText = useCallback(
-    ({ text, sourceName }: { text: string; sourceName: string }): void => {
-      setImportError("");
-      try {
-        const table: CsvTable = parseCsv({ text });
-        const report: HeaderReport = checkHeaders({ headers: table.headers });
-        if (report.missingRequired.length > 0) {
-          setImportError(
-            `The file has no "${FIELD_HEADERS.query}" column. Use the column names of the template. The columns in the file are: ${table.headers.join(", ")}.`,
-          );
-          return;
-        }
-        setFileName(sourceName);
-        onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
-        setCsvTable(table);
-        setMapping(report.columnIndexes);
-        setExtraColumns(report.extraColumns);
-        setActionOverrides({});
-        setStep("review");
-        setRowsState(ROWS_TABLE_SCHEMA.defaultState);
-        live.refresh();
-      } catch (error: unknown) {
-        setImportError(error instanceof Error ? error.message : "The text could not be read.");
+  const importTable = useCallback(
+    ({ table, sourceName }: { table: CsvTable; sourceName: string }): void => {
+      const report: HeaderReport = checkHeaders({ headers: table.headers });
+      if (report.missingRequired.length > 0) {
+        setImportError(
+          `The file has no "${FIELD_HEADERS.query}" column. Use the column names of the template. The columns in the file are: ${table.headers.join(", ")}.`,
+        );
+        return;
       }
+      setFileName(sourceName);
+      onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
+      setCsvTable(table);
+      setMapping(report.columnIndexes);
+      setExtraColumns(report.extraColumns);
+      setActionOverrides({});
+      setStep("review");
+      setRowsState(ROWS_TABLE_SCHEMA.defaultState);
+      live.refresh();
     },
     [live, setRowsState, onNotify],
   );
 
+  const importText = useCallback(
+    ({ text, sourceName }: { text: string; sourceName: string }): void => {
+      setImportError("");
+      try {
+        importTable({ table: parseCsv({ text }), sourceName });
+      } catch (error: unknown) {
+        setImportError(error instanceof Error ? error.message : "The text could not be read.");
+      }
+    },
+    [importTable],
+  );
+
   const importFile = useCallback(
     async (file: File): Promise<void> => {
-      importText({ text: await file.text(), sourceName: file.name });
+      if (!isXlsxFile({ name: file.name, type: file.type })) {
+        importText({ text: await file.text(), sourceName: file.name });
+        return;
+      }
+      setImportError("");
+      try {
+        importTable({ table: await readTemplateWorkbook({ bytes: await file.arrayBuffer() }), sourceName: file.name });
+      } catch (error: unknown) {
+        setImportError(error instanceof BulkAlertsError ? error.message : "The file could not be read.");
+      }
     },
-    [importText],
+    [importText, importTable],
   );
 
   // Reset the checked rows whenever the rows change (new file or new mapping).
@@ -218,8 +238,22 @@ export function CreateView({
             >
               Download template CSV
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              fullWidth
+              onClick={() => {
+                void buildTemplateWorkbook().then((bytes: Uint8Array<ArrayBuffer>) => {
+                  downloadBinaryFile({ fileName: TEMPLATE_WORKBOOK_FILE_NAME, bytes, mimeType: WORKBOOK_MIME_TYPE });
+                  onNotify(`Saved ${TEMPLATE_WORKBOOK_FILE_NAME}.`);
+                });
+              }}
+            >
+              Download template with dropdowns (xlsx)
+            </Button>
             <FileDropzone
-              label="Choose a CSV file"
+              label="Choose a CSV or xlsx file"
               chosenFileName={fileName}
               onFile={(file: File) => { void importFile(file); }}
             />
