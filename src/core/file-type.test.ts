@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isCsvFile } from "src/core/file-type";
+import { isCsvFile, isXlsxFile } from "src/core/file-type";
 
 describe("isCsvFile", () => {
   it.each([
@@ -18,5 +18,23 @@ describe("isCsvFile", () => {
     ["csv", ""],
   ])("refuses %s with type %j", (name: string, type: string) => {
     expect(isCsvFile({ name, type })).toBe(false);
+  });
+});
+
+describe("isXlsxFile", () => {
+  it.each([
+    ["alerts.xlsx", ""],
+    ["ALERTS.XLSX", "application/octet-stream"],
+    ["export", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+  ])("accepts %s with type %j", (name: string, type: string) => {
+    expect(isXlsxFile({ name, type })).toBe(true);
+  });
+
+  it.each([
+    ["alerts.xls", "application/vnd.ms-excel"],
+    ["queries.csv", "text/csv"],
+    ["xlsx", ""],
+  ])("refuses %s with type %j", (name: string, type: string) => {
+    expect(isXlsxFile({ name, type })).toBe(false);
   });
 });
