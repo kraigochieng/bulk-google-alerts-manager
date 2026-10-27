@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows, guessMapping, IMPORT_FIELDS } from "src/core/column-mapping";
+import { buildImportRows, IMPORT_FIELDS } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
+import { checkHeaders } from "src/core/template-columns";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { buildTemplateCsv } from "src/core/template-csv";
 
 describe("buildTemplateCsv", () => {
   const table = parseCsv({ text: buildTemplateCsv() });
-  const mapping = guessMapping({ headers: table.headers });
+  const mapping = checkHeaders({ headers: table.headers }).columnIndexes;
   const rows = buildImportRows({ table, mapping, maximumQueryLength: MAXIMUM_QUERY_LENGTH });
 
   it("maps every import field from its header", () => {

@@ -23,34 +23,6 @@ export type ImportField = (typeof IMPORT_FIELDS)[number];
 /** For each import field, the index of the CSV column that holds it, or null. */
 export type ColumnMapping = Readonly<Record<ImportField, number | null>>;
 
-const HEADER_SYNONYMS: Readonly<Record<ImportField, readonly string[]>> = {
-  query: ["query", "queries", "keyword", "keywords", "search", "searchterm", "term", "topic"],
-  deliverTo: ["deliverto", "delivery", "deliver"],
-  howOften: ["howoften", "frequency", "often"],
-  sources: ["sources", "source"],
-  language: ["language", "lang"],
-  region: ["region", "country"],
-  howMany: ["howmany", "results", "count"],
-};
-
-function simplifyHeader({ header }: { header: string }): string {
-  return header.toLowerCase().replace(/[^a-z]/g, "");
-}
-
-/** Guess which column holds each field from the header names. */
-export function guessMapping({ headers }: { headers: readonly string[] }): ColumnMapping {
-  const simpleHeaders: string[] = headers.map((header: string) => simplifyHeader({ header }));
-  const entries: [ImportField, number | null][] = IMPORT_FIELDS.map(
-    (field: ImportField): [ImportField, number | null] => {
-      const index: number = simpleHeaders.findIndex((simple: string) =>
-        HEADER_SYNONYMS[field].includes(simple),
-      );
-      return [field, index === -1 ? null : index];
-    },
-  );
-  return Object.fromEntries(entries) as ColumnMapping;
-}
-
 function cellText({
   record,
   mapping,

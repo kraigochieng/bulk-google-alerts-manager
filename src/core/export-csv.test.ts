@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows, guessMapping } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
+import { checkHeaders } from "src/core/template-columns";
 import { buildExportCsv } from "src/core/export-csv";
 import type { ExportEntry } from "src/core/export-csv";
 
@@ -26,7 +27,7 @@ describe("buildExportCsv", () => {
 
   it("round-trips through the import without a column change", () => {
     const table = parseCsv({ text: buildExportCsv({ entries }) });
-    const rows = buildImportRows({ table, mapping: guessMapping({ headers: table.headers }), maximumQueryLength: 500 });
+    const rows = buildImportRows({ table, mapping: checkHeaders({ headers: table.headers }).columnIndexes, maximumQueryLength: 500 });
     expect(rows.map((row) => row.issues)).toEqual([[], [], []]);
     expect(rows[0]?.query).toBe('"Jane, Doe"');
     expect(rows[0]?.overrides).toEqual({

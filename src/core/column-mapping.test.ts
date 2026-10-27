@@ -1,29 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows, guessMapping } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
-
-describe("guessMapping", () => {
-  it("finds columns by common header names", () => {
-    const mapping = guessMapping({ headers: ["Search Term", "deliver_to", "Lang", "Notes"] });
-    expect(mapping.query).toBe(0);
-    expect(mapping.deliverTo).toBe(1);
-    expect(mapping.language).toBe(2);
-    expect(mapping.region).toBeNull();
-  });
-});
+import { checkHeaders } from "src/core/template-columns";
 
 describe("buildImportRows", () => {
   const table = parseCsv({
     text: [
-      "topic,delivery,often,howmany,lang",
+      "query,deliver_to,how_often,how_many,language",
       '"""Jane Doe"" OR ""Jane A. Doe""",email,weekly,best,French',
       ",rss,,,",
       "plain,fax,,,",
       "plain,,,,",
     ].join("\n"),
   });
-  const mapping = guessMapping({ headers: table.headers });
+  const mapping = checkHeaders({ headers: table.headers }).columnIndexes;
   const rows = buildImportRows({ table, mapping, maximumQueryLength: 100 });
 
   it("reads the options of a full row", () => {
@@ -63,7 +54,7 @@ describe("buildImportRows with listed options", () => {
   });
   const rows = buildImportRows({
     table,
-    mapping: guessMapping({ headers: table.headers }),
+    mapping: checkHeaders({ headers: table.headers }).columnIndexes,
     maximumQueryLength: 100,
   });
 

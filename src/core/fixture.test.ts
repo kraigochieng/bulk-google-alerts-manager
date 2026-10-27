@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows, guessMapping } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
+import { checkHeaders } from "src/core/template-columns";
 import { findMatches } from "src/core/matching";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 
@@ -11,7 +12,7 @@ describe("fixtures/sample-queries.csv", () => {
   const table = parseCsv({ text });
   const rows = buildImportRows({
     table,
-    mapping: guessMapping({ headers: table.headers }),
+    mapping: checkHeaders({ headers: table.headers }).columnIndexes,
     maximumQueryLength: MAXIMUM_QUERY_LENGTH,
   });
 

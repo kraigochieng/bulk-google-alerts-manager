@@ -20,8 +20,8 @@ Google Alerts has no bulk tools. Creating or removing many alerts by hand takes 
 This extension does both from a CSV file, in your own logged-in browser tab.
 
 Add
-- Click Add in the bar at the bottom of the Alerts page. A dialog guides you in four steps: file, columns, review, start.
-- Import a CSV file or paste CSV text, and map the columns to the alert fields.
+- Click Add in the bar at the bottom of the Alerts page. A dialog guides you in three steps: file, review, start.
+- Import a CSV file or paste CSV text. The file uses the column names of the template.
 - Check the rows that you want.
 - Set all alert options: RSS or email, how often, sources, language, region, how many.
 - A row with the same query as an existing alert updates that alert. See warnings for alerts that look alike.
