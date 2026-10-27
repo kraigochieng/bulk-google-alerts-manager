@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_ALERT_OPTIONS } from "src/core/alert-options";
-import { LANGUAGE_OPTIONS, REGION_OPTIONS, SOURCE_OPTIONS } from "src/core/option-lists";
+import { LANGUAGE_OPTIONS, parseListedOption, REGION_OPTIONS, SOURCE_OPTIONS } from "src/core/option-lists";
 
 describe("option lists", () => {
   it("hold the values that Google showed on 2026-10-27", () => {
@@ -26,5 +26,15 @@ describe("option lists", () => {
   it("keep the exact text of special characters", () => {
     expect(REGION_OPTIONS).toContain("Côte d’Ivoire");
     expect(REGION_OPTIONS).toContain("São Tomé & Príncipe");
+  });
+});
+
+describe("parseListedOption", () => {
+  it("returns the listed text for a match that differs in case", () => {
+    expect(parseListedOption({ value: " kenya ", allowed: REGION_OPTIONS })).toBe("Kenya");
+  });
+
+  it("returns null for a value that is not listed", () => {
+    expect(parseListedOption({ value: "Atlantis", allowed: REGION_OPTIONS })).toBeNull();
   });
 });

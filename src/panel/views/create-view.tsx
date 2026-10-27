@@ -4,13 +4,15 @@ import type { JSX } from "react";
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
 import { canAdvance, nextStep, previousStep } from "src/core/add-steps";
 import type { AddStep } from "src/core/add-steps";
-import { buildImportRows, guessMapping } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/column-mapping";
 import type { ColumnMapping } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
 import type { CsvTable } from "src/core/csv";
 import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
+import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
+import type { HeaderReport } from "src/core/template-columns";
 import { TEMPLATE_FILE_NAME, buildTemplateCsv } from "src/core/template-csv";
 import { buildCreateRun } from "src/core/run-builders";
 import type { CreateEntry } from "src/core/run-builders";
@@ -26,7 +28,6 @@ import { RadioGroup } from "src/panel/ui/radio-group";
 import { TextField } from "src/panel/ui/text-field";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
-import { ColumnMapper } from "src/panel/components/column-mapper";
 import { DataTable } from "src/panel/components/data-table";
 import { downloadTextFile } from "src/panel/chrome-bridge";
 import type { LiveAlertsState } from "src/panel/use-live-alerts";
@@ -47,7 +48,10 @@ const ISSUE_TEXT: Record<RowIssue, string> = {
   too_long: `Query is longer than ${String(MAXIMUM_QUERY_LENGTH)} characters.`,
   duplicate_in_file: "Same query appears earlier in this file.",
   invalid_option: "A value in an option column is not valid (use rss or email, all or best, and so on).",
+  unlisted_option: "A source, language, or region is not in the app lists. The app uses it as typed.",
 };
+
+const WARNING_ISSUES: readonly RowIssue[] = ["unlisted_option"];
 
 type RowAction = "create" | "update" | "skip";
 
@@ -56,10 +60,10 @@ function isSelectable({ row }: { row: ImportRow }): boolean {
 }
 
 function defaultChecked({ row }: { row: ImportRow }): boolean {
-  return row.issues.length === 0;
+  return row.issues.every((issue: RowIssue) => WARNING_ISSUES.includes(issue));
 }
 
-/** Render the Add flow as four steps: file, columns, review, start. Holds the state of the flow. */
+/** Render the Add flow as three steps: file, review, start. Holds the state of the flow. */
 export function CreateView({
   settings,
   onSettingsChange,
@@ -78,6 +82,7 @@ export function CreateView({
   const [fileName, setFileName] = useState<string>("");
   const [csvTable, setCsvTable] = useState<CsvTable | null>(null);
   const [mapping, setMapping] = useState<ColumnMapping | null>(null);
+  const [extraColumns, setExtraColumns] = useState<readonly string[]>([]);
   const [importError, setImportError] = useState<string>("");
   const [pastedText, setPastedText] = useState<string>("");
   const [checkedRows, setCheckedRows] = useState<ReadonlySet<number>>(new Set());
@@ -118,13 +123,20 @@ export function CreateView({
       setImportError("");
       try {
         const table: CsvTable = parseCsv({ text });
-        const guessed: ColumnMapping = guessMapping({ headers: table.headers });
+        const report: HeaderReport = checkHeaders({ headers: table.headers });
+        if (report.missingRequired.length > 0) {
+          setImportError(
+            `The file has no "${FIELD_HEADERS.query}" column. Use the column names of the template. The columns in the file are: ${table.headers.join(", ")}.`,
+          );
+          return;
+        }
         setFileName(sourceName);
         onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
         setCsvTable(table);
-        setMapping(guessed);
+        setMapping(report.columnIndexes);
+        setExtraColumns(report.extraColumns);
         setActionOverrides({});
-        setStep("columns");
+        setStep("review");
         setRowsState(ROWS_TABLE_SCHEMA.defaultState);
         live.refresh();
       } catch (error: unknown) {
@@ -171,18 +183,17 @@ export function CreateView({
 
   const run = controller.run;
   const runActive: boolean = run !== null && ["running", "paused", "awaiting_captcha"].includes(run.status);
-  const queryColumnMapped: boolean = mapping !== null && mapping.query !== null;
   const previous: AddStep | null = previousStep({ step });
   const next: AddStep | null = nextStep({ step });
-  const advanceAllowed: boolean = canAdvance({ step, hasFile: csvTable !== null, queryColumnMapped, checkedRowCount: entries.length, withinAlertLimit: gate.allowed });
+  const advanceAllowed: boolean = canAdvance({ step, hasFile: csvTable !== null, checkedRowCount: entries.length, withinAlertLimit: gate.allowed });
 
   return (
     <div>
       <StepProgress step={step} />
       {step === "file" && (
         <section aria-label="Import">
-          <h2 className="mt-4 text-sm font-semibold">Import a CSV file</h2>
-          <p className="text-xs text-muted-foreground">The file needs a column with the queries. Other columns are optional.</p>
+          <h2 className="mt-4 text-sm font-semibold">Import a file</h2>
+          <p className="text-xs text-muted-foreground">Use the column names of the template. The file needs a query column. Other columns are optional.</p>
           <details className="mt-1 text-xs">
             <summary className="cursor-pointer font-medium">Columns and allowed values</summary>
             <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted-foreground">
@@ -191,7 +202,7 @@ export function CreateView({
               <li><code>how_often</code>: <code>as_it_happens</code>, <code>daily</code> or <code>weekly</code>. RSS always uses as-it-happens.</li>
               <li><code>how_many</code>: <code>all</code> or <code>best</code>.</li>
               <li><code>sources</code>, <code>language</code>, <code>region</code>: the text of the Google dropdown, for example <code>English</code>.</li>
-              <li>An empty cell uses the default from the app. Column names can differ. You map them after the import.</li>
+              <li>An empty cell uses the default from the app. A column that is not in the template is ignored, and a warning shows.</li>
             </ul>
           </details>
           <div className="mt-3 flex flex-col gap-3">
@@ -236,16 +247,6 @@ export function CreateView({
             Read pasted text
           </Button>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
-        </section>
-      )}
-      {step === "columns" && csvTable !== null && mapping !== null && (
-        <section aria-label="Columns">
-          <h2 className="mt-4 text-sm font-semibold">Match the columns</h2>
-          <p className="text-xs text-muted-foreground">
-            File: <span className="font-medium text-foreground">{fileName}</span> ({String(csvTable.records.length)} data rows)
-          </p>
-          <ColumnMapper headers={csvTable.headers} mapping={mapping} onChange={setMapping} />
-          {mapping.query === null && <Banner tone="warning">Choose the column that holds the queries.</Banner>}
           <details className="mt-3">
             <summary className="cursor-pointer text-xs font-medium">Default alert options</summary>
             <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
@@ -255,6 +256,12 @@ export function CreateView({
       {step === "review" && (
         <section aria-label="Review">
           <h2 className="mt-4 text-sm font-semibold">Check the rows</h2>
+          <p className="text-xs text-muted-foreground">
+            File: <span className="font-medium text-foreground">{fileName}</span> ({String(rows.length)} data rows)
+          </p>
+          {extraColumns.length > 0 && (
+            <Banner tone="warning">These columns are not in the template and are ignored: {extraColumns.join(", ")}.</Banner>
+          )}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>
@@ -272,7 +279,7 @@ export function CreateView({
               return (
                 <div>
                   {row.issues.map((issue: RowIssue) => (
-                    <p key={issue} className="text-destructive">{ISSUE_TEXT[issue]}</p>
+                    <p key={issue} className={WARNING_ISSUES.includes(issue) ? "text-amber-800" : "text-destructive"}>{ISSUE_TEXT[issue]}</p>
                   ))}
                   {matches.slice(0, 2).map((match: AlertMatch) => (
                     <p key={match.alert.query} className="text-amber-800">

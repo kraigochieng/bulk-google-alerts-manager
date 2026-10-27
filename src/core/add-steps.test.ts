@@ -3,17 +3,17 @@ import { describe, expect, it } from "vitest";
 import { canAdvance, nextStep, previousStep, stepNumber, stepProgressPercent } from "src/core/add-steps";
 import type { AddStepFacts } from "src/core/add-steps";
 
-const READY: AddStepFacts = { step: "file", hasFile: true, queryColumnMapped: true, checkedRowCount: 2, withinAlertLimit: true };
+const READY: AddStepFacts = { step: "file", hasFile: true, checkedRowCount: 2, withinAlertLimit: true };
 
 describe("step order", () => {
   it("numbers the steps from 1", () => {
     expect(stepNumber({ step: "file" })).toBe(1);
-    expect(stepNumber({ step: "start" })).toBe(4);
+    expect(stepNumber({ step: "start" })).toBe(3);
   });
 
   it("moves forward and back", () => {
-    expect(nextStep({ step: "file" })).toBe("columns");
-    expect(previousStep({ step: "review" })).toBe("columns");
+    expect(nextStep({ step: "file" })).toBe("review");
+    expect(previousStep({ step: "review" })).toBe("file");
   });
 
   it("has no step before the first or after the last", () => {
@@ -26,11 +26,6 @@ describe("canAdvance", () => {
   it("needs a file on the file step", () => {
     expect(canAdvance(READY)).toBe(true);
     expect(canAdvance({ ...READY, hasFile: false })).toBe(false);
-  });
-
-  it("needs the query column on the columns step", () => {
-    expect(canAdvance({ ...READY, step: "columns" })).toBe(true);
-    expect(canAdvance({ ...READY, step: "columns", queryColumnMapped: false })).toBe(false);
   });
 
   it("needs a checked row on the review step", () => {
@@ -48,9 +43,9 @@ describe("canAdvance", () => {
 });
 
 describe("stepProgressPercent", () => {
-  it("gives one quarter for each step", () => {
-    expect(stepProgressPercent({ step: "file" })).toBe(25);
-    expect(stepProgressPercent({ step: "review" })).toBe(75);
+  it("gives one third for each step", () => {
+    expect(stepProgressPercent({ step: "file" })).toBeCloseTo(33.33, 1);
+    expect(stepProgressPercent({ step: "review" })).toBeCloseTo(66.67, 1);
     expect(stepProgressPercent({ step: "start" })).toBe(100);
   });
 });

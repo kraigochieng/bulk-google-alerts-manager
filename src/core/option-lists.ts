@@ -307,3 +307,9 @@ export const REGION_OPTIONS: readonly string[] = [
   "Zambia",
   "Zimbabwe",
 ];
+
+/** Return the listed value that matches the text, ignoring case and outer spaces, or null when none matches. Pure. */
+export function parseListedOption({ value, allowed }: { value: string; allowed: readonly string[] }): string | null {
+  const wanted: string = value.trim().toLowerCase();
+  return allowed.find((option: string) => option.toLowerCase() === wanted) ?? null;
+}
