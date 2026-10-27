@@ -47,7 +47,10 @@ const ISSUE_TEXT: Record<RowIssue, string> = {
   too_long: `Query is longer than ${String(MAXIMUM_QUERY_LENGTH)} characters.`,
   duplicate_in_file: "Same query appears earlier in this file.",
   invalid_option: "A value in an option column is not valid (use rss or email, all or best, and so on).",
+  unlisted_option: "A source, language, or region is not in the app lists. The app uses it as typed.",
 };
+
+const WARNING_ISSUES: readonly RowIssue[] = ["unlisted_option"];
 
 type RowAction = "create" | "update" | "skip";
 
@@ -56,7 +59,7 @@ function isSelectable({ row }: { row: ImportRow }): boolean {
 }
 
 function defaultChecked({ row }: { row: ImportRow }): boolean {
-  return row.issues.length === 0;
+  return row.issues.every((issue: RowIssue) => WARNING_ISSUES.includes(issue));
 }
 
 /** Render the Add flow as four steps: file, columns, review, start. Holds the state of the flow. */
@@ -272,7 +275,7 @@ export function CreateView({
               return (
                 <div>
                   {row.issues.map((issue: RowIssue) => (
-                    <p key={issue} className="text-destructive">{ISSUE_TEXT[issue]}</p>
+                    <p key={issue} className={WARNING_ISSUES.includes(issue) ? "text-amber-800" : "text-destructive"}>{ISSUE_TEXT[issue]}</p>
                   ))}
                   {matches.slice(0, 2).map((match: AlertMatch) => (
                     <p key={match.alert.query} className="text-amber-800">

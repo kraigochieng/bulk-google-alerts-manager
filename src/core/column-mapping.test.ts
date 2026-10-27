@@ -56,3 +56,22 @@ describe("buildImportRows", () => {
     expect(unmapped[2]?.issues).toEqual([]);
   });
 });
+
+describe("buildImportRows with listed options", () => {
+  const table = parseCsv({
+    text: ["query,region,language,sources", "a,kenya,French,News", "b,Atlantis,,"].join("\n"),
+  });
+  const rows = buildImportRows({
+    table,
+    mapping: guessMapping({ headers: table.headers }),
+    maximumQueryLength: 100,
+  });
+
+  it("uses the listed text for a value that matches a list", () => {
+    expect(rows[0]).toMatchObject({ overrides: { region: "Kenya", language: "French", sources: "News" }, issues: [] });
+  });
+
+  it("keeps an unlisted value as typed and marks the row with a warning", () => {
+    expect(rows[1]).toMatchObject({ overrides: { region: "Atlantis" }, issues: ["unlisted_option"] });
+  });
+});
