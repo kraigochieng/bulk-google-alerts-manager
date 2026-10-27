@@ -8,9 +8,10 @@ Field names in the dashboard can differ from the names here.
 1. Run `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, and `npm run audit`. All must pass.
 2. **Owner.** Run all steps of [manual-test-checklist.md](manual-test-checklist.md) on your own account. Record any failure as an issue.
 3. **Owner.** Choose the version number. Set the same number in `manifest.config.ts` and in `package.json`. The store rejects an upload with a version that is not higher than the last upload.
-4. Run `npm run package`. It writes `bulk-google-alerts-manager.zip`.
-5. Unzip the file into an empty folder. Load that folder with "Load unpacked". Check that the bar shows on the Alerts page.
-6. Check that `manifest.json` in the zip has only the `storage` permission and the host access `https://www.google.com/alerts*`.
+4. Move the entries under "Unreleased" in `CHANGELOG.md` to a new heading with the version number and the date. Update the comparison links at the end of the file.
+5. Run `npm run package`. It writes `bulk-google-alerts-manager.zip`.
+6. Unzip the file into an empty folder. Load that folder with "Load unpacked". Check that the bar shows on the Alerts page.
+7. Check that `manifest.json` in the zip has only the `storage` permission and the host access `https://www.google.com/alerts*`.
 
 ## Store account
 
