@@ -8,11 +8,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- The review step shows a short line for the options of a row. A row that uses only the defaults shows "Uses the defaults". The row editor shows all final options.
 - A warning in the review step and the start step when checked rows update an existing alert. The run replaces all options of that alert. The note of the row says the same.
 - A saved draft of the Add dialog. A reload of the page or a restart of the browser keeps the rows, the edits, the step, and the checks. A "Discard draft" button removes it, and a click on Start removes it too.
 - A Delete button for each row in the review. The user confirms, and the file on the computer does not change.
 - A dialog editor for each row in the review. The user fixes the search query and the options of a row, and the review checks the row again.
-- The review step shows the final value of each option in each row. A value from the defaults shows in italic text.
+- The row editor shows the final value of each option of a row.
 - A limit of 1000 data rows for an imported file, because Google allows 1000 alerts for each account. A file with no data rows is refused too.
 - A "Copy to clipboard" button for an export.
 - Dropdowns for the default source, language, and region. The user can still type a value that is not listed.
