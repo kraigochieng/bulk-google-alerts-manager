@@ -8,6 +8,7 @@ import { buildImportRows } from "src/core/column-mapping";
 import type { ColumnMapping } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
 import type { CsvTable } from "src/core/csv";
+import { checkFileRows } from "src/core/file-limit";
 import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
@@ -20,6 +21,7 @@ import { TEMPLATE_WORKBOOK_FILE_NAME, WORKBOOK_MIME_TYPE } from "src/core/workbo
 import { buildCreateRun } from "src/core/run-builders";
 import type { CreateEntry } from "src/core/run-builders";
 import { checkCreateGate } from "src/core/start-gates";
+import type { GateResult } from "src/core/start-gates";
 import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import type { Settings } from "src/core/settings";
@@ -122,6 +124,11 @@ export function CreateView({
 
   const importTable = useCallback(
     ({ table, sourceName }: { table: CsvTable; sourceName: string }): void => {
+      const fileGate: GateResult = checkFileRows({ rowCount: table.records.length, limit: ALERT_CAP_PER_ACCOUNT });
+      if (!fileGate.allowed) {
+        setImportError(fileGate.reason);
+        return;
+      }
       const report: HeaderReport = checkHeaders({ headers: table.headers });
       if (report.missingRequired.length > 0) {
         setImportError(

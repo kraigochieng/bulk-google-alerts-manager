@@ -22,3 +22,4 @@ Use throwaway queries that start with `bam test`. Use your own account.
 17. Narrow window: make the browser window 600 pixels wide. Open the Add dialog. Expect all steps to stay usable.
 18. Copy: export 3 alerts and click "Copy to clipboard". Expect the button to read Copied.
 19. Bar buttons: with no alert checked, expect only the check-all box and Add. Check one alert and expect Clear, Export, and Delete to slide in. Clear the selection and expect them to slide out. Press Tab with no alert checked and expect no focus on a hidden button.
+20. File limit: import a file with 1001 data rows. Expect an error that names the count and the limit, and no move to step 2. Import a file with 1000 rows and expect step 2. Import a file with only the header and expect the error "The file has no data rows."
