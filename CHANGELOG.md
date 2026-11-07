@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A summary line above the rows in the review step. It says how many alerts the run creates and updates, how many rows it skips, and how many rows have a problem.
 - Two buttons in the review step: "Skip all that update" and "Check only valid rows".
 - A badge for each row in the review step: New, Updates alert, Similar, Duplicate, Skipped, or Problem.
 - The review step shows a short line for the options of a row. A row that uses only the defaults shows "Uses the defaults". The row editor shows all final options.

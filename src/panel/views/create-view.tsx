@@ -21,6 +21,7 @@ import { updateWarning } from "src/core/update-warning";
 import { rowNumbersThatUpdate, validRowNumbers } from "src/core/bulk-actions";
 import { ROW_BADGE_LABELS, rowBadge } from "src/core/row-badge";
 import type { RowBadgeKind } from "src/core/row-badge";
+import { summariseReview } from "src/core/review-summary";
 import { summariseRowOptions } from "src/core/row-summary";
 import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
@@ -252,6 +253,8 @@ export function CreateView({
   const liveCount: number = liveAlerts?.length ?? 0;
   const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT });
   const updateRowNumbers: number[] = rowNumbersThatUpdate({ rows, actionFor });
+  const skipCount: number = rows.filter((row: ImportRow) => checkedRows.has(row.sourceRowNumber) && isRowSelectable({ row }) && actionFor({ row }) === "skip").length;
+  const problemCount: number = rows.filter((row: ImportRow) => !isRowSelectable({ row })).length;
   const updateNotice: string | null = updateWarning({ updateCount });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
@@ -345,6 +348,9 @@ export function CreateView({
           {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
           {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
+          <p role="status" className="mt-2 text-sm font-medium">
+            {summariseReview({ createCount, updateCount, skipCount, problemCount })}
+          </p>
           <div className="mt-2 flex flex-wrap gap-2">
             <Button
               type="button"
