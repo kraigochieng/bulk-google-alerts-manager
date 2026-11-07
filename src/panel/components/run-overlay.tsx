@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { JSX } from "react";
 
 import { countByStatus } from "src/core/run-machine";
+import { describeTimeLeft, estimateTimeLeft } from "src/core/time-left";
 import { Banner } from "src/panel/components/banner";
 import { ConfirmDialog } from "src/panel/components/confirm-dialog";
 import { BusyOverlay } from "src/panel/ui/busy-overlay";
 import { Button } from "src/panel/ui/button";
 import type { RunSnapshot } from "src/shared/models";
 
-/** Render the foggy loader of an active run, with its progress and its controls. Actions come as props. */
+/** Render the foggy loader of an active run, with its progress, the time left, and its controls. Side effect: reads the clock when an item finishes. */
 export function RunOverlay({
   run,
   onPause,
@@ -24,6 +25,15 @@ export function RunOverlay({
   const counts = countByStatus({ run });
   const total: number = run.items.length;
   const finished: number = total - counts.pending;
+  const [start] = useState<{ at: number; finished: number }>(() => ({ at: Date.now(), finished }));
+  const [now, setNow] = useState<number>(start.at);
+  useEffect(() => {
+    setNow(Date.now());
+  }, [finished]);
+  const timeLeft: number | null =
+    run.status === "running"
+      ? estimateTimeLeft({ elapsedMilliseconds: now - start.at, finishedSinceStart: finished - start.finished, remaining: counts.pending })
+      : null;
   const isCreate: boolean = run.kind === "create";
   const waitingText: string =
     run.status === "paused" ? "Paused." : run.status === "awaiting_captcha" ? "Waiting for you to solve a bot check." : "";
@@ -31,6 +41,7 @@ export function RunOverlay({
     <BusyOverlay title={isCreate ? "Adding alerts" : "Deleting alerts"} progress={(finished / Math.max(total, 1)) * 100} working={run.status === "running"}>
       <p className="mt-1 text-sm text-muted-foreground">
         {String(finished)} of {String(total)} done. {waitingText}
+        {timeLeft !== null && ` Time left: ${describeTimeLeft({ milliseconds: timeLeft })} (an estimate).`}
       </p>
       {run.status === "running" && (
         <Banner tone="info">Keep the Alerts tab open and in the foreground. Browsers slow background tabs.</Banner>
