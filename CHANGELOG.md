@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A badge for each row in the review step: New, Updates alert, Similar, Duplicate, Skipped, or Problem.
 - The review step shows a short line for the options of a row. A row that uses only the defaults shows "Uses the defaults". The row editor shows all final options.
 - A warning in the review step and the start step when checked rows update an existing alert. The run replaces all options of that alert. The note of the row says the same.
 - A saved draft of the Add dialog. A reload of the page or a restart of the browser keeps the rows, the edits, the step, and the checks. A "Discard draft" button removes it, and a click on Start removes it too.
