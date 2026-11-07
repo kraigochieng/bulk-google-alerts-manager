@@ -22,7 +22,10 @@ export type ReviewAction =
   | { readonly type: "restore"; readonly state: ReviewState }
   | { readonly type: "set_checked"; readonly rowNumbers: readonly number[]; readonly checked: boolean }
   | { readonly type: "set_action"; readonly rowNumber: number; readonly action: RowAction }
+  | { readonly type: "set_actions"; readonly rowNumbers: readonly number[]; readonly action: RowAction }
+  | { readonly type: "replace_checked"; readonly rowNumbers: readonly number[] }
   | { readonly type: "delete_row"; readonly rowNumber: number }
+  | { readonly type: "restore_row"; readonly row: DraftRow; readonly checked: boolean; readonly actionChoice: RowAction | null }
   | { readonly type: "edit_query"; readonly rowNumber: number; readonly query: string }
   | { readonly type: "edit_option"; readonly rowNumber: number; readonly field: OptionField; readonly text: string };
 
@@ -80,6 +83,21 @@ export function reviewReducer({
   if (action.type === "set_action") {
     return { ...state, actionOverrides: { ...state.actionOverrides, [action.rowNumber]: action.action } };
   }
+  if (action.type === "restore_row") {
+    if (state.rows.some((row: DraftRow) => row.sourceRowNumber === action.row.sourceRowNumber)) return state;
+    const rows: DraftRow[] = [...state.rows, action.row].sort((left: DraftRow, right: DraftRow) => left.sourceRowNumber - right.sourceRowNumber);
+    const checkedRows: Set<number> = new Set(state.checkedRows);
+    if (action.checked) checkedRows.add(action.row.sourceRowNumber);
+    const actionOverrides: Record<number, RowAction> = { ...state.actionOverrides };
+    if (action.actionChoice !== null) actionOverrides[action.row.sourceRowNumber] = action.actionChoice;
+    return { rows, checkedRows, actionOverrides };
+  }
+  if (action.type === "set_actions") {
+    const actionOverrides: Record<number, RowAction> = { ...state.actionOverrides };
+    for (const rowNumber of action.rowNumbers) actionOverrides[rowNumber] = action.action;
+    return { ...state, actionOverrides };
+  }
+  if (action.type === "replace_checked") return { ...state, checkedRows: new Set(action.rowNumbers) };
   if (!state.rows.some((row: DraftRow) => row.sourceRowNumber === action.rowNumber)) return state;
   if (action.type === "delete_row") {
     const checkedRows: Set<number> = new Set(state.checkedRows);

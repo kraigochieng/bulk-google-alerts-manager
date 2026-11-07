@@ -9,11 +9,15 @@ The project follows [Semantic Versioning](https://semver.org/).
 ### Added
 
 - The run overlay shows an estimate of the time left after 3 items finish.
+- A summary line above the rows in the review step. It says how many alerts the run creates and updates, how many rows it skips, and how many rows have a problem.
+- Two buttons in the review step: "Skip all that update" and "Check only valid rows".
+- A badge for each row in the review step: New, Updates alert, Similar, Duplicate, Skipped, or Problem.
+- The review step shows a short line for the options of a row. A row that uses only the defaults shows "Uses the defaults". The row editor shows all final options.
 - A warning in the review step and the start step when checked rows update an existing alert. The run replaces all options of that alert. The note of the row says the same.
 - A saved draft of the Add dialog. A reload of the page or a restart of the browser keeps the rows, the edits, the step, and the checks. A "Discard draft" button removes it, and a click on Start removes it too.
-- A Delete button for each row in the review. The user confirms, and the file on the computer does not change.
+- A Delete button for each row in the review. A bar offers Undo. The file on the computer does not change.
 - A dialog editor for each row in the review. The user fixes the search query and the options of a row, and the review checks the row again.
-- The review step shows the final value of each option in each row. A value from the defaults shows in italic text.
+- The row editor shows the final value of each option of a row.
 - A limit of 1000 data rows for an imported file, because Google allows 1000 alerts for each account. A file with no data rows is refused too.
 - A "Copy to clipboard" button for an export.
 - Dropdowns for the default source, language, and region. The user can still type a value that is not listed.
@@ -24,6 +28,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The review step has groups with space between them. The "Discard draft" button moved to the header of the step. The Row column is narrow.
 - **Breaking:** the default alert options are the defaults of a new alert on the Google Alerts page: At most once a day, Automatic, English, Any Region, Only the best results, and Email. A user who saved other defaults keeps them.
 - The Clear, Export, and Delete buttons of the bar slide in when an alert is checked and slide out when none is checked. The animation stops when the user prefers reduced motion.
 - **Breaking:** the template and the export use the names, the order, and the values of the Google Alerts options panel. Example: `Deliver to` has the values `RSS feed` and `Email`. The old names such as `deliver_to` are refused. The import still reads a value written in the old style.

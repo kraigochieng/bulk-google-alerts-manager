@@ -18,6 +18,11 @@ import type { DraftRow } from "src/core/draft-rows";
 import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
 import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
 import { updateWarning } from "src/core/update-warning";
+import { rowNumbersThatUpdate, validRowNumbers } from "src/core/bulk-actions";
+import { ROW_BADGE_LABELS, rowBadge } from "src/core/row-badge";
+import type { RowBadgeKind } from "src/core/row-badge";
+import { summariseReview } from "src/core/review-summary";
+import { summariseRowOptions } from "src/core/row-summary";
 import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { isXlsxFile } from "src/core/file-type";
@@ -52,6 +57,15 @@ import { BulkAlertsError } from "src/shared/errors";
 import { clearDraft, loadDraft, saveDraft } from "src/storage/draft-repository";
 import type { DraftLoadResult } from "src/storage/draft-repository";
 import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
+
+const BADGE_CLASSES: Record<RowBadgeKind, string> = {
+  problem: "bg-destructive/10 text-destructive",
+  duplicate: "bg-amber-100 text-amber-900",
+  skipped: "bg-muted text-muted-foreground",
+  updates: "bg-amber-100 text-amber-900",
+  similar: "bg-amber-100 text-amber-900",
+  new: "bg-primary/10 text-primary",
+};
 
 export const ROWS_TABLE_SCHEMA: TableSchema = {
   sortKeys: ["row", "query", "notes"],
@@ -92,7 +106,7 @@ export function CreateView({
   );
   const { checkedRows, actionOverrides } = review;
   const [editingRow, setEditingRow] = useState<number | null>(null);
-  const [rowToDelete, setRowToDelete] = useState<number | null>(null);
+  const [deletedRow, setDeletedRow] = useState<{ row: DraftRow; checked: boolean; actionChoice: RowAction | null } | null>(null);
   const [draftLoaded, setDraftLoaded] = useState<boolean>(false);
   const [restored, setRestored] = useState<boolean>(false);
   const [discardOpen, setDiscardOpen] = useState<boolean>(false);
@@ -141,6 +155,7 @@ export function CreateView({
     setExtraColumns([]);
     setStep("file");
     setEditingRow(null);
+    setDeletedRow(null);
     setRestored(false);
     setImportError("");
   }, []);
@@ -194,6 +209,7 @@ export function CreateView({
       onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
       dispatchReview({ type: "load", rows: draftRowsFromTable({ table, mapping: report.columnIndexes }) });
       setEditingRow(null);
+      setDeletedRow(null);
       setRestored(false);
       setExtraColumns(report.extraColumns);
       setStep("review");
@@ -238,6 +254,9 @@ export function CreateView({
   const updateCount: number = entries.filter((entry: CreateEntry) => entry.action === "update").length;
   const liveCount: number = liveAlerts?.length ?? 0;
   const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT });
+  const updateRowNumbers: number[] = rowNumbersThatUpdate({ rows, actionFor });
+  const skipCount: number = rows.filter((row: ImportRow) => checkedRows.has(row.sourceRowNumber) && isRowSelectable({ row }) && actionFor({ row }) === "skip").length;
+  const problemCount: number = rows.filter((row: ImportRow) => !isRowSelectable({ row })).length;
   const updateNotice: string | null = updateWarning({ updateCount });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
@@ -301,18 +320,22 @@ export function CreateView({
         </section>
       )}
       {step === "review" && (
-        <section aria-label="Review">
-          <h2 className="mt-4 text-sm font-semibold">Check the rows</h2>
-          <p className="text-xs text-muted-foreground">
-            File: <span className="font-medium text-foreground">{fileName}</span> ({String(rows.length)} data rows)
-            <Button type="button" variant="ghost" size="sm" onClick={() => { setDiscardOpen(true); }}>
+        <section aria-label="Review" className="mt-4 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold">Check the rows</h2>
+              <p className="text-xs text-muted-foreground">
+                File: <span className="font-medium text-foreground">{fileName}</span> ({String(rows.length)} data rows)
+              </p>
+            </div>
+            <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => { setDiscardOpen(true); }}>
               Discard draft
             </Button>
-          </p>
+          </div>
           {extraColumns.length > 0 && (
             <Banner tone="warning">These columns are not in the template and are ignored: {extraColumns.join(", ")}.</Banner>
           )}
-          <details className="mt-2 text-xs">
+          <details className="rounded-lg border bg-card p-3 text-xs">
             <summary className="cursor-pointer font-medium">
               Blank cells use:{" "}
               <span className="font-normal text-muted-foreground">
@@ -322,15 +345,58 @@ export function CreateView({
                   .join(", ")}
               </span>
             </summary>
-            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+            <div className="mt-3">
+              <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+            </div>
           </details>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
-          </div>
           {live.error !== "" && <Banner tone="error">{live.error}</Banner>}
           {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
           {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
+          {deletedRow !== null && (
+            <Banner tone="info">
+              Deleted row {String(deletedRow.row.sourceRowNumber)}: {deletedRow.row.query}{" "}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  dispatchReview({ type: "restore_row", row: deletedRow.row, checked: deletedRow.checked, actionChoice: deletedRow.actionChoice });
+                  setDeletedRow(null);
+                }}
+              >
+                Undo
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => { setDeletedRow(null); }}>
+                Dismiss
+              </Button>
+            </Banner>
+          )}
+          <div className="space-y-3 rounded-lg border bg-card p-3">
+            <p role="status" className="text-sm font-medium">
+              {summariseReview({ createCount, updateCount, skipCount, problemCount })}
+            </p>
+            {liveAlerts !== null && <p className="text-xs text-muted-foreground">{String(liveAlerts.length)} alerts in your account.</p>}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={updateRowNumbers.length === 0}
+                onClick={() => { dispatchReview({ type: "set_actions", rowNumbers: updateRowNumbers, action: "skip" }); }}
+              >
+                Skip all that update ({String(updateRowNumbers.length)})
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { dispatchReview({ type: "replace_checked", rowNumbers: validRowNumbers({ rows }) }); }}
+              >
+                Check only valid rows
+              </Button>
+            </div>
+          </div>
           <DataTable<ImportRow, number>
             rows={rows}
             columns={columns}
@@ -338,15 +404,17 @@ export function CreateView({
             renderCell={(row, columnKey) => {
               if (columnKey === "row") return String(row.sourceRowNumber);
               if (columnKey === "query") {
+                const badge: RowBadgeKind = rowBadge({
+                  issues: row.issues,
+                  action: actionFor({ row }),
+                  hasSimilarAlert: matchesByRow.has(row.sourceRowNumber),
+                });
                 return (
                   <div>
+                    <span className={`mr-2 inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold ${BADGE_CLASSES[badge]}`}>{ROW_BADGE_LABELS[badge]}</span>
                     <span className="font-mono">{row.query}</span>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {describeRowOptions({ row, defaults: settings.defaults }).map((view: RowOptionView) => (
-                        <span key={view.field} className="mr-2 inline-block" title={view.source === "default" ? "From the defaults" : view.source === "forced" ? "RSS always uses As-it-happens" : "From the file"}>
-                          {view.label}: <span className={view.source === "row" ? "font-medium text-foreground" : "italic"}>{view.value}</span>
-                        </span>
-                      ))}
+                      {summariseRowOptions({ views: describeRowOptions({ row, defaults: settings.defaults }) })}
                     </p>
                     <Button
                       type="button"
@@ -362,7 +430,13 @@ export function CreateView({
                       variant="ghost"
                       size="sm"
                       aria-label={`Delete row ${String(row.sourceRowNumber)}`}
-                      onClick={() => { setRowToDelete(row.sourceRowNumber); }}
+                      onClick={() => {
+                        const removed: DraftRow | undefined = draftRowsByNumber.get(row.sourceRowNumber);
+                        if (removed === undefined) return;
+                        setDeletedRow({ row: removed, checked: checkedRows.has(row.sourceRowNumber), actionChoice: actionOverrides[row.sourceRowNumber] ?? null });
+                        dispatchReview({ type: "delete_row", rowNumber: row.sourceRowNumber });
+                        if (editingRow === row.sourceRowNumber) setEditingRow(null);
+                      }}
                     >
                       Delete
                     </Button>
@@ -424,6 +498,7 @@ export function CreateView({
                 dispatchReview({ type: "set_checked", rowNumbers: keys, checked });
               },
             }}
+            columnClassNames={{ row: "w-14", notes: "w-1/3" }}
             emptyMessage="No rows match."
           />
           {editingRow !== null && editingDraftRow !== undefined && (
@@ -435,20 +510,6 @@ export function CreateView({
               onClose={closeEditor}
             />
           )}
-          <ConfirmDialog
-            open={rowToDelete !== null}
-            title={`Delete row ${String(rowToDelete ?? "")}?`}
-            description={`Remove row ${String(rowToDelete ?? "")} from this import:\n${draftRowsByNumber.get(rowToDelete ?? -1)?.query ?? ""}\nThe file on your computer does not change.`}
-            confirmLabel="Delete row"
-            keepLabel="Keep row"
-            onConfirm={() => {
-              if (rowToDelete === null) return;
-              dispatchReview({ type: "delete_row", rowNumber: rowToDelete });
-              if (editingRow === rowToDelete) setEditingRow(null);
-              setRowToDelete(null);
-            }}
-            onOpenChange={(open: boolean) => { if (!open) setRowToDelete(null); }}
-          />
         </section>
       )}
       {step === "start" && (
