@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
-import { TEMPLATE_HEADERS } from "src/core/template-csv";
+import { checkHeaders, FIELD_HEADERS, TEMPLATE_HEADERS } from "src/core/template-columns";
 
 describe("checkHeaders", () => {
   it("accepts the template columns", () => {

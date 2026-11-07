@@ -10,7 +10,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - A "Copy to clipboard" button for an export.
 - Dropdowns for the default source, language, and region. The user can still type a value that is not listed.
-- An xlsx template with dropdowns, a `Samples` sheet that the import never reads, and a hidden `Lists` sheet.
+- An xlsx template with dropdowns and a hidden `Lists` sheet.
 - Import of `.xlsx` files. The import reads only the `Alerts` sheet.
 - A warning for a source, language, or region that is not in the app lists. The row keeps the typed value.
 - A warning for a column that is not in the template.

@@ -15,7 +15,7 @@ async function workbookBytes({ fill }: { fill: (workbook: ExcelJsModule.Workbook
 }
 
 describe("readTemplateWorkbook", () => {
-  it("reads the filled Alerts sheet and never the Samples sheet", async () => {
+  it("reads the filled Alerts sheet", async () => {
     const { Workbook } = await loadExcelJs();
     const workbook: ExcelJsModule.Workbook = new Workbook();
     await workbook.xlsx.load((await buildTemplateWorkbook()).buffer);

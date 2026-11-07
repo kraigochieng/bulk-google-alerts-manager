@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { loadExcelJs } from "src/core/exceljs-loader";
 import { LANGUAGE_OPTIONS, REGION_OPTIONS, SOURCE_OPTIONS } from "src/core/option-lists";
 import { DROPDOWN_ROW_COUNT, buildTemplateWorkbook } from "src/core/template-workbook";
-import { TEMPLATE_HEADERS, TEMPLATE_ROWS } from "src/core/template-csv";
+import { TEMPLATE_HEADERS } from "src/core/template-columns";
 import type * as ExcelJsModule from "exceljs";
 
 async function loadBuilt(): Promise<ExcelJsModule.Workbook> {
@@ -15,11 +15,10 @@ async function loadBuilt(): Promise<ExcelJsModule.Workbook> {
 }
 
 describe("buildTemplateWorkbook", () => {
-  it("has the sheets Alerts, Samples, and a hidden Lists", async () => {
+  it("has the sheet Alerts and a hidden Lists", async () => {
     const workbook = await loadBuilt();
     expect(workbook.worksheets.map((sheet) => [sheet.name, sheet.state])).toEqual([
       ["Alerts", "visible"],
-      ["Samples", "visible"],
       ["Lists", "hidden"],
     ]);
   });
@@ -28,12 +27,6 @@ describe("buildTemplateWorkbook", () => {
     const sheet = (await loadBuilt()).getWorksheet("Alerts");
     expect(sheet?.getRow(1).values).toEqual([undefined, ...TEMPLATE_HEADERS]);
     expect(sheet?.getCell("A2").value).toBeNull();
-  });
-
-  it("puts the header and the sample rows on the Samples sheet", async () => {
-    const sheet = (await loadBuilt()).getWorksheet("Samples");
-    expect(sheet?.rowCount).toBe(TEMPLATE_ROWS.length + 1);
-    expect(sheet?.getCell("A2").value).toBe(TEMPLATE_ROWS[0]?.[0]);
   });
 
   it("holds the Google lists on the Lists sheet", async () => {
