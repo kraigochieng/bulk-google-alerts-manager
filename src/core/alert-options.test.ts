@@ -9,6 +9,19 @@ import {
   resolveOptions,
 } from "src/core/alert-options";
 
+describe("DEFAULT_ALERT_OPTIONS", () => {
+  it("holds the defaults of a new alert on the Google Alerts page", () => {
+    expect(DEFAULT_ALERT_OPTIONS).toEqual({
+      howOften: "daily",
+      sources: "Automatic",
+      language: "English",
+      region: "Any Region",
+      howMany: "best",
+      deliverTo: "email",
+    });
+  });
+});
+
 describe("resolveOptions", () => {
   it("uses the defaults when a row sets nothing", () => {
     expect(resolveOptions({ defaults: DEFAULT_ALERT_OPTIONS, overrides: {} })).toEqual(
