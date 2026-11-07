@@ -1,11 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useReducer, useState } from "react";
 import type { JSX } from "react";
 
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
 import { canAdvance, nextStep, previousStep } from "src/core/add-steps";
 import type { AddStep } from "src/core/add-steps";
-import { buildImportRows } from "src/core/draft-rows";
-import type { ColumnMapping } from "src/core/column-mapping";
+import { draftRowsFromTable, importRowsFromDraft } from "src/core/draft-rows";
 import { parseCsv } from "src/core/csv";
 import type { CsvTable } from "src/core/csv";
 import { checkFileRows } from "src/core/file-limit";
@@ -13,6 +12,9 @@ import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { describeRowOptions } from "src/core/row-options";
 import type { RowOptionView } from "src/core/row-options";
+import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
+import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
+import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { isXlsxFile } from "src/core/file-type";
 import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
@@ -48,8 +50,6 @@ export const ROWS_TABLE_SCHEMA: TableSchema = {
   defaultState: { search: "", sortKey: "row", sortDirection: "asc", page: 0, filter: "all" },
 };
 
-const BLOCKING_ISSUES: readonly RowIssue[] = ["empty", "too_long", "invalid_option"];
-
 const ISSUE_TEXT: Record<RowIssue, string> = {
   empty: "Empty query.",
   too_long: `Query is longer than ${String(MAXIMUM_QUERY_LENGTH)} characters.`,
@@ -57,18 +57,6 @@ const ISSUE_TEXT: Record<RowIssue, string> = {
   invalid_option: "A value in an option column is not valid. Use the values of the dropdowns in the template.",
   unlisted_option: "A source, language, or region is not in the app lists. The app uses it as typed.",
 };
-
-const WARNING_ISSUES: readonly RowIssue[] = ["unlisted_option"];
-
-type RowAction = "create" | "update" | "skip";
-
-function isSelectable({ row }: { row: ImportRow }): boolean {
-  return !row.issues.some((issue: RowIssue) => BLOCKING_ISSUES.includes(issue));
-}
-
-function defaultChecked({ row }: { row: ImportRow }): boolean {
-  return row.issues.every((issue: RowIssue) => WARNING_ISSUES.includes(issue));
-}
 
 /** Render the Add flow as three steps: file, review, start. Holds the state of the flow. */
 export function CreateView({
@@ -87,22 +75,20 @@ export function CreateView({
   onNotify: (message: string) => void;
 }): JSX.Element {
   const [fileName, setFileName] = useState<string>("");
-  const [csvTable, setCsvTable] = useState<CsvTable | null>(null);
-  const [mapping, setMapping] = useState<ColumnMapping | null>(null);
   const [extraColumns, setExtraColumns] = useState<readonly string[]>([]);
   const [importError, setImportError] = useState<string>("");
-  const [checkedRows, setCheckedRows] = useState<ReadonlySet<number>>(new Set());
-  const [actionOverrides, setActionOverrides] = useState<Readonly<Record<number, RowAction>>>({});
+  const [review, dispatchReview] = useReducer(
+    (state: ReviewState, action: ReviewAction): ReviewState => reviewReducer({ state, action, maximumQueryLength: MAXIMUM_QUERY_LENGTH }),
+    EMPTY_REVIEW_STATE,
+  );
+  const { checkedRows, actionOverrides } = review;
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [step, setStep] = useState<AddStep>("file");
   const [rowsState, setRowsState] = useTableState({ schema: ROWS_TABLE_SCHEMA });
 
   const rows: readonly ImportRow[] = useMemo(
-    () =>
-      csvTable === null || mapping === null || mapping.query === null
-        ? []
-        : buildImportRows({ table: csvTable, mapping, maximumQueryLength: MAXIMUM_QUERY_LENGTH }),
-    [csvTable, mapping],
+    () => importRowsFromDraft({ rows: review.rows, maximumQueryLength: MAXIMUM_QUERY_LENGTH }),
+    [review.rows],
   );
 
   const matchesByRow: ReadonlyMap<number, AlertMatch[]> = useMemo(() => {
@@ -140,10 +126,8 @@ export function CreateView({
       }
       setFileName(sourceName);
       onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
-      setCsvTable(table);
-      setMapping(report.columnIndexes);
+      dispatchReview({ type: "load", rows: draftRowsFromTable({ table, mapping: report.columnIndexes }) });
       setExtraColumns(report.extraColumns);
-      setActionOverrides({});
       setStep("review");
       setRowsState(ROWS_TABLE_SCHEMA.defaultState);
       live.refresh();
@@ -179,16 +163,8 @@ export function CreateView({
     [importText, importTable],
   );
 
-  // Reset the checked rows whenever the rows change (new file or new mapping).
-  const rowsSignature: string = rows.map((row: ImportRow) => `${String(row.sourceRowNumber)}:${row.issues.join("+")}`).join("|");
-  const [appliedSignature, setAppliedSignature] = useState<string>("");
-  if (rowsSignature !== appliedSignature) {
-    setAppliedSignature(rowsSignature);
-    setCheckedRows(new Set(rows.filter((row: ImportRow) => defaultChecked({ row })).map((row: ImportRow) => row.sourceRowNumber)));
-  }
-
   const entries: CreateEntry[] = rows
-    .filter((row: ImportRow) => checkedRows.has(row.sourceRowNumber) && isSelectable({ row }))
+    .filter((row: ImportRow) => checkedRows.has(row.sourceRowNumber) && isRowSelectable({ row }))
     .map((row: ImportRow) => ({ row, action: actionFor({ row }) }));
   const createCount: number = entries.filter((entry: CreateEntry) => entry.action === "create").length;
   const updateCount: number = entries.filter((entry: CreateEntry) => entry.action === "update").length;
@@ -211,7 +187,7 @@ export function CreateView({
   const runActive: boolean = run !== null && ["running", "paused", "awaiting_captcha"].includes(run.status);
   const previous: AddStep | null = previousStep({ step });
   const next: AddStep | null = nextStep({ step });
-  const advanceAllowed: boolean = canAdvance({ step, hasFile: csvTable !== null, checkedRowCount: entries.length, withinAlertLimit: gate.allowed });
+  const advanceAllowed: boolean = canAdvance({ step, hasFile: fileName !== "", checkedRowCount: entries.length, withinAlertLimit: gate.allowed });
 
   return (
     <div>
@@ -308,7 +284,7 @@ export function CreateView({
                       legend="What to do with this row"
                       value={actionFor({ row })}
                       onValueChange={(value: string) => {
-                        setActionOverrides({ ...actionOverrides, [row.sourceRowNumber]: value as RowAction });
+                        dispatchReview({ type: "set_action", rowNumber: row.sourceRowNumber, action: value as RowAction });
                       }}
                       choices={
                         matches[0]?.similarity === "exact"
@@ -340,15 +316,10 @@ export function CreateView({
               selected: checkedRows,
               isSelectable: (key) => {
                 const row: ImportRow | undefined = rows.find((candidate: ImportRow) => candidate.sourceRowNumber === key);
-                return row !== undefined && isSelectable({ row });
+                return row !== undefined && isRowSelectable({ row });
               },
               onToggleMany: (keys, checked) => {
-                const next = new Set(checkedRows);
-                for (const key of keys) {
-                  if (checked) next.add(key);
-                  else next.delete(key);
-                }
-                setCheckedRows(next);
+                dispatchReview({ type: "set_checked", rowNumbers: keys, checked });
               },
             }}
             emptyMessage="No rows match."
