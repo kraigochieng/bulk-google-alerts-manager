@@ -132,6 +132,8 @@ export function CreateView({
   }, []);
   const draftStatus: SaveStatus = useAutosave({ value: draftValue, save: persistDraft, enabled: draftLoaded, delayMilliseconds: 400 });
 
+  const closeEditor = useCallback((): void => { setEditingRow(null); }, []);
+
   const resetFlow = useCallback((): void => {
     dispatchReview({ type: "load", rows: [] });
     setFileName("");
@@ -151,6 +153,8 @@ export function CreateView({
     () => new Map(review.rows.map((row: DraftRow): [number, DraftRow] => [row.sourceRowNumber, row])),
     [review.rows],
   );
+
+  const editingDraftRow: DraftRow | undefined = editingRow === null ? undefined : draftRowsByNumber.get(editingRow);
 
   const matchesByRow: ReadonlyMap<number, AlertMatch[]> = useMemo(() => {
     const map = new Map<number, AlertMatch[]>();
@@ -331,7 +335,6 @@ export function CreateView({
             renderCell={(row, columnKey) => {
               if (columnKey === "row") return String(row.sourceRowNumber);
               if (columnKey === "query") {
-                const draftRow: DraftRow | undefined = draftRowsByNumber.get(row.sourceRowNumber);
                 return (
                   <div>
                     <span className="font-mono">{row.query}</span>
@@ -346,10 +349,10 @@ export function CreateView({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      aria-label={`${editingRow === row.sourceRowNumber ? "Close the editor of" : "Edit"} row ${String(row.sourceRowNumber)}`}
-                      onClick={() => { setEditingRow(editingRow === row.sourceRowNumber ? null : row.sourceRowNumber); }}
+                      aria-label={`Edit row ${String(row.sourceRowNumber)}`}
+                      onClick={() => { setEditingRow(row.sourceRowNumber); }}
                     >
-                      {editingRow === row.sourceRowNumber ? "Close" : "Edit"}
+                      Edit
                     </Button>
                     <Button
                       type="button"
@@ -360,15 +363,6 @@ export function CreateView({
                     >
                       Delete
                     </Button>
-                    {editingRow === row.sourceRowNumber && draftRow !== undefined && (
-                      <RowEditor
-                        row={draftRow}
-                        defaults={settings.defaults}
-                        onQueryChange={(query: string) => { dispatchReview({ type: "edit_query", rowNumber: row.sourceRowNumber, query }); }}
-                        onOptionChange={({ field, text }) => { dispatchReview({ type: "edit_option", rowNumber: row.sourceRowNumber, field, text }); }}
-                        onClose={() => { setEditingRow(null); }}
-                      />
-                    )}
                   </div>
                 );
               }
@@ -429,6 +423,15 @@ export function CreateView({
             }}
             emptyMessage="No rows match."
           />
+          {editingRow !== null && editingDraftRow !== undefined && (
+            <RowEditor
+              row={editingDraftRow}
+              defaults={settings.defaults}
+              onQueryChange={(query: string) => { dispatchReview({ type: "edit_query", rowNumber: editingRow, query }); }}
+              onOptionChange={({ field, text }) => { dispatchReview({ type: "edit_option", rowNumber: editingRow, field, text }); }}
+              onClose={closeEditor}
+            />
+          )}
           <ConfirmDialog
             open={rowToDelete !== null}
             title={`Delete row ${String(rowToDelete ?? "")}?`}

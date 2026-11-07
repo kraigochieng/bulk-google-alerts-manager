@@ -10,7 +10,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 - A saved draft of the Add dialog. A reload of the page or a restart of the browser keeps the rows, the edits, the step, and the checks. A "Discard draft" button removes it, and a click on Start removes it too.
 - A Delete button for each row in the review. The user confirms, and the file on the computer does not change.
-- An editor for each row in the review. The user fixes the search query and the options of a row, and the review checks the row again.
+- A dialog editor for each row in the review. The user fixes the search query and the options of a row, and the review checks the row again.
 - The review step shows the final value of each option in each row. A value from the defaults shows in italic text.
 - A limit of 1000 data rows for an imported file, because Google allows 1000 alerts for each account. A file with no data rows is refused too.
 - A "Copy to clipboard" button for an export.
