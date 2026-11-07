@@ -17,6 +17,7 @@ import type { RowOptionView } from "src/core/row-options";
 import type { DraftRow } from "src/core/draft-rows";
 import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
 import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
+import { updateWarning } from "src/core/update-warning";
 import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { isXlsxFile } from "src/core/file-type";
@@ -233,6 +234,7 @@ export function CreateView({
   const updateCount: number = entries.filter((entry: CreateEntry) => entry.action === "update").length;
   const liveCount: number = liveAlerts?.length ?? 0;
   const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT });
+  const updateNotice: string | null = updateWarning({ updateCount });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
   const columns: readonly TableColumn<ImportRow>[] = [
@@ -323,6 +325,7 @@ export function CreateView({
           </div>
           {live.error !== "" && <Banner tone="error">{live.error}</Banner>}
           {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
+          {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
           <DataTable<ImportRow, number>
             rows={rows}
@@ -380,7 +383,7 @@ export function CreateView({
                   ))}
                   {matches.slice(0, 2).map((match: AlertMatch) => (
                     <p key={match.alert.query} className="text-amber-800">
-                      {match.similarity === "exact" ? "Already exists, the alert is updated" : match.similarity === "same_words" ? "Same words as" : "Similar to"}:{" "}
+                      {match.similarity === "exact" ? "Already exists. The run replaces its options with the options shown" : match.similarity === "same_words" ? "Same words as" : "Similar to"}:{" "}
                       <span className="font-mono">{match.alert.query}</span>
                     </p>
                   ))}
@@ -453,6 +456,7 @@ export function CreateView({
             If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
             {String(liveCount)}. Keep the Alerts tab open and in the foreground.
           </Banner>
+          {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
           {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-destructive">Wait until your existing alerts are read.</p>}
           <p className="mt-3 text-xs text-muted-foreground">When you click Start, you accept this notice.</p>
