@@ -50,7 +50,7 @@ const ISSUE_TEXT: Record<RowIssue, string> = {
   empty: "Empty query.",
   too_long: `Query is longer than ${String(MAXIMUM_QUERY_LENGTH)} characters.`,
   duplicate_in_file: "Same query appears earlier in this file.",
-  invalid_option: "A value in an option column is not valid (use rss or email, all or best, and so on).",
+  invalid_option: "A value in an option column is not valid. Use the values of the dropdowns in the template.",
   unlisted_option: "A source, language, or region is not in the app lists. The app uses it as typed.",
 };
 

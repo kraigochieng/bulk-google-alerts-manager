@@ -7,10 +7,10 @@ import { checkHeaders } from "src/core/template-columns";
 describe("buildImportRows", () => {
   const table = parseCsv({
     text: [
-      "query,deliver_to,how_often,how_many,language",
-      '"""Jane Doe"" OR ""Jane A. Doe""",email,weekly,best,French',
-      ",rss,,,",
-      "plain,fax,,,",
+      "Search query,Deliver to,How often,How many,Language",
+      '"""Jane Doe"" OR ""Jane A. Doe""",Email,At most once a week,Only the best results,French',
+      ",RSS feed,,,",
+      "plain,Fax,,,",
       "plain,,,,",
     ].join("\n"),
   });
@@ -50,7 +50,7 @@ describe("buildImportRows", () => {
 
 describe("buildImportRows with listed options", () => {
   const table = parseCsv({
-    text: ["query,region,language,sources", "a,kenya,French,News", "b,Atlantis,,"].join("\n"),
+    text: ["Search query,Region,Language,Sources", "a,kenya,French,News", "b,Atlantis,,"].join("\n"),
   });
   const rows = buildImportRows({
     table,

@@ -1,15 +1,15 @@
 import { IMPORT_FIELDS } from "src/core/column-mapping";
 import type { ColumnMapping, ImportField } from "src/core/column-mapping";
 
-/** The column name of each import field in the template. */
+/** The column name of each import field in the template. The names match the Google Alerts options panel. */
 export const FIELD_HEADERS: Readonly<Record<ImportField, string>> = {
-  query: "query",
-  deliverTo: "deliver_to",
-  howOften: "how_often",
-  howMany: "how_many",
-  sources: "sources",
-  language: "language",
-  region: "region",
+  query: "Search query",
+  howOften: "How often",
+  sources: "Sources",
+  language: "Language",
+  region: "Region",
+  howMany: "How many",
+  deliverTo: "Deliver to",
 };
 
 /** The result of the header check. */
@@ -34,7 +34,7 @@ export function checkHeaders({ headers }: { headers: readonly string[] }): Heade
   const usedIndexes: Set<number> = new Set();
   const entries: [ImportField, number | null][] = IMPORT_FIELDS.map(
     (field: ImportField): [ImportField, number | null] => {
-      const index: number = normalised.indexOf(FIELD_HEADERS[field]);
+      const index: number = normalised.indexOf(normaliseHeader({ header: FIELD_HEADERS[field] }));
       if (index !== -1) usedIndexes.add(index);
       return [field, index === -1 ? null : index];
     },
