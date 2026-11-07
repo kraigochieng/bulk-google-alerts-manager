@@ -8,6 +8,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A Delete button for each row in the review. The user confirms, and the file on the computer does not change.
+- An editor for each row in the review. The user fixes the search query and the options of a row, and the review checks the row again.
 - The review step shows the final value of each option in each row. A value from the defaults shows in italic text.
 - A limit of 1000 data rows for an imported file, because Google allows 1000 alerts for each account. A file with no data rows is refused too.
 - A "Copy to clipboard" button for an export.

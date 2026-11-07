@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows } from "src/core/column-mapping";
+import { buildImportRows, importRowsFromDraft } from "src/core/draft-rows";
 import { parseCsv } from "src/core/csv";
 import { checkHeaders } from "src/core/template-columns";
 
@@ -64,5 +64,39 @@ describe("buildImportRows with listed options", () => {
 
   it("keeps an unlisted value as typed and marks the row with a warning", () => {
     expect(rows[1]).toMatchObject({ overrides: { region: "Atlantis" }, issues: ["unlisted_option"] });
+  });
+});
+
+describe("importRowsFromDraft", () => {
+  const cells = { howOften: "", sources: "", language: "", region: "", howMany: "", deliverTo: "" };
+
+  it("keeps the row numbers of the rows that remain", () => {
+    const rows = importRowsFromDraft({
+      rows: [
+        { sourceRowNumber: 2, query: "first", cells },
+        { sourceRowNumber: 5, query: "second", cells },
+      ],
+      maximumQueryLength: 100,
+    });
+    expect(rows.map((row) => row.sourceRowNumber)).toEqual([2, 5]);
+  });
+
+  it("marks a repeated query from its second use", () => {
+    const rows = importRowsFromDraft({
+      rows: [
+        { sourceRowNumber: 2, query: "same", cells },
+        { sourceRowNumber: 3, query: " Same ", cells },
+      ],
+      maximumQueryLength: 100,
+    });
+    expect(rows.map((row) => row.issues)).toEqual([[], ["duplicate_in_file"]]);
+  });
+
+  it("reads an option cell that the user typed in a row", () => {
+    const [row] = importRowsFromDraft({
+      rows: [{ sourceRowNumber: 2, query: "q", cells: { ...cells, howOften: "At most once a week", deliverTo: "Email" } }],
+      maximumQueryLength: 100,
+    });
+    expect(row?.overrides).toEqual({ howOften: "weekly", deliverTo: "email" });
   });
 });
