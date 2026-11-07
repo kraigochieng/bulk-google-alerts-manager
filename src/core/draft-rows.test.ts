@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/draft-rows";
 import { parseCsv } from "src/core/csv";
 import { checkHeaders } from "src/core/template-columns";
 

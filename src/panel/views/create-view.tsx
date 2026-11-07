@@ -4,7 +4,7 @@ import type { JSX } from "react";
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
 import { canAdvance, nextStep, previousStep } from "src/core/add-steps";
 import type { AddStep } from "src/core/add-steps";
-import { buildImportRows } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/draft-rows";
 import type { ColumnMapping } from "src/core/column-mapping";
 import { parseCsv } from "src/core/csv";
 import type { CsvTable } from "src/core/csv";

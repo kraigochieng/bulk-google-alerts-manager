@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildImportRows } from "src/core/column-mapping";
+import { buildImportRows } from "src/core/draft-rows";
 import { loadExcelJs } from "src/core/exceljs-loader";
 import { checkHeaders } from "src/core/template-columns";
 import { buildTemplateWorkbook } from "src/core/template-workbook";
