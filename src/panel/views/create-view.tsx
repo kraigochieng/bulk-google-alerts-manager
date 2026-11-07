@@ -18,6 +18,8 @@ import type { DraftRow } from "src/core/draft-rows";
 import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
 import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
 import { updateWarning } from "src/core/update-warning";
+import { ROW_BADGE_LABELS, rowBadge } from "src/core/row-badge";
+import type { RowBadgeKind } from "src/core/row-badge";
 import { summariseRowOptions } from "src/core/row-summary";
 import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
@@ -53,6 +55,15 @@ import { BulkAlertsError } from "src/shared/errors";
 import { clearDraft, loadDraft, saveDraft } from "src/storage/draft-repository";
 import type { DraftLoadResult } from "src/storage/draft-repository";
 import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
+
+const BADGE_CLASSES: Record<RowBadgeKind, string> = {
+  problem: "bg-destructive/10 text-destructive",
+  duplicate: "bg-amber-100 text-amber-900",
+  skipped: "bg-muted text-muted-foreground",
+  updates: "bg-amber-100 text-amber-900",
+  similar: "bg-amber-100 text-amber-900",
+  new: "bg-primary/10 text-primary",
+};
 
 export const ROWS_TABLE_SCHEMA: TableSchema = {
   sortKeys: ["row", "query", "notes"],
@@ -339,8 +350,14 @@ export function CreateView({
             renderCell={(row, columnKey) => {
               if (columnKey === "row") return String(row.sourceRowNumber);
               if (columnKey === "query") {
+                const badge: RowBadgeKind = rowBadge({
+                  issues: row.issues,
+                  action: actionFor({ row }),
+                  hasSimilarAlert: matchesByRow.has(row.sourceRowNumber),
+                });
                 return (
                   <div>
+                    <span className={`mr-2 inline-block rounded px-1.5 py-0.5 text-[11px] font-semibold ${BADGE_CLASSES[badge]}`}>{ROW_BADGE_LABELS[badge]}</span>
                     <span className="font-mono">{row.query}</span>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {summariseRowOptions({ views: describeRowOptions({ row, defaults: settings.defaults }) })}
