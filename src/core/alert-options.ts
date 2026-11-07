@@ -6,13 +6,14 @@ import type {
   HowOften,
 } from "src/shared/models";
 
+/** The default options of a new alert on the Google Alerts page. */
 export const DEFAULT_ALERT_OPTIONS: AlertOptions = {
-  howOften: "as_it_happens",
+  howOften: "daily",
   sources: "Automatic",
   language: "English",
   region: "Any Region",
-  howMany: "all",
-  deliverTo: "rss",
+  howMany: "best",
+  deliverTo: "email",
 };
 
 /** Combine the app defaults with the overrides of one row. RSS forces as-it-happens. */
