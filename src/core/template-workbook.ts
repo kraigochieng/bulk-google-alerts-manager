@@ -4,8 +4,8 @@ import { IMPORT_FIELDS } from "src/core/column-mapping";
 import type { ImportField } from "src/core/column-mapping";
 import { DELIVER_TO_LABELS, HOW_MANY_LABELS, HOW_OFTEN_LABELS } from "src/core/option-labels";
 import { FIELD_HEADERS } from "src/core/template-columns";
-import { TEMPLATE_HEADERS, TEMPLATE_ROWS } from "src/core/template-csv";
-import { ALERTS_SHEET_NAME, LISTS_SHEET_NAME, SAMPLES_SHEET_NAME } from "src/core/workbook-sheets";
+import { TEMPLATE_HEADERS } from "src/core/template-csv";
+import { ALERTS_SHEET_NAME, LISTS_SHEET_NAME } from "src/core/workbook-sheets";
 import type * as ExcelJsModule from "exceljs";
 
 /** The number of rows below the header that have dropdowns. */
@@ -47,21 +47,17 @@ function styleHeader({ sheet }: { sheet: ExcelJsModule.Worksheet }): void {
 
 /**
  * Build the template as an xlsx file. The Alerts sheet has the header and dropdowns.
- * The Samples sheet has sample rows that the import never reads. The hidden Lists sheet feeds the dropdowns.
+ * The hidden Lists sheet feeds the dropdowns.
  * A dropdown suggests values and does not refuse a typed value.
  */
 export async function buildTemplateWorkbook(): Promise<Uint8Array<ArrayBuffer>> {
   const { Workbook } = await loadExcelJs();
   const workbook: ExcelJsModule.Workbook = new Workbook();
   const alerts: ExcelJsModule.Worksheet = workbook.addWorksheet(ALERTS_SHEET_NAME);
-  const samples: ExcelJsModule.Worksheet = workbook.addWorksheet(SAMPLES_SHEET_NAME);
   const lists: ExcelJsModule.Worksheet = workbook.addWorksheet(LISTS_SHEET_NAME, { state: "hidden" });
 
   alerts.addRow([...TEMPLATE_HEADERS]);
   styleHeader({ sheet: alerts });
-  samples.addRow([...TEMPLATE_HEADERS]);
-  for (const record of TEMPLATE_ROWS) samples.addRow([...record]);
-  styleHeader({ sheet: samples });
 
   for (const dropdown of COLUMN_DROPDOWNS) {
     if (dropdown.listColumn !== null) {
