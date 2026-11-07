@@ -8,7 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- A "Copy to clipboard" button for an export, and a text box to paste CSV text in the Add dialog.
+- A "Copy to clipboard" button for an export.
 - Dropdowns for the default source, language, and region. The user can still type a value that is not listed.
 - An xlsx template with dropdowns, a `Samples` sheet that the import never reads, and a hidden `Lists` sheet.
 - Import of `.xlsx` files. The import reads only the `Alerts` sheet.
@@ -21,6 +21,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Removed
 
+- **Breaking:** the text box to paste CSV text, the "Download template CSV" button, and the "Columns and allowed values" help in the Add dialog. The "Download template" button gives the xlsx template. The import still accepts CSV and xlsx files.
 - **Breaking:** the column mapping step. The import expects the column names of the template: `query`, `deliver_to`, `how_often`, `how_many`, `sources`, `language`, and `region`. Header synonyms such as `keyword`, `topic`, and `country` no longer work. A file without a `query` column is refused.
 
 ## [1.0.0] - 2026-10-23

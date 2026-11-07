@@ -1,7 +1,3 @@
-import { writeCsv } from "src/core/csv";
-
-export const TEMPLATE_FILE_NAME: string = "bulk-google-alerts-template.csv";
-
 /** The column names of the template, in order. */
 export const TEMPLATE_HEADERS: readonly string[] = [
   "query",
@@ -20,8 +16,3 @@ export const TEMPLATE_ROWS: readonly (readonly string[])[] = [
   ["solar power kenya", "email", "weekly", "all", "Automatic", "English", "Any Region"],
   ['site:example.com "annual report"', "email", "daily", "best", "", "French", ""],
 ];
-
-/** Build the template CSV. An empty cell means: use the default from the app. */
-export function buildTemplateCsv(): string {
-  return writeCsv({ table: { headers: TEMPLATE_HEADERS, records: TEMPLATE_ROWS } });
-}
