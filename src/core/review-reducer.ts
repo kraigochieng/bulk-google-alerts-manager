@@ -1,6 +1,7 @@
 import { importRowsFromDraft } from "src/core/draft-rows";
 import type { DraftRow } from "src/core/draft-rows";
-import { isCheckedByDefault } from "src/core/row-rules";
+import type { OptionField } from "src/core/row-options";
+import { isCheckedByDefault, isRowSelectable } from "src/core/row-rules";
 import type { ImportRow } from "src/shared/models";
 
 /** What the run does with a checked row. */
@@ -19,7 +20,34 @@ export const EMPTY_REVIEW_STATE: ReviewState = { rows: [], checkedRows: new Set(
 export type ReviewAction =
   | { readonly type: "load"; readonly rows: readonly DraftRow[] }
   | { readonly type: "set_checked"; readonly rowNumbers: readonly number[]; readonly checked: boolean }
-  | { readonly type: "set_action"; readonly rowNumber: number; readonly action: RowAction };
+  | { readonly type: "set_action"; readonly rowNumber: number; readonly action: RowAction }
+  | { readonly type: "edit_query"; readonly rowNumber: number; readonly query: string }
+  | { readonly type: "edit_option"; readonly rowNumber: number; readonly field: OptionField; readonly text: string };
+
+/**
+ * Replace the rows after an edit and update the checked rows.
+ * A row that now has a blocking issue leaves the checked rows. A row that was blocked and is now fixed follows the default check rule.
+ */
+function replaceRows({
+  state,
+  rows,
+  maximumQueryLength,
+}: {
+  state: ReviewState;
+  rows: readonly DraftRow[];
+  maximumQueryLength: number;
+}): ReviewState {
+  const rowsBefore: ImportRow[] = importRowsFromDraft({ rows: state.rows, maximumQueryLength });
+  const selectableBefore: ReadonlyMap<number, boolean> = new Map(
+    rowsBefore.map((row: ImportRow): [number, boolean] => [row.sourceRowNumber, isRowSelectable({ row })]),
+  );
+  const checkedRows: Set<number> = new Set(state.checkedRows);
+  for (const row of importRowsFromDraft({ rows, maximumQueryLength })) {
+    if (!isRowSelectable({ row })) checkedRows.delete(row.sourceRowNumber);
+    else if (selectableBefore.get(row.sourceRowNumber) === false && isCheckedByDefault({ row })) checkedRows.add(row.sourceRowNumber);
+  }
+  return { ...state, rows, checkedRows };
+}
 
 /** Apply one change to the review state and return the new state. Pure. */
 export function reviewReducer({
@@ -46,5 +74,22 @@ export function reviewReducer({
     }
     return { ...state, checkedRows };
   }
-  return { ...state, actionOverrides: { ...state.actionOverrides, [action.rowNumber]: action.action } };
+  if (action.type === "set_action") {
+    return { ...state, actionOverrides: { ...state.actionOverrides, [action.rowNumber]: action.action } };
+  }
+  if (!state.rows.some((row: DraftRow) => row.sourceRowNumber === action.rowNumber)) return state;
+  if (action.type === "edit_query") {
+    const rows: DraftRow[] = state.rows.map((row: DraftRow) =>
+      row.sourceRowNumber === action.rowNumber ? { ...row, query: action.query } : row,
+    );
+    const actionOverrides: Record<number, RowAction> = {};
+    for (const [key, choice] of Object.entries(state.actionOverrides)) {
+      if (Number(key) !== action.rowNumber) actionOverrides[Number(key)] = choice;
+    }
+    return replaceRows({ state: { ...state, actionOverrides }, rows, maximumQueryLength });
+  }
+  const rows: DraftRow[] = state.rows.map((row: DraftRow) =>
+    row.sourceRowNumber === action.rowNumber ? { ...row, cells: { ...row.cells, [action.field]: action.text } } : row,
+  );
+  return replaceRows({ state, rows, maximumQueryLength });
 }

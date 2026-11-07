@@ -12,6 +12,7 @@ import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
 import { describeRowOptions } from "src/core/row-options";
 import type { RowOptionView } from "src/core/row-options";
+import type { DraftRow } from "src/core/draft-rows";
 import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
 import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
 import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
@@ -34,6 +35,7 @@ import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { RadioGroup } from "src/panel/ui/radio-group";
+import { RowEditor } from "src/panel/components/row-editor";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { DataTable } from "src/panel/components/data-table";
@@ -82,12 +84,18 @@ export function CreateView({
     EMPTY_REVIEW_STATE,
   );
   const { checkedRows, actionOverrides } = review;
+  const [editingRow, setEditingRow] = useState<number | null>(null);
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [step, setStep] = useState<AddStep>("file");
   const [rowsState, setRowsState] = useTableState({ schema: ROWS_TABLE_SCHEMA });
 
   const rows: readonly ImportRow[] = useMemo(
     () => importRowsFromDraft({ rows: review.rows, maximumQueryLength: MAXIMUM_QUERY_LENGTH }),
+    [review.rows],
+  );
+
+  const draftRowsByNumber: ReadonlyMap<number, DraftRow> = useMemo(
+    () => new Map(review.rows.map((row: DraftRow): [number, DraftRow] => [row.sourceRowNumber, row])),
     [review.rows],
   );
 
@@ -127,6 +135,7 @@ export function CreateView({
       setFileName(sourceName);
       onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
       dispatchReview({ type: "load", rows: draftRowsFromTable({ table, mapping: report.columnIndexes }) });
+      setEditingRow(null);
       setExtraColumns(report.extraColumns);
       setStep("review");
       setRowsState(ROWS_TABLE_SCHEMA.defaultState);
@@ -254,6 +263,7 @@ export function CreateView({
             renderCell={(row, columnKey) => {
               if (columnKey === "row") return String(row.sourceRowNumber);
               if (columnKey === "query") {
+                const draftRow: DraftRow | undefined = draftRowsByNumber.get(row.sourceRowNumber);
                 return (
                   <div>
                     <span className="font-mono">{row.query}</span>
@@ -264,6 +274,24 @@ export function CreateView({
                         </span>
                       ))}
                     </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`${editingRow === row.sourceRowNumber ? "Close the editor of" : "Edit"} row ${String(row.sourceRowNumber)}`}
+                      onClick={() => { setEditingRow(editingRow === row.sourceRowNumber ? null : row.sourceRowNumber); }}
+                    >
+                      {editingRow === row.sourceRowNumber ? "Close" : "Edit"}
+                    </Button>
+                    {editingRow === row.sourceRowNumber && draftRow !== undefined && (
+                      <RowEditor
+                        row={draftRow}
+                        defaults={settings.defaults}
+                        onQueryChange={(query: string) => { dispatchReview({ type: "edit_query", rowNumber: row.sourceRowNumber, query }); }}
+                        onOptionChange={({ field, text }) => { dispatchReview({ type: "edit_option", rowNumber: row.sourceRowNumber, field, text }); }}
+                        onClose={() => { setEditingRow(null); }}
+                      />
+                    )}
                   </div>
                 );
               }
