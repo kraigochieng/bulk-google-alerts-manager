@@ -32,3 +32,4 @@ Use throwaway queries that start with `bam test`. Use your own account.
 27. Row badges: in step 2, expect each row to show one badge. Expect Problem for an empty query, Updates alert for an existing query, and New for a new query. Choose "Skip this row" and expect Skipped.
 28. Bulk actions: import a file with two rows that match existing alerts and one row with an empty query. Click "Skip all that update" and expect both badges to show Skipped. Click "Check only valid rows" and expect the empty row unchecked and the other rows checked.
 29. Summary line: in step 2, expect the line "The run creates N alerts, updates M alerts, and skips K rows." Uncheck a row and expect the count to drop. Skip an update row and expect the skip count to rise.
+31. Review layout: in step 2, expect "Discard draft" at the right of the header. Expect separate groups for the defaults, the summary with the bulk buttons, and the table. Expect a narrow Row column.

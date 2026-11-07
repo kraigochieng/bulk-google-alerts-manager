@@ -29,6 +29,7 @@ export interface DataTableProps<Row, Key extends string | number> {
   readonly filters: Readonly<Record<string, (row: Row) => boolean>>;
   readonly filterLabels: Readonly<Record<string, string>>;
   readonly selection?: RowSelection<Key>;
+  readonly columnClassNames?: Readonly<Record<string, string>>;
   readonly emptyMessage: string;
 }
 
@@ -44,6 +45,7 @@ export function DataTable<Row, Key extends string | number>({
   filters,
   filterLabels,
   selection,
+  columnClassNames = {},
   emptyMessage,
 }: DataTableProps<Row, Key>): JSX.Element {
   const page = queryTable({ rows, columns, state, filters, pageSize: DEFAULT_PAGE_SIZE });
@@ -122,7 +124,7 @@ export function DataTable<Row, Key extends string | number>({
                 </TableHead>
               )}
               {columns.map((column: TableColumn<Row>) => (
-                <TableHead key={column.key} className="h-8 px-2">
+                <TableHead key={column.key} className={`h-8 px-2 ${columnClassNames[column.key] ?? ""}`}>
                   <Button type="button" variant="ghost" size="sm" onClick={() => { toggleSort(column.key); }} className="h-6 gap-0.5 px-1 text-xs font-semibold">
                     {column.label}
                     {state.sortKey === column.key &&
@@ -157,7 +159,7 @@ export function DataTable<Row, Key extends string | number>({
                     </TableCell>
                   )}
                   {columns.map((column: TableColumn<Row>) => (
-                    <TableCell key={column.key} className="px-2 py-1 whitespace-normal! break-words">
+                    <TableCell key={column.key} className={`px-2 py-2 whitespace-normal! break-words ${columnClassNames[column.key] ?? ""}`}>
                       {renderCell(row, column.key)}
                     </TableCell>
                   ))}
