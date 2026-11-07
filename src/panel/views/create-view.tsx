@@ -242,10 +242,6 @@ export function CreateView({
             />
           </div>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
-          <details className="mt-3">
-            <summary className="cursor-pointer text-xs font-medium">Default alert options</summary>
-            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
-          </details>
         </section>
       )}
       {step === "review" && (
@@ -257,6 +253,18 @@ export function CreateView({
           {extraColumns.length > 0 && (
             <Banner tone="warning">These columns are not in the template and are ignored: {extraColumns.join(", ")}.</Banner>
           )}
+          <details className="mt-2 text-xs">
+            <summary className="cursor-pointer font-medium">
+              Blank cells use:{" "}
+              <span className="font-normal text-muted-foreground">
+                {describeRowOptions({ row: { overrides: {} }, defaults: settings.defaults })
+                  .filter((view: RowOptionView) => view.source !== "forced")
+                  .map((view: RowOptionView) => view.value)
+                  .join(", ")}
+              </span>
+            </summary>
+            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+          </details>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>

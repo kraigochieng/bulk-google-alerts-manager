@@ -22,7 +22,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - **Breaking:** the default alert options are the defaults of a new alert on the Google Alerts page: At most once a day, Automatic, English, Any Region, Only the best results, and Email. A user who saved other defaults keeps them.
 - The Clear, Export, and Delete buttons of the bar slide in when an alert is checked and slide out when none is checked. The animation stops when the user prefers reduced motion.
 - **Breaking:** the template and the export use the names, the order, and the values of the Google Alerts options panel. Example: `Deliver to` has the values `RSS feed` and `Email`. The old names such as `deliver_to` are refused. The import still reads a value written in the old style.
-- The Add dialog has three steps: file, review, start. The default alert options moved to the file step.
+- The Add dialog has three steps: file, review, start. The default alert options moved to the review step, with the label "Blank cells use".
 
 ### Removed
 
