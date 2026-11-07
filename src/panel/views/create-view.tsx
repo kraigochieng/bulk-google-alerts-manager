@@ -204,7 +204,7 @@ export function CreateView({
       {step === "file" && (
         <section aria-label="Import">
           <h2 className="mt-4 text-sm font-semibold">Import a file</h2>
-          <p className="text-xs text-muted-foreground">Start from the template. You can also import a CSV file with the same column names. The file needs a query column.</p>
+          <p className="text-xs text-muted-foreground">Start from the template. You can also import a CSV file with the same column names. The file needs a Search query column.</p>
           <div className="mt-3 flex flex-col gap-3">
             <Button
               type="button"
