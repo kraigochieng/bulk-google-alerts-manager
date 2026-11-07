@@ -21,8 +21,8 @@ describe("readTemplateWorkbook", () => {
     await workbook.xlsx.load((await buildTemplateWorkbook()).buffer);
     const alerts = workbook.getWorksheet("Alerts");
     if (alerts !== undefined) alerts.getCell("A2").value = "solar power";
-    if (alerts !== undefined) alerts.getCell("B2").value = "email";
-    if (alerts !== undefined) alerts.getCell("G2").value = "kenya";
+    if (alerts !== undefined) alerts.getCell("G2").value = "Email";
+    if (alerts !== undefined) alerts.getCell("E2").value = "kenya";
     const bytes: Uint8Array = new Uint8Array(await workbook.xlsx.writeBuffer());
 
     const table = await readTemplateWorkbook({ bytes });

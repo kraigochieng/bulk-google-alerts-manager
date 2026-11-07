@@ -46,13 +46,16 @@ describe("buildTemplateWorkbook", () => {
   it("gives each option column a dropdown that accepts a typed value", async () => {
     const sheet = (await loadBuilt()).getWorksheet("Alerts");
     const lastRow: string = String(DROPDOWN_ROW_COUNT + 1);
-    expect(sheet?.getCell("B2").dataValidation).toMatchObject({ type: "list", formulae: ['"rss,email"'] });
+    expect(sheet?.getCell("B2").dataValidation).toMatchObject({
+      type: "list",
+      formulae: ['"As-it-happens,At most once a day,At most once a week"'],
+    });
     expect(sheet?.getCell("B2").dataValidation.showErrorMessage).not.toBe(true);
-    expect(sheet?.getCell("C2").dataValidation.formulae).toEqual(['"as_it_happens,daily,weekly"']);
-    expect(sheet?.getCell("D2").dataValidation.formulae).toEqual(['"all,best"']);
-    expect(sheet?.getCell("E2").dataValidation.formulae).toEqual([`Lists!$A$1:$A$${String(SOURCE_OPTIONS.length)}`]);
-    expect(sheet?.getCell("F2").dataValidation.formulae).toEqual([`Lists!$B$1:$B$${String(LANGUAGE_OPTIONS.length)}`]);
-    expect(sheet?.getCell(`G${lastRow}`).dataValidation.formulae).toEqual([`Lists!$C$1:$C$${String(REGION_OPTIONS.length)}`]);
+    expect(sheet?.getCell("C2").dataValidation.formulae).toEqual([`Lists!$A$1:$A$${String(SOURCE_OPTIONS.length)}`]);
+    expect(sheet?.getCell("D2").dataValidation.formulae).toEqual([`Lists!$B$1:$B$${String(LANGUAGE_OPTIONS.length)}`]);
+    expect(sheet?.getCell("E2").dataValidation.formulae).toEqual([`Lists!$C$1:$C$${String(REGION_OPTIONS.length)}`]);
+    expect(sheet?.getCell("F2").dataValidation.formulae).toEqual(['"All results,Only the best results"']);
+    expect(sheet?.getCell(`G${lastRow}`).dataValidation.formulae).toEqual(['"RSS feed,Email"']);
   });
 
   it("gives the query column no dropdown", async () => {

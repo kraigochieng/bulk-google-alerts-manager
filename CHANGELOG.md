@@ -17,12 +17,13 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **Breaking:** the template and the export use the names, the order, and the values of the Google Alerts options panel. Example: `Deliver to` has the values `RSS feed` and `Email`. The old names such as `deliver_to` are refused. The import still reads a value written in the old style.
 - The Add dialog has three steps: file, review, start. The default alert options moved to the file step.
 
 ### Removed
 
 - **Breaking:** the text box to paste CSV text, the "Download template CSV" button, and the "Columns and allowed values" help in the Add dialog. The "Download template" button gives the xlsx template. The import still accepts CSV and xlsx files.
-- **Breaking:** the column mapping step. The import expects the column names of the template: `query`, `deliver_to`, `how_often`, `how_many`, `sources`, `language`, and `region`. Header synonyms such as `keyword`, `topic`, and `country` no longer work. A file without a `query` column is refused.
+- **Breaking:** the column mapping step. The import expects the column names of the template: `Search query`, `How often`, `Sources`, `Language`, `Region`, `How many`, and `Deliver to`. Header synonyms such as `keyword`, `topic`, and `country` no longer work. A file without a `query` column is refused.
 
 ## [1.0.0] - 2026-10-23
 

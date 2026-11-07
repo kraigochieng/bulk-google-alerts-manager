@@ -21,7 +21,7 @@ const entries: readonly ExportEntry[] = [
 describe("buildExportCsv", () => {
   it("writes one row per alert under the import column names", () => {
     const table = parseCsv({ text: buildExportCsv({ entries }) });
-    expect(table.headers).toEqual(["query", "deliver_to", "how_often", "how_many", "sources", "language", "region", "rss_link"]);
+    expect(table.headers).toEqual(["Search query", "How often", "Sources", "Language", "Region", "How many", "Deliver to", "RSS link"]);
     expect(table.records).toHaveLength(3);
   });
 
@@ -44,6 +44,6 @@ describe("buildExportCsv", () => {
 
   it("leaves option cells empty when the options are unread", () => {
     const table = parseCsv({ text: buildExportCsv({ entries }) });
-    expect(table.records[2]).toEqual(["unread", "email", "", "", "", "", "", ""]);
+    expect(table.records[2]).toEqual(["unread", "", "", "", "", "", "Email", ""]);
   });
 });

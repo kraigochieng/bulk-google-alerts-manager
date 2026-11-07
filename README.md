@@ -25,7 +25,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 2. Look at the bar at the bottom of the page. It holds a check-all box, the count of checked alerts, and the buttons Clear, Export, Delete, and Add.
 3. The heading of the list shows the alerts that you have and the alerts that you can still add. Example: `My alerts (4 created, 996 remaining)`.
 4. To add alerts, click Add in the bar, or click the extension icon. Follow the three steps:
-   1. **File.** Click "Download template" for the start file. It has the sheets `Alerts` (fill in your rows here), `Samples` (examples, never imported), and a hidden `Lists`. The dropdowns suggest the Google values, and you can still type another value. The import reads only the `Alerts` sheet. Choose the filled template, or a CSV file with the same column names. The file needs a `query` column. A column that is not in the template is ignored, and a warning shows. Open "Default alert options" to set the options for empty cells.
+   1. **File.** Click "Download template" for the start file. It has the sheets `Alerts` (fill in your rows here), `Samples` (examples, never imported), and a hidden `Lists`. The dropdowns suggest the Google values, and you can still type another value. The import reads only the `Alerts` sheet. Choose the filled template, or a CSV file with the same column names. The file needs a `Search query` column. A column that is not in the template is ignored, and a warning shows. Open "Default alert options" to set the options for empty cells.
    2. **Review.** Check the rows that you want. A row with a problem cannot be checked. Search, filter, and sort the rows.
    3. **Start.** Read the notice. Click Start. The click accepts the notice.
 5. To export or delete, check alerts on the page. Click Export or Delete in the bar. After an export, click "Copy to clipboard" or "Download CSV" in the result dialog. To import a copy, choose the downloaded CSV file in step 1 of the Add dialog.
@@ -66,23 +66,23 @@ It reads and stores no password. See [docs/privacy-policy.md](docs/privacy-polic
 
 ## CSV format
 
-The Add dialog reads a header row and the data rows. One column holds the queries. Other columns are optional.
-You map the columns in step 2, so the column names can differ.
+The Add dialog reads a header row and the data rows. The column names must match the template. One column holds the queries. Other columns are optional.
+The columns follow the order of the options panel on the Google Alerts page.
 
-| Field | Allowed values |
+| Column | Allowed values |
 |---|---|
-| `query` | The search text. Quotes and `OR` work as in Google Alerts. |
-| `deliver_to` | `rss` or `email` |
-| `how_often` | `as_it_happens`, `daily`, or `weekly`. An RSS alert always uses `as_it_happens`. |
-| `how_many` | `all` or `best` |
-| `sources`, `language`, `region` | The text of the Google dropdown, for example `English` |
+| `Search query` | The search text. Quotes and `OR` work as in Google Alerts. |
+| `How often` | `As-it-happens`, `At most once a day`, or `At most once a week`. An RSS alert always uses `As-it-happens`. |
+| `Sources`, `Language`, `Region` | The text of the Google dropdown, for example `English` |
+| `How many` | `All results` or `Only the best results` |
+| `Deliver to` | `RSS feed` or `Email` |
 
 An empty cell uses the default from the Add dialog.
 
 ```csv
-query,deliver_to,how_often,how_many,language,region
-"""Jane Doe"" OR ""Jane A. Doe""",rss,,all,,
-solar power kenya,email,weekly,best,English,Any Region
+Search query,How often,Language,Region,How many,Deliver to
+"""Jane Doe"" OR ""Jane A. Doe""",,,,All results,RSS feed
+solar power kenya,At most once a week,English,Any Region,Only the best results,Email
 ```
 
 See `fixtures/sample-queries.csv` for a larger example.

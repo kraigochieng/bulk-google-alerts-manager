@@ -5,7 +5,7 @@ import { TEMPLATE_HEADERS } from "src/core/template-csv";
 
 describe("checkHeaders", () => {
   it("accepts the template columns", () => {
-    const report = checkHeaders({ headers: ["query", "deliver_to"] });
+    const report = checkHeaders({ headers: ["Search query", "Deliver to"] });
     expect(report.missingRequired).toEqual([]);
     expect(report.extraColumns).toEqual([]);
     expect(report.columnIndexes.query).toBe(0);
@@ -14,18 +14,24 @@ describe("checkHeaders", () => {
   });
 
   it("reports a missing query column", () => {
-    expect(checkHeaders({ headers: ["deliver_to", "region"] }).missingRequired).toEqual(["query"]);
+    expect(checkHeaders({ headers: ["Deliver to", "Region"] }).missingRequired).toEqual(["query"]);
   });
 
   it("reports an extra column", () => {
-    expect(checkHeaders({ headers: ["query", "notes"] }).extraColumns).toEqual(["notes"]);
+    expect(checkHeaders({ headers: ["Search query", "notes"] }).extraColumns).toEqual(["notes"]);
   });
 
   it("ignores case and outer spaces", () => {
-    const report = checkHeaders({ headers: ["Query ", "REGION"] });
+    const report = checkHeaders({ headers: ["Search query ", "REGION"] });
     expect(report.columnIndexes.query).toBe(0);
     expect(report.columnIndexes.region).toBe(1);
     expect(report.extraColumns).toEqual([]);
+  });
+
+  it("does not accept the old snake_case names", () => {
+    const report = checkHeaders({ headers: ["query", "deliver_to", "how_often"] });
+    expect(report.missingRequired).toEqual(["query"]);
+    expect(report.extraColumns).toEqual(["query", "deliver_to", "how_often"]);
   });
 
   it("does not accept a synonym", () => {
@@ -35,13 +41,13 @@ describe("checkHeaders", () => {
   });
 
   it("keeps the first of two columns with the same name and reports the second", () => {
-    const report = checkHeaders({ headers: ["query", "query"] });
+    const report = checkHeaders({ headers: ["Search query", "Search query"] });
     expect(report.columnIndexes.query).toBe(0);
-    expect(report.extraColumns).toEqual(["query"]);
+    expect(report.extraColumns).toEqual(["Search query"]);
   });
 
   it("does not report an empty header as an extra column", () => {
-    expect(checkHeaders({ headers: ["query", ""] }).extraColumns).toEqual([]);
+    expect(checkHeaders({ headers: ["Search query", ""] }).extraColumns).toEqual([]);
   });
 
   it("finds every field in the template headers", () => {

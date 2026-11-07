@@ -1,44 +1,44 @@
-query,deliver_to,how_many,extra,how_often
-"""Jane Doe""",rss,all,,
-"""John Smith""",rss,all,,
-"""Amina Hassan""",rss,all,,
-"""Peter Otieno""",rss,all,,
-"""Grace Wanjiru""",rss,all,,
-"""Liu Wei""",rss,all,,
-"""Maria Garcia""",rss,all,,
-"""Ahmed Khan""",rss,all,,
-"""Sara Johansson""",rss,all,,
-"""David Mwangi""",rss,all,,
-"""Fatima Bello""",rss,all,,
-"""Carlos Ruiz""",rss,all,,
-"""Olivia Brown""",rss,all,,
-"""Kofi Mensah""",rss,all,,
-"""Nia Kamau""",rss,all,,
-"""Jane Doe"" OR ""Jane A. Doe""",rss,all,,
-"""John Smith"" OR ""J. Smith"" OR ""Johnny Smith""",email,best,,weekly
-solar power kenya,rss,all,,
-wind energy africa,rss,all,,
-mobile money regulation,rss,all,,
-central bank rate decision,rss,all,,
-tea export prices,rss,all,,
-coffee futures,rss,all,,
-fintech funding round,rss,all,,
-climate adaptation fund,rss,all,,
-electric vehicles nairobi,rss,all,,
-drought early warning,rss,all,,
-"""data protection"" AND (kenya OR uganda)",email,all,daily,daily
-"site:example.com ""annual report""",rss,all,,
-"café OR ""crème brûlée""",rss,all,,
-"""She said, """"hello""""""",rss,all,,
-"100% ""organic"" & <fair> trade",rss,all,,
-"""Jane Doe""",rss,all,,
-"  ""jane   doe""  ",rss,all,,
-,rss,all,,
-solar kenya power,rss,all,,
-x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ,rss,all,,
-"Hannah Weber",rss,all,,
-"Tendai Moyo",rss,all,,
-"Yuki Tanaka",rss,all,,
-"Ibrahim Diallo",rss,all,,
-"Elena Petrova",rss,all,,
-"Samuel Njoroge",rss,all,,
+Search query,How often,extra,How many,Deliver to
+"""Jane Doe""",,,All results,RSS feed
+"""John Smith""",,,All results,RSS feed
+"""Amina Hassan""",,,All results,RSS feed
+"""Peter Otieno""",,,All results,RSS feed
+"""Grace Wanjiru""",,,All results,RSS feed
+"""Liu Wei""",,,All results,RSS feed
+"""Maria Garcia""",,,All results,RSS feed
+"""Ahmed Khan""",,,All results,RSS feed
+"""Sara Johansson""",,,All results,RSS feed
+"""David Mwangi""",,,All results,RSS feed
+"""Fatima Bello""",,,All results,RSS feed
+"""Carlos Ruiz""",,,All results,RSS feed
+"""Olivia Brown""",,,All results,RSS feed
+"""Kofi Mensah""",,,All results,RSS feed
+"""Nia Kamau""",,,All results,RSS feed
+"""Jane Doe"" OR ""Jane A. Doe""",,,All results,RSS feed
+"""John Smith"" OR ""J. Smith"" OR ""Johnny Smith""",At most once a week,,Only the best results,Email
+solar power kenya,,,All results,RSS feed
+wind energy africa,,,All results,RSS feed
+mobile money regulation,,,All results,RSS feed
+central bank rate decision,,,All results,RSS feed
+tea export prices,,,All results,RSS feed
+coffee futures,,,All results,RSS feed
+fintech funding round,,,All results,RSS feed
+climate adaptation fund,,,All results,RSS feed
+electric vehicles nairobi,,,All results,RSS feed
+drought early warning,,,All results,RSS feed
+"""data protection"" AND (kenya OR uganda)",At most once a day,daily,All results,Email
+"site:example.com ""annual report""",,,All results,RSS feed
+"café OR ""crème brûlée""",,,All results,RSS feed
+"""She said, """"hello""""""",,,All results,RSS feed
+"100% ""organic"" & <fair> trade",,,All results,RSS feed
+"""Jane Doe""",,,All results,RSS feed
+"  ""jane   doe""  ",,,All results,RSS feed
+,,,All results,RSS feed
+solar kenya power,,,All results,RSS feed
+x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ,,,All results,RSS feed
+Hannah Weber,,,All results,RSS feed
+Tendai Moyo,,,All results,RSS feed
+Yuki Tanaka,,,All results,RSS feed
+Ibrahim Diallo,,,All results,RSS feed
+Elena Petrova,,,All results,RSS feed
+Samuel Njoroge,,,All results,RSS feed

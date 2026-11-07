@@ -10,12 +10,12 @@ import type { AlertOptionOverrides, ImportRow, RowIssue } from "src/shared/model
 
 export const IMPORT_FIELDS = [
   "query",
-  "deliverTo",
   "howOften",
   "sources",
   "language",
   "region",
   "howMany",
+  "deliverTo",
 ] as const;
 
 export type ImportField = (typeof IMPORT_FIELDS)[number];

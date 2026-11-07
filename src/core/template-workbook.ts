@@ -1,5 +1,9 @@
 import { loadExcelJs } from "src/core/exceljs-loader";
 import { LANGUAGE_OPTIONS, REGION_OPTIONS, SOURCE_OPTIONS } from "src/core/option-lists";
+import { IMPORT_FIELDS } from "src/core/column-mapping";
+import type { ImportField } from "src/core/column-mapping";
+import { DELIVER_TO_LABELS, HOW_MANY_LABELS, HOW_OFTEN_LABELS } from "src/core/option-labels";
+import { FIELD_HEADERS } from "src/core/template-columns";
 import { TEMPLATE_HEADERS, TEMPLATE_ROWS } from "src/core/template-csv";
 import { ALERTS_SHEET_NAME, LISTS_SHEET_NAME, SAMPLES_SHEET_NAME } from "src/core/workbook-sheets";
 import type * as ExcelJsModule from "exceljs";
@@ -8,19 +12,19 @@ import type * as ExcelJsModule from "exceljs";
 export const DROPDOWN_ROW_COUNT: number = 500;
 
 interface ColumnDropdown {
-  readonly header: string;
+  readonly field: ImportField;
   /** Inline values, or the column of the Lists sheet that holds the values. */
   readonly values: readonly string[];
   readonly listColumn: number | null;
 }
 
 const COLUMN_DROPDOWNS: readonly ColumnDropdown[] = [
-  { header: "deliver_to", values: ["rss", "email"], listColumn: null },
-  { header: "how_often", values: ["as_it_happens", "daily", "weekly"], listColumn: null },
-  { header: "how_many", values: ["all", "best"], listColumn: null },
-  { header: "sources", values: SOURCE_OPTIONS, listColumn: 1 },
-  { header: "language", values: LANGUAGE_OPTIONS, listColumn: 2 },
-  { header: "region", values: REGION_OPTIONS, listColumn: 3 },
+  { field: "howOften", values: Object.values(HOW_OFTEN_LABELS), listColumn: null },
+  { field: "sources", values: SOURCE_OPTIONS, listColumn: 1 },
+  { field: "language", values: LANGUAGE_OPTIONS, listColumn: 2 },
+  { field: "region", values: REGION_OPTIONS, listColumn: 3 },
+  { field: "howMany", values: Object.values(HOW_MANY_LABELS), listColumn: null },
+  { field: "deliverTo", values: Object.values(DELIVER_TO_LABELS), listColumn: null },
 ];
 
 function columnLetter({ columnNumber }: { columnNumber: number }): string {
@@ -37,7 +41,7 @@ function styleHeader({ sheet }: { sheet: ExcelJsModule.Worksheet }): void {
   sheet.getRow(1).font = { bold: true };
   sheet.views = [{ state: "frozen", ySplit: 1 }];
   TEMPLATE_HEADERS.forEach((header: string, index: number) => {
-    sheet.getColumn(index + 1).width = header === "query" ? 48 : 22;
+    sheet.getColumn(index + 1).width = header === FIELD_HEADERS.query ? 48 : 22;
   });
 }
 
@@ -65,7 +69,7 @@ export async function buildTemplateWorkbook(): Promise<Uint8Array<ArrayBuffer>> 
         lists.getCell(index + 1, dropdown.listColumn ?? 1).value = value;
       });
     }
-    const columnNumber: number = TEMPLATE_HEADERS.indexOf(dropdown.header) + 1;
+    const columnNumber: number = IMPORT_FIELDS.indexOf(dropdown.field) + 1;
     const letter: string = columnLetter({ columnNumber });
     for (let rowNumber = 2; rowNumber <= DROPDOWN_ROW_COUNT + 1; rowNumber += 1) {
       alerts.getCell(`${letter}${String(rowNumber)}`).dataValidation = {
