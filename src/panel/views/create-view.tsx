@@ -18,6 +18,7 @@ import type { DraftRow } from "src/core/draft-rows";
 import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
 import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
 import { updateWarning } from "src/core/update-warning";
+import { summariseRowOptions } from "src/core/row-summary";
 import { WARNING_ISSUES, isRowSelectable } from "src/core/row-rules";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { isXlsxFile } from "src/core/file-type";
@@ -342,11 +343,7 @@ export function CreateView({
                   <div>
                     <span className="font-mono">{row.query}</span>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {describeRowOptions({ row, defaults: settings.defaults }).map((view: RowOptionView) => (
-                        <span key={view.field} className="mr-2 inline-block" title={view.source === "default" ? "From the defaults" : view.source === "forced" ? "RSS always uses As-it-happens" : "From the file"}>
-                          {view.label}: <span className={view.source === "row" ? "font-medium text-foreground" : "italic"}>{view.value}</span>
-                        </span>
-                      ))}
+                      {summariseRowOptions({ views: describeRowOptions({ row, defaults: settings.defaults }) })}
                     </p>
                     <Button
                       type="button"
