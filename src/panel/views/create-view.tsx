@@ -11,6 +11,8 @@ import type { CsvTable } from "src/core/csv";
 import { checkFileRows } from "src/core/file-limit";
 import { findMatches } from "src/core/matching";
 import type { AlertMatch } from "src/core/matching";
+import { describeRowOptions } from "src/core/row-options";
+import type { RowOptionView } from "src/core/row-options";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { isXlsxFile } from "src/core/file-type";
 import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
@@ -240,10 +242,6 @@ export function CreateView({
             />
           </div>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
-          <details className="mt-3">
-            <summary className="cursor-pointer text-xs font-medium">Default alert options</summary>
-            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
-          </details>
         </section>
       )}
       {step === "review" && (
@@ -255,6 +253,18 @@ export function CreateView({
           {extraColumns.length > 0 && (
             <Banner tone="warning">These columns are not in the template and are ignored: {extraColumns.join(", ")}.</Banner>
           )}
+          <details className="mt-2 text-xs">
+            <summary className="cursor-pointer font-medium">
+              Blank cells use:{" "}
+              <span className="font-normal text-muted-foreground">
+                {describeRowOptions({ row: { overrides: {} }, defaults: settings.defaults })
+                  .filter((view: RowOptionView) => view.source !== "forced")
+                  .map((view: RowOptionView) => view.value)
+                  .join(", ")}
+              </span>
+            </summary>
+            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+          </details>
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
           </div>
@@ -267,7 +277,20 @@ export function CreateView({
             rowKey={(row) => row.sourceRowNumber}
             renderCell={(row, columnKey) => {
               if (columnKey === "row") return String(row.sourceRowNumber);
-              if (columnKey === "query") return <span className="font-mono">{row.query}</span>;
+              if (columnKey === "query") {
+                return (
+                  <div>
+                    <span className="font-mono">{row.query}</span>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {describeRowOptions({ row, defaults: settings.defaults }).map((view: RowOptionView) => (
+                        <span key={view.field} className="mr-2 inline-block" title={view.source === "default" ? "From the defaults" : view.source === "forced" ? "RSS always uses As-it-happens" : "From the file"}>
+                          {view.label}: <span className={view.source === "row" ? "font-medium text-foreground" : "italic"}>{view.value}</span>
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                );
+              }
               const matches: AlertMatch[] = matchesByRow.get(row.sourceRowNumber) ?? [];
               return (
                 <div>

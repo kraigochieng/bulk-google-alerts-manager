@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- The review step shows the final value of each option in each row. A value from the defaults shows in italic text.
 - A limit of 1000 data rows for an imported file, because Google allows 1000 alerts for each account. A file with no data rows is refused too.
 - A "Copy to clipboard" button for an export.
 - Dropdowns for the default source, language, and region. The user can still type a value that is not listed.
@@ -21,7 +22,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - **Breaking:** the default alert options are the defaults of a new alert on the Google Alerts page: At most once a day, Automatic, English, Any Region, Only the best results, and Email. A user who saved other defaults keeps them.
 - The Clear, Export, and Delete buttons of the bar slide in when an alert is checked and slide out when none is checked. The animation stops when the user prefers reduced motion.
 - **Breaking:** the template and the export use the names, the order, and the values of the Google Alerts options panel. Example: `Deliver to` has the values `RSS feed` and `Email`. The old names such as `deliver_to` are refused. The import still reads a value written in the old style.
-- The Add dialog has three steps: file, review, start. The default alert options moved to the file step.
+- The Add dialog has three steps: file, review, start. The default alert options moved to the review step, with the label "Blank cells use".
 
 ### Removed
 
