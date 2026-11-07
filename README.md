@@ -25,10 +25,10 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 2. Look at the bar at the bottom of the page. It holds a check-all box, the count of checked alerts, and the buttons Clear, Export, Delete, and Add.
 3. The heading of the list shows the alerts that you have and the alerts that you can still add. Example: `My alerts (4 created, 996 remaining)`.
 4. To add alerts, click Add in the bar, or click the extension icon. Follow the three steps:
-   1. **File.** Choose a CSV or xlsx file, or paste CSV text. Click "Download template with dropdowns (xlsx)" for a start file. It has the sheets `Alerts` (fill in your rows here), `Samples` (examples, never imported), and a hidden `Lists`. The dropdowns suggest the Google values, and you can still type another value. The import reads only the `Alerts` sheet. Click "Download template CSV" for a plain CSV start file. Use the column names of the template. The file needs a `query` column. A column that is not in the template is ignored, and a warning shows. Open "Default alert options" to set the options for empty cells.
+   1. **File.** Click "Download template" for the start file. It has the sheets `Alerts` (fill in your rows here), `Samples` (examples, never imported), and a hidden `Lists`. The dropdowns suggest the Google values, and you can still type another value. The import reads only the `Alerts` sheet. Choose the filled template, or a CSV file with the same column names. The file needs a `query` column. A column that is not in the template is ignored, and a warning shows. Open "Default alert options" to set the options for empty cells.
    2. **Review.** Check the rows that you want. A row with a problem cannot be checked. Search, filter, and sort the rows.
    3. **Start.** Read the notice. Click Start. The click accepts the notice.
-5. To export or delete, check alerts on the page. Click Export or Delete in the bar. After an export, click "Copy to clipboard" or "Download CSV" in the result dialog. To import a copy, paste it in step 1 of the Add dialog.
+5. To export or delete, check alerts on the page. Click Export or Delete in the bar. After an export, click "Copy to clipboard" or "Download CSV" in the result dialog. To import a copy, choose the downloaded CSV file in step 1 of the Add dialog.
 6. A loader covers the page while a run works. You can pause, resume, or cancel. A dialog shows the result when the run ends.
 
 ## Features

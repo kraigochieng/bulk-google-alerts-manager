@@ -6,7 +6,7 @@ Use throwaway queries that start with `bam test`. Use your own account.
 2. Open `https://www.google.com/alerts`. Expect no element at the page edge. Expect a bar at the bottom of the page. Click the extension icon, or click Add in the bar. The Add dialog opens. Click Close. Scroll and click on the Google page and expect them to work.
 3. Click Delete or Export in the bar before you accept the notice. Expect the first-run dialog. Accept it.
 4. Add: import `fixtures/sample-queries.csv`. Expect the three steps (file, review, start) with Back and Next. The `extra` column of the file shows a warning and is ignored. A file without a `query` column shows an error and stays on the file step. Check 5 rows and click Start. Expect the foggy loader, then a dialog with Created: 5. Press OK.
-4a. Add: click "Download template with dropdowns (xlsx)". Open the file in a spreadsheet app. Expect the sheets Alerts and Samples (Lists is hidden). In Alerts, click a cell under `region` and expect a dropdown. Type a value that is not in the list and expect no error. Fill two rows, save, and import the file. Expect the two rows in step 2. A row with an unlisted region shows a warning and stays checked. Expect the Samples rows to be absent.
+4a. Add: click "Download template". Expect no paste box and no CSV template button. Open the file in a spreadsheet app. Expect the sheets Alerts and Samples (Lists is hidden). In Alerts, click a cell under `region` and expect a dropdown. Type a value that is not in the list and expect no error. Fill two rows, save, and import the file. Expect the two rows in step 2. A row with an unlisted region shows a warning and stays checked. Expect the Samples rows to be absent.
 5. Add the same file again: expect 5 updated rows and no new alert. Change `how_often` in one row first and expect that alert to change.
 6. Pause, resume, and cancel in a second run. Expect finished rows to stay.
 7. Reload the page during a run. Open the Add dialog and resume. Expect no repeated creates.
@@ -20,4 +20,4 @@ Use throwaway queries that start with `bam test`. Use your own account.
 15. Limit: import more rows than the remaining count. Expect a warning on the review step and a Next button that stays off.
 16. Page numbers: import more than 25 rows. Expect page numbers under the table. Click page 2.
 17. Narrow window: make the browser window 600 pixels wide. Open the Add dialog. Expect all steps to stay usable.
-18. Copy and paste: export 3 alerts and click "Copy to clipboard". Expect the button to read Copied. Open Add, paste in the text box of step 1, and click "Read pasted text". Expect 3 data rows in step 2.
+18. Copy: export 3 alerts and click "Copy to clipboard". Expect the button to read Copied.
