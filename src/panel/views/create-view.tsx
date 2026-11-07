@@ -320,18 +320,22 @@ export function CreateView({
         </section>
       )}
       {step === "review" && (
-        <section aria-label="Review">
-          <h2 className="mt-4 text-sm font-semibold">Check the rows</h2>
-          <p className="text-xs text-muted-foreground">
-            File: <span className="font-medium text-foreground">{fileName}</span> ({String(rows.length)} data rows)
-            <Button type="button" variant="ghost" size="sm" onClick={() => { setDiscardOpen(true); }}>
+        <section aria-label="Review" className="mt-4 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-base font-semibold">Check the rows</h2>
+              <p className="text-xs text-muted-foreground">
+                File: <span className="font-medium text-foreground">{fileName}</span> ({String(rows.length)} data rows)
+              </p>
+            </div>
+            <Button type="button" variant="outline" size="sm" className="shrink-0" onClick={() => { setDiscardOpen(true); }}>
               Discard draft
             </Button>
-          </p>
+          </div>
           {extraColumns.length > 0 && (
             <Banner tone="warning">These columns are not in the template and are ignored: {extraColumns.join(", ")}.</Banner>
           )}
-          <details className="mt-2 text-xs">
+          <details className="rounded-lg border bg-card p-3 text-xs">
             <summary className="cursor-pointer font-medium">
               Blank cells use:{" "}
               <span className="font-normal text-muted-foreground">
@@ -341,11 +345,10 @@ export function CreateView({
                   .join(", ")}
               </span>
             </summary>
-            <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+            <div className="mt-3">
+              <SettingsForm settings={settings} onChange={onSettingsChange} saveStatus={saveStatus} locked={runActive} />
+            </div>
           </details>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {liveAlerts !== null && <span>{String(liveAlerts.length)} alerts in your account.</span>}
-          </div>
           {live.error !== "" && <Banner tone="error">{live.error}</Banner>}
           {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
           {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
@@ -369,27 +372,30 @@ export function CreateView({
               </Button>
             </Banner>
           )}
-          <p role="status" className="mt-2 text-sm font-medium">
-            {summariseReview({ createCount, updateCount, skipCount, problemCount })}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={updateRowNumbers.length === 0}
-              onClick={() => { dispatchReview({ type: "set_actions", rowNumbers: updateRowNumbers, action: "skip" }); }}
-            >
-              Skip all that update ({String(updateRowNumbers.length)})
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => { dispatchReview({ type: "replace_checked", rowNumbers: validRowNumbers({ rows }) }); }}
-            >
-              Check only valid rows
-            </Button>
+          <div className="space-y-3 rounded-lg border bg-card p-3">
+            <p role="status" className="text-sm font-medium">
+              {summariseReview({ createCount, updateCount, skipCount, problemCount })}
+            </p>
+            {liveAlerts !== null && <p className="text-xs text-muted-foreground">{String(liveAlerts.length)} alerts in your account.</p>}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={updateRowNumbers.length === 0}
+                onClick={() => { dispatchReview({ type: "set_actions", rowNumbers: updateRowNumbers, action: "skip" }); }}
+              >
+                Skip all that update ({String(updateRowNumbers.length)})
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { dispatchReview({ type: "replace_checked", rowNumbers: validRowNumbers({ rows }) }); }}
+              >
+                Check only valid rows
+              </Button>
+            </div>
           </div>
           <DataTable<ImportRow, number>
             rows={rows}
@@ -492,6 +498,7 @@ export function CreateView({
                 dispatchReview({ type: "set_checked", rowNumbers: keys, checked });
               },
             }}
+            columnClassNames={{ row: "w-14", notes: "w-1/3" }}
             emptyMessage="No rows match."
           />
           {editingRow !== null && editingDraftRow !== undefined && (
