@@ -21,3 +21,4 @@ Use throwaway queries that start with `bam test`. Use your own account.
 16. Page numbers: import more than 25 rows. Expect page numbers under the table. Click page 2.
 17. Narrow window: make the browser window 600 pixels wide. Open the Add dialog. Expect all steps to stay usable.
 18. Copy: export 3 alerts and click "Copy to clipboard". Expect the button to read Copied.
+19. Bar buttons: with no alert checked, expect only the check-all box and Add. Check one alert and expect Clear, Export, and Delete to slide in. Clear the selection and expect them to slide out. Press Tab with no alert checked and expect no focus on a hidden button.

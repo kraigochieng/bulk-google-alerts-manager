@@ -18,8 +18,16 @@ const BAR_STYLE: string = `
   .actions svg { width: 18px; height: 18px; fill: currentColor; }
   .actions button.primary { background: #1a73e8; color: #ffffff; }
   .actions button.danger { color: #d93025; }
-  .actions button.primary:disabled, .actions button.danger:disabled { background: none; color: #9aa0a6; }
-  button:disabled { color: #9aa0a6; cursor: default; }
+  button { white-space: nowrap; }
+  input:disabled { cursor: default; }
+  .reveal {
+    display: grid; grid-template-columns: 0fr; opacity: 0; margin-left: calc(var(--gap) * -1);
+    transition: grid-template-columns 200ms ease, opacity 150ms ease, margin-left 200ms ease;
+  }
+  .reveal.open { grid-template-columns: 1fr; opacity: 1; margin-left: 0; }
+  .reveal-inner { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; }
+  .reveal button:focus-visible { outline-offset: -2px; }
+  @media (prefers-reduced-motion: reduce) { .reveal { transition: none; } }
 `;
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg" as const;
@@ -61,6 +69,31 @@ function createActionButton({
   return button;
 }
 
+/** A wrapper that shows its buttons only while a selection exists. */
+interface Reveal {
+  readonly element: HTMLDivElement;
+  readonly setOpen: (open: boolean) => void;
+}
+
+/** Make a wrapper that slides and fades its buttons in and out. A closed wrapper is inert, so the keyboard skips it. */
+function createReveal({ buttons, gap }: { buttons: readonly HTMLButtonElement[]; gap: string }): Reveal {
+  const element: HTMLDivElement = document.createElement("div");
+  element.className = "reveal";
+  element.style.setProperty("--gap", gap);
+  element.inert = true;
+  const inner: HTMLDivElement = document.createElement("div");
+  inner.className = "reveal-inner";
+  inner.append(...buttons);
+  element.append(inner);
+  return {
+    element,
+    setOpen: (open: boolean): void => {
+      element.classList.toggle("open", open);
+      element.inert = !open;
+    },
+  };
+}
+
 /** What the bar shows. */
 export interface SelectionBarView {
   readonly selectedCount: number;
@@ -72,7 +105,7 @@ export interface SelectionBar {
   readonly update: (view: SelectionBarView) => void;
 }
 
-/** Add a floating bar with a check-all checkbox, the count, a clear button, and the action buttons. Side effect: adds an element to the page. */
+/** Add a floating bar with a check-all checkbox, the count, and the Add button. The Clear, Export, and Delete buttons appear while a selection exists. Side effect: adds an element to the page. */
 export function createSelectionBar({
   onSelectAll,
   onClear,
@@ -103,12 +136,14 @@ export function createSelectionBar({
   deleteButton.className = "danger";
   const addButton: HTMLButtonElement = createActionButton({ label: "Add", command: "add", onCommand });
   addButton.className = "primary";
-  actions.append(exportButton, deleteButton, addButton);
+  const clearReveal: Reveal = createReveal({ buttons: [clear], gap: "12px" });
+  const selectionActionsReveal: Reveal = createReveal({ buttons: [exportButton, deleteButton], gap: "4px" });
+  actions.append(selectionActionsReveal.element, addButton);
   const logo: HTMLImageElement = document.createElement("img");
   logo.className = "logo";
   logo.src = chrome.runtime.getURL("icons/icon-32.png");
   logo.alt = "";
-  bar.append(logo, label, clear, actions);
+  bar.append(logo, label, clearReveal.element, actions);
   shadowRoot.append(style, bar);
   document.body.append(host);
 
@@ -124,9 +159,8 @@ export function createSelectionBar({
       checkAll.checked = totalCount > 0 && selectedCount === totalCount;
       checkAll.indeterminate = selectedCount > 0 && selectedCount < totalCount;
       count.textContent = selectedCount === 0 ? "Select all" : `${String(selectedCount)} selected`;
-      clear.disabled = selectedCount === 0;
-      exportButton.disabled = selectedCount === 0;
-      deleteButton.disabled = selectedCount === 0;
+      clearReveal.setOpen(selectedCount > 0);
+      selectionActionsReveal.setOpen(selectedCount > 0);
     },
   };
 }
