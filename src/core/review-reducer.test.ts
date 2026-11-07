@@ -111,4 +111,9 @@ describe("reviewReducer", () => {
   it("returns the same state when the row to delete is not in the file", () => {
     expect(reduce({ state: loaded, action: { type: "delete_row", rowNumber: 99 } })).toBe(loaded);
   });
+
+  it("restores a saved state as it is", () => {
+    const saved: ReviewState = { rows: [rows[0] as DraftRow], checkedRows: new Set([2]), actionOverrides: { 2: "skip" } };
+    expect(reduce({ state: loaded, action: { type: "restore", state: saved } })).toBe(saved);
+  });
 });

@@ -19,6 +19,7 @@ export const EMPTY_REVIEW_STATE: ReviewState = { rows: [], checkedRows: new Set(
 /** One change of the review state. */
 export type ReviewAction =
   | { readonly type: "load"; readonly rows: readonly DraftRow[] }
+  | { readonly type: "restore"; readonly state: ReviewState }
   | { readonly type: "set_checked"; readonly rowNumbers: readonly number[]; readonly checked: boolean }
   | { readonly type: "set_action"; readonly rowNumber: number; readonly action: RowAction }
   | { readonly type: "delete_row"; readonly rowNumber: number }
@@ -67,6 +68,7 @@ export function reviewReducer({
     );
     return { rows: action.rows, checkedRows, actionOverrides: {} };
   }
+  if (action.type === "restore") return action.state;
   if (action.type === "set_checked") {
     const checkedRows: Set<number> = new Set(state.checkedRows);
     for (const rowNumber of action.rowNumbers) {

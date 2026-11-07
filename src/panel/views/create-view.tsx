@@ -1,6 +1,8 @@
-import { useCallback, useMemo, useReducer, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import type { JSX } from "react";
 
+import { buildAddDraft, reviewStateFromDraft } from "src/core/add-draft";
+import type { AddDraft } from "src/core/add-draft";
 import { ALERT_CAP_PER_ACCOUNT } from "src/core/alert-cap";
 import { canAdvance, nextStep, previousStep } from "src/core/add-steps";
 import type { AddStep } from "src/core/add-steps";
@@ -38,6 +40,7 @@ import { RadioGroup } from "src/panel/ui/radio-group";
 import { ConfirmDialog } from "src/panel/components/confirm-dialog";
 import { RowEditor } from "src/panel/components/row-editor";
 import { SettingsForm } from "src/panel/components/settings-form";
+import { useAutosave } from "src/panel/use-autosave";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { DataTable } from "src/panel/components/data-table";
 import { downloadBinaryFile } from "src/panel/chrome-bridge";
@@ -45,6 +48,8 @@ import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
 import { useTableState } from "src/panel/use-table-state";
 import { BulkAlertsError } from "src/shared/errors";
+import { clearDraft, loadDraft, saveDraft } from "src/storage/draft-repository";
+import type { DraftLoadResult } from "src/storage/draft-repository";
 import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
 
 export const ROWS_TABLE_SCHEMA: TableSchema = {
@@ -87,9 +92,55 @@ export function CreateView({
   const { checkedRows, actionOverrides } = review;
   const [editingRow, setEditingRow] = useState<number | null>(null);
   const [rowToDelete, setRowToDelete] = useState<number | null>(null);
+  const [draftLoaded, setDraftLoaded] = useState<boolean>(false);
+  const [restored, setRestored] = useState<boolean>(false);
+  const [discardOpen, setDiscardOpen] = useState<boolean>(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [step, setStep] = useState<AddStep>("file");
   const [rowsState, setRowsState] = useTableState({ schema: ROWS_TABLE_SCHEMA });
+
+  // Restore the draft that an earlier visit saved. Side effect: reads storage.
+  useEffect(() => {
+    loadDraft().then(
+      (result: DraftLoadResult) => {
+        if (result.kind === "draft") {
+          dispatchReview({ type: "restore", state: reviewStateFromDraft({ draft: result.draft }) });
+          setFileName(result.draft.fileName);
+          setExtraColumns(result.draft.extraColumns);
+          setStep(result.draft.step);
+          setRestored(true);
+          live.refresh();
+        }
+        if (result.kind === "damaged") onNotify("The saved draft was damaged. The app removed it.");
+        setDraftLoaded(true);
+      },
+      () => {
+        onNotify("The app could not read the saved draft.");
+        setDraftLoaded(true);
+      },
+    );
+    // The draft loads once, when the dialog content mounts.
+  }, []);
+
+  const draftValue: AddDraft | null = useMemo(
+    () => (fileName === "" ? null : buildAddDraft({ fileName, step, extraColumns, review })),
+    [fileName, step, extraColumns, review],
+  );
+  const persistDraft = useCallback(async (draft: AddDraft | null): Promise<void> => {
+    if (draft !== null) await saveDraft({ draft });
+  }, []);
+  const draftStatus: SaveStatus = useAutosave({ value: draftValue, save: persistDraft, enabled: draftLoaded, delayMilliseconds: 400 });
+
+  const resetFlow = useCallback((): void => {
+    dispatchReview({ type: "load", rows: [] });
+    setFileName("");
+    setExtraColumns([]);
+    setStep("file");
+    setEditingRow(null);
+    setRestored(false);
+    setImportError("");
+  }, []);
 
   const rows: readonly ImportRow[] = useMemo(
     () => importRowsFromDraft({ rows: review.rows, maximumQueryLength: MAXIMUM_QUERY_LENGTH }),
@@ -138,6 +189,7 @@ export function CreateView({
       onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
       dispatchReview({ type: "load", rows: draftRowsFromTable({ table, mapping: report.columnIndexes }) });
       setEditingRow(null);
+      setRestored(false);
       setExtraColumns(report.extraColumns);
       setStep("review");
       setRowsState(ROWS_TABLE_SCHEMA.defaultState);
@@ -203,6 +255,14 @@ export function CreateView({
   return (
     <div>
       <StepProgress step={step} />
+      {restored && fileName !== "" && (
+        <Banner tone="info">Restored your draft from {fileName}. Your edits and checks are back.</Banner>
+      )}
+      {fileName !== "" && draftStatus !== "idle" && (
+        <p role="status" className={`mt-2 text-xs ${draftStatus === "failed" ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
+          {draftStatus === "saving" ? "Saving the draft…" : draftStatus === "saved" ? "Draft saved." : "Saving the draft failed. A reload loses your work."}
+        </p>
+      )}
       {step === "file" && (
         <section aria-label="Import">
           <h2 className="mt-4 text-sm font-semibold">Import a file</h2>
@@ -225,7 +285,10 @@ export function CreateView({
             <FileDropzone
               label="Choose a CSV or xlsx file"
               chosenFileName={fileName}
-              onFile={(file: File) => { void importFile(file); }}
+              onFile={(file: File) => {
+                if (review.rows.length > 0) setPendingFile(file);
+                else void importFile(file);
+              }}
             />
           </div>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
@@ -236,6 +299,9 @@ export function CreateView({
           <h2 className="mt-4 text-sm font-semibold">Check the rows</h2>
           <p className="text-xs text-muted-foreground">
             File: <span className="font-medium text-foreground">{fileName}</span> ({String(rows.length)} data rows)
+            <Button type="button" variant="ghost" size="sm" onClick={() => { setDiscardOpen(true); }}>
+              Discard draft
+            </Button>
           </p>
           {extraColumns.length > 0 && (
             <Banner tone="warning">These columns are not in the template and are ignored: {extraColumns.join(", ")}.</Banner>
@@ -397,12 +463,38 @@ export function CreateView({
             disabled={!canStart}
             onClick={() => {
               controller.begin(buildCreateRun({ entries, defaults: settings.defaults }));
+              void clearDraft();
+              resetFlow();
             }}
           >
             Start: create {String(createCount)}, update {String(updateCount)}
           </Button>
         </section>
       )}
+      <ConfirmDialog
+        open={discardOpen}
+        title="Discard the draft?"
+        description={`Remove the draft of ${fileName}: ${String(review.rows.length)} rows and your edits.\nThe file on your computer does not change.`}
+        confirmLabel="Discard draft"
+        keepLabel="Keep draft"
+        onConfirm={() => {
+          void clearDraft();
+          resetFlow();
+        }}
+        onOpenChange={setDiscardOpen}
+      />
+      <ConfirmDialog
+        open={pendingFile !== null}
+        title="Replace the draft?"
+        description={`The draft of ${fileName} has ${String(review.rows.length)} rows. The new file ${pendingFile?.name ?? ""} replaces it and removes your edits.`}
+        confirmLabel="Replace draft"
+        keepLabel="Keep draft"
+        onConfirm={() => {
+          if (pendingFile !== null) void importFile(pendingFile);
+          setPendingFile(null);
+        }}
+        onOpenChange={(open: boolean) => { if (!open) setPendingFile(null); }}
+      />
       <footer className="sticky -bottom-4 -mx-4 mt-4 flex items-center justify-between gap-2 border-t bg-background px-4 py-3">
         <Button type="button" variant="outline" size="sm" disabled={previous === null} onClick={() => { if (previous !== null) setStep(previous); }}>
           Back

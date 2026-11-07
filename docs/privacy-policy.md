@@ -16,9 +16,10 @@ Last updated: 2026-10-24.
 
 - Your settings (default alert options, acceptance of the first-run notice).
 - The state of the current run: the queries, their options, and their results.
+- A draft of the Add dialog: the rows of the file that you chose, your edits, and your checks. The draft stays after a reload or a browser restart.
 
 The extension stores this data in your browser with `chrome.storage.local`.
-The data stays on your device. The extension removes the run when you close the result dialog. You can also remove all data by removing the extension.
+The data stays on your device. The extension removes the run when you close the result dialog. It removes the draft when you click Start or Discard draft, or when you choose to replace it with a new file. You can also remove all data by removing the extension.
 
 ## What the extension does not do
 
