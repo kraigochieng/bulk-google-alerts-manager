@@ -31,6 +31,20 @@ describe("reviewReducer", () => {
     expect(again.actionOverrides).toEqual({});
   });
 
+  it("restores a deleted row in its place with its check and action", () => {
+    const withChoice = reduce({ state: loaded, action: { type: "set_action", rowNumber: 2, action: "skip" } });
+    const deleted = reduce({ state: withChoice, action: { type: "delete_row", rowNumber: 2 } });
+    const restored = reduce({ state: deleted, action: { type: "restore_row", row: rows[0] as DraftRow, checked: true, actionChoice: "skip" } });
+    expect(restored.rows.map((row) => row.sourceRowNumber)).toEqual([2, 3, 4]);
+    expect([...restored.checkedRows]).toEqual([2]);
+    expect(restored.actionOverrides).toEqual({ 2: "skip" });
+  });
+
+  it("does not restore a row whose number exists", () => {
+    const same = reduce({ state: loaded, action: { type: "restore_row", row: rows[0] as DraftRow, checked: true, actionChoice: null } });
+    expect(same).toBe(loaded);
+  });
+
   it("sets the action of many rows at once", () => {
     const next = reduce({ state: loaded, action: { type: "set_actions", rowNumbers: [2, 4], action: "skip" } });
     expect(next.actionOverrides).toEqual({ 2: "skip", 4: "skip" });

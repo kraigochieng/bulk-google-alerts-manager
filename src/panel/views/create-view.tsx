@@ -106,7 +106,7 @@ export function CreateView({
   );
   const { checkedRows, actionOverrides } = review;
   const [editingRow, setEditingRow] = useState<number | null>(null);
-  const [rowToDelete, setRowToDelete] = useState<number | null>(null);
+  const [deletedRow, setDeletedRow] = useState<{ row: DraftRow; checked: boolean; actionChoice: RowAction | null } | null>(null);
   const [draftLoaded, setDraftLoaded] = useState<boolean>(false);
   const [restored, setRestored] = useState<boolean>(false);
   const [discardOpen, setDiscardOpen] = useState<boolean>(false);
@@ -155,6 +155,7 @@ export function CreateView({
     setExtraColumns([]);
     setStep("file");
     setEditingRow(null);
+    setDeletedRow(null);
     setRestored(false);
     setImportError("");
   }, []);
@@ -208,6 +209,7 @@ export function CreateView({
       onNotify(`Read ${String(table.records.length)} rows from ${sourceName}.`);
       dispatchReview({ type: "load", rows: draftRowsFromTable({ table, mapping: report.columnIndexes }) });
       setEditingRow(null);
+      setDeletedRow(null);
       setRestored(false);
       setExtraColumns(report.extraColumns);
       setStep("review");
@@ -348,6 +350,25 @@ export function CreateView({
           {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
           {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
+          {deletedRow !== null && (
+            <Banner tone="info">
+              Deleted row {String(deletedRow.row.sourceRowNumber)}: {deletedRow.row.query}{" "}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  dispatchReview({ type: "restore_row", row: deletedRow.row, checked: deletedRow.checked, actionChoice: deletedRow.actionChoice });
+                  setDeletedRow(null);
+                }}
+              >
+                Undo
+              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => { setDeletedRow(null); }}>
+                Dismiss
+              </Button>
+            </Banner>
+          )}
           <p role="status" className="mt-2 text-sm font-medium">
             {summariseReview({ createCount, updateCount, skipCount, problemCount })}
           </p>
@@ -403,7 +424,13 @@ export function CreateView({
                       variant="ghost"
                       size="sm"
                       aria-label={`Delete row ${String(row.sourceRowNumber)}`}
-                      onClick={() => { setRowToDelete(row.sourceRowNumber); }}
+                      onClick={() => {
+                        const removed: DraftRow | undefined = draftRowsByNumber.get(row.sourceRowNumber);
+                        if (removed === undefined) return;
+                        setDeletedRow({ row: removed, checked: checkedRows.has(row.sourceRowNumber), actionChoice: actionOverrides[row.sourceRowNumber] ?? null });
+                        dispatchReview({ type: "delete_row", rowNumber: row.sourceRowNumber });
+                        if (editingRow === row.sourceRowNumber) setEditingRow(null);
+                      }}
                     >
                       Delete
                     </Button>
@@ -476,20 +503,6 @@ export function CreateView({
               onClose={closeEditor}
             />
           )}
-          <ConfirmDialog
-            open={rowToDelete !== null}
-            title={`Delete row ${String(rowToDelete ?? "")}?`}
-            description={`Remove row ${String(rowToDelete ?? "")} from this import:\n${draftRowsByNumber.get(rowToDelete ?? -1)?.query ?? ""}\nThe file on your computer does not change.`}
-            confirmLabel="Delete row"
-            keepLabel="Keep row"
-            onConfirm={() => {
-              if (rowToDelete === null) return;
-              dispatchReview({ type: "delete_row", rowNumber: rowToDelete });
-              if (editingRow === rowToDelete) setEditingRow(null);
-              setRowToDelete(null);
-            }}
-            onOpenChange={(open: boolean) => { if (!open) setRowToDelete(null); }}
-          />
         </section>
       )}
       {step === "start" && (
