@@ -14,7 +14,6 @@ import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
 import { isXlsxFile } from "src/core/file-type";
 import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
 import type { HeaderReport } from "src/core/template-columns";
-import { TEMPLATE_FILE_NAME, buildTemplateCsv } from "src/core/template-csv";
 import { buildTemplateWorkbook } from "src/core/template-workbook";
 import { readTemplateWorkbook } from "src/core/workbook-reader";
 import { TEMPLATE_WORKBOOK_FILE_NAME, WORKBOOK_MIME_TYPE } from "src/core/workbook-sheets";
@@ -29,11 +28,10 @@ import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { RadioGroup } from "src/panel/ui/radio-group";
-import { TextField } from "src/panel/ui/text-field";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
 import { DataTable } from "src/panel/components/data-table";
-import { downloadBinaryFile, downloadTextFile } from "src/panel/chrome-bridge";
+import { downloadBinaryFile } from "src/panel/chrome-bridge";
 import type { LiveAlertsState } from "src/panel/use-live-alerts";
 import type { RunController } from "src/panel/use-run-controller";
 import { useTableState } from "src/panel/use-table-state";
@@ -89,7 +87,6 @@ export function CreateView({
   const [mapping, setMapping] = useState<ColumnMapping | null>(null);
   const [extraColumns, setExtraColumns] = useState<readonly string[]>([]);
   const [importError, setImportError] = useState<string>("");
-  const [pastedText, setPastedText] = useState<string>("");
   const [checkedRows, setCheckedRows] = useState<ReadonlySet<number>>(new Set());
   const [actionOverrides, setActionOverrides] = useState<Readonly<Record<number, RowAction>>>({});
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
@@ -213,31 +210,8 @@ export function CreateView({
       {step === "file" && (
         <section aria-label="Import">
           <h2 className="mt-4 text-sm font-semibold">Import a file</h2>
-          <p className="text-xs text-muted-foreground">Use the column names of the template. The file needs a query column. Other columns are optional.</p>
-          <details className="mt-1 text-xs">
-            <summary className="cursor-pointer font-medium">Columns and allowed values</summary>
-            <ul className="mt-1 list-disc space-y-0.5 pl-5 text-muted-foreground">
-              <li><code>query</code>: the search text. Quotes and OR work as in Google Alerts.</li>
-              <li><code>deliver_to</code>: <code>rss</code> or <code>email</code>.</li>
-              <li><code>how_often</code>: <code>as_it_happens</code>, <code>daily</code> or <code>weekly</code>. RSS always uses as-it-happens.</li>
-              <li><code>how_many</code>: <code>all</code> or <code>best</code>.</li>
-              <li><code>sources</code>, <code>language</code>, <code>region</code>: the text of the Google dropdown, for example <code>English</code>.</li>
-              <li>An empty cell uses the default from the app. A column that is not in the template is ignored, and a warning shows.</li>
-            </ul>
-          </details>
+          <p className="text-xs text-muted-foreground">Start from the template. You can also import a CSV file with the same column names. The file needs a query column.</p>
           <div className="mt-3 flex flex-col gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              fullWidth
-              onClick={() => {
-                downloadTextFile({ fileName: TEMPLATE_FILE_NAME, text: buildTemplateCsv() });
-                onNotify(`Saved ${TEMPLATE_FILE_NAME}.`);
-              }}
-            >
-              Download template CSV
-            </Button>
             <Button
               type="button"
               variant="outline"
@@ -250,7 +224,7 @@ export function CreateView({
                 });
               }}
             >
-              Download template with dropdowns (xlsx)
+              Download template
             </Button>
             <FileDropzone
               label="Choose a CSV or xlsx file"
@@ -258,28 +232,6 @@ export function CreateView({
               onFile={(file: File) => { void importFile(file); }}
             />
           </div>
-          <h3 className="mt-4 text-sm font-semibold">Or paste CSV text</h3>
-          <p className="text-xs text-muted-foreground">Paste the text that you copied from an export.</p>
-          <TextField
-            type="textarea"
-            rows={5}
-            aria-label="CSV text"
-            placeholder="query,deliver_to,how_often,how_many"
-            value={pastedText}
-            onValueChange={setPastedText}
-            className="mt-2 w-full"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            fullWidth
-            className="mt-2"
-            disabled={pastedText.trim() === ""}
-            onClick={() => { importText({ text: pastedText, sourceName: "Pasted text" }); }}
-          >
-            Read pasted text
-          </Button>
           {importError !== "" && <Banner tone="error">{importError}</Banner>}
           <details className="mt-3">
             <summary className="cursor-pointer text-xs font-medium">Default alert options</summary>

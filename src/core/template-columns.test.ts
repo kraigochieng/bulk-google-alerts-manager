@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { checkHeaders, FIELD_HEADERS } from "src/core/template-columns";
-import { buildTemplateCsv } from "src/core/template-csv";
-import { parseCsv } from "src/core/csv";
+import { TEMPLATE_HEADERS } from "src/core/template-csv";
 
 describe("checkHeaders", () => {
   it("accepts the template columns", () => {
@@ -45,8 +44,8 @@ describe("checkHeaders", () => {
     expect(checkHeaders({ headers: ["query", ""] }).extraColumns).toEqual([]);
   });
 
-  it("finds every field in the template file", () => {
-    const report = checkHeaders({ headers: parseCsv({ text: buildTemplateCsv() }).headers });
+  it("finds every field in the template headers", () => {
+    const report = checkHeaders({ headers: TEMPLATE_HEADERS });
     expect(report.missingRequired).toEqual([]);
     expect(report.extraColumns).toEqual([]);
     for (const field of Object.keys(FIELD_HEADERS) as (keyof typeof FIELD_HEADERS)[]) {

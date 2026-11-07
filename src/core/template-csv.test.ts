@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { buildImportRows, IMPORT_FIELDS } from "src/core/column-mapping";
-import { parseCsv } from "src/core/csv";
 import { checkHeaders } from "src/core/template-columns";
 import { MAXIMUM_QUERY_LENGTH } from "src/core/row-validation";
-import { buildTemplateCsv } from "src/core/template-csv";
+import { TEMPLATE_HEADERS, TEMPLATE_ROWS } from "src/core/template-csv";
+import type { CsvTable } from "src/core/csv";
 
-describe("buildTemplateCsv", () => {
-  const table = parseCsv({ text: buildTemplateCsv() });
+describe("template columns and sample rows", () => {
+  const table: CsvTable = { headers: TEMPLATE_HEADERS, records: TEMPLATE_ROWS };
   const mapping = checkHeaders({ headers: table.headers }).columnIndexes;
   const rows = buildImportRows({ table, mapping, maximumQueryLength: MAXIMUM_QUERY_LENGTH });
 
