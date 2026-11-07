@@ -12,6 +12,9 @@ export const FIELD_HEADERS: Readonly<Record<ImportField, string>> = {
   deliverTo: "Deliver to",
 };
 
+/** The column names of the template, in the order of the Google Alerts options panel. */
+export const TEMPLATE_HEADERS: readonly string[] = IMPORT_FIELDS.map((field: ImportField) => FIELD_HEADERS[field]);
+
 /** The result of the header check. */
 export interface HeaderReport {
   /** For each import field, the index of its column, or null when the file has no such column. */

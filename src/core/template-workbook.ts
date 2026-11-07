@@ -3,8 +3,7 @@ import { LANGUAGE_OPTIONS, REGION_OPTIONS, SOURCE_OPTIONS } from "src/core/optio
 import { IMPORT_FIELDS } from "src/core/column-mapping";
 import type { ImportField } from "src/core/column-mapping";
 import { DELIVER_TO_LABELS, HOW_MANY_LABELS, HOW_OFTEN_LABELS } from "src/core/option-labels";
-import { FIELD_HEADERS } from "src/core/template-columns";
-import { TEMPLATE_HEADERS } from "src/core/template-csv";
+import { FIELD_HEADERS, TEMPLATE_HEADERS } from "src/core/template-columns";
 import { ALERTS_SHEET_NAME, LISTS_SHEET_NAME } from "src/core/workbook-sheets";
 import type * as ExcelJsModule from "exceljs";
 

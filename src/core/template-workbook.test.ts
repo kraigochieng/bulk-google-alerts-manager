@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { loadExcelJs } from "src/core/exceljs-loader";
 import { LANGUAGE_OPTIONS, REGION_OPTIONS, SOURCE_OPTIONS } from "src/core/option-lists";
 import { DROPDOWN_ROW_COUNT, buildTemplateWorkbook } from "src/core/template-workbook";
-import { TEMPLATE_HEADERS } from "src/core/template-csv";
+import { TEMPLATE_HEADERS } from "src/core/template-columns";
 import type * as ExcelJsModule from "exceljs";
 
 async function loadBuilt(): Promise<ExcelJsModule.Workbook> {
