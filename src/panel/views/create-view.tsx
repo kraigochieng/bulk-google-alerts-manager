@@ -18,6 +18,7 @@ import type { DraftRow } from "src/core/draft-rows";
 import { EMPTY_REVIEW_STATE, reviewReducer } from "src/core/review-reducer";
 import type { ReviewAction, ReviewState, RowAction } from "src/core/review-reducer";
 import { updateWarning } from "src/core/update-warning";
+import { rowNumbersThatUpdate, validRowNumbers } from "src/core/bulk-actions";
 import { ROW_BADGE_LABELS, rowBadge } from "src/core/row-badge";
 import type { RowBadgeKind } from "src/core/row-badge";
 import { summariseRowOptions } from "src/core/row-summary";
@@ -250,6 +251,7 @@ export function CreateView({
   const updateCount: number = entries.filter((entry: CreateEntry) => entry.action === "update").length;
   const liveCount: number = liveAlerts?.length ?? 0;
   const gate = checkCreateGate({ liveCount, createCount, updateCount, cap: ALERT_CAP_PER_ACCOUNT });
+  const updateRowNumbers: number[] = rowNumbersThatUpdate({ rows, actionFor });
   const updateNotice: string | null = updateWarning({ updateCount });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
@@ -343,6 +345,25 @@ export function CreateView({
           {!gate.allowed && createCount + updateCount > 0 && <Banner tone="warning">{gate.reason}</Banner>}
           {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {liveAlerts === null && live.error === "" && <Banner tone="info">Reading your existing alerts to look for duplicates…</Banner>}
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={updateRowNumbers.length === 0}
+              onClick={() => { dispatchReview({ type: "set_actions", rowNumbers: updateRowNumbers, action: "skip" }); }}
+            >
+              Skip all that update ({String(updateRowNumbers.length)})
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => { dispatchReview({ type: "replace_checked", rowNumbers: validRowNumbers({ rows }) }); }}
+            >
+              Check only valid rows
+            </Button>
+          </div>
           <DataTable<ImportRow, number>
             rows={rows}
             columns={columns}
