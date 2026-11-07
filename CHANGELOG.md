@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Two buttons in the review step: "Skip all that update" and "Check only valid rows".
 - A badge for each row in the review step: New, Updates alert, Similar, Duplicate, Skipped, or Problem.
 - The review step shows a short line for the options of a row. A row that uses only the defaults shows "Uses the defaults". The row editor shows all final options.
 - A warning in the review step and the start step when checked rows update an existing alert. The run replaces all options of that alert. The note of the row says the same.

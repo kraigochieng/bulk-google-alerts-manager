@@ -31,6 +31,16 @@ describe("reviewReducer", () => {
     expect(again.actionOverrides).toEqual({});
   });
 
+  it("sets the action of many rows at once", () => {
+    const next = reduce({ state: loaded, action: { type: "set_actions", rowNumbers: [2, 4], action: "skip" } });
+    expect(next.actionOverrides).toEqual({ 2: "skip", 4: "skip" });
+  });
+
+  it("replaces the checked rows", () => {
+    const next = reduce({ state: loaded, action: { type: "replace_checked", rowNumbers: [4] } });
+    expect([...next.checkedRows]).toEqual([4]);
+  });
+
   it("checks and unchecks rows", () => {
     const checked = reduce({ state: loaded, action: { type: "set_checked", rowNumbers: [4], checked: true } });
     expect([...checked.checkedRows].sort()).toEqual([2, 4]);
