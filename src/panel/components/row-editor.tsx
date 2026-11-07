@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import { useEffect } from "react";
 import type { JSX } from "react";
 
 import { parseDeliverTo, parseHowMany, parseHowOften } from "src/core/alert-options";
@@ -40,7 +41,7 @@ function radioChoices({ labels, defaultLabel }: { labels: Readonly<Record<string
   ];
 }
 
-/** Render the fields of one row so that the user can fix the query and the options. Pure: state comes as props. */
+/** Render a dialog with the fields of one row so that the user can fix the query and the options. Side effect: listens for the Escape key. */
 export function RowEditor({
   row,
   defaults,
@@ -57,8 +58,23 @@ export function RowEditor({
   const finalDeliverTo: string = parseDeliverTo({ text: row.cells.deliverTo }) ?? defaults.deliverTo;
   const rssLocksHowOften: boolean = finalDeliverTo === "rss";
   const rowLabel: string = `row ${String(row.sourceRowNumber)}`;
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    return (): void => { document.removeEventListener("keydown", closeOnEscape); };
+  }, [onClose]);
   return (
-    <section aria-label={`Edit ${rowLabel}`} className="mt-2 rounded-lg border bg-card p-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <section
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Edit ${rowLabel}`}
+      className="@container max-h-full w-full max-w-2xl overflow-y-auto rounded-2xl border bg-background p-4 text-sm shadow-xl"
+    >
+      <h2 className="text-base font-medium">Edit {rowLabel}</h2>
+      <p className="mb-3 text-xs text-muted-foreground">An empty option uses the value of the defaults. The table behind this dialog shows the final options.</p>
       <div className="space-y-1">
         <Label className="text-xs">{FIELD_HEADERS.query}</Label>
         <div className="relative">
@@ -129,5 +145,6 @@ export function RowEditor({
         </Button>
       </div>
     </section>
+    </div>
   );
 }
