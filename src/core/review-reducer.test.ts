@@ -88,4 +88,27 @@ describe("reviewReducer", () => {
     expect(reduce({ state: loaded, action: { type: "edit_query", rowNumber: 99, query: "x" } })).toBe(loaded);
     expect(reduce({ state: loaded, action: { type: "edit_option", rowNumber: 99, field: "region", text: "x" } })).toBe(loaded);
   });
+
+  it("removes a row from the rows, the checked rows, and the action choices", () => {
+    const chosen = reduce({ state: loaded, action: { type: "set_action", rowNumber: 2, action: "skip" } });
+    const next = reduce({ state: chosen, action: { type: "delete_row", rowNumber: 2 } });
+    expect(next.rows.map((row) => row.sourceRowNumber)).toEqual([3, 4]);
+    expect([...next.checkedRows]).toEqual([]);
+    expect(next.actionOverrides).toEqual({});
+  });
+
+  it("keeps the row numbers of the other rows after a delete", () => {
+    const next = reduce({ state: loaded, action: { type: "delete_row", rowNumber: 3 } });
+    expect(importRowsFromDraft({ rows: next.rows, maximumQueryLength: 100 }).map((row) => row.sourceRowNumber)).toEqual([2, 4]);
+    expect([...next.checkedRows]).toEqual([2]);
+  });
+
+  it("removes the duplicate issue of a later row when the earlier row is deleted", () => {
+    const next = reduce({ state: loaded, action: { type: "delete_row", rowNumber: 2 } });
+    expect(importRowsFromDraft({ rows: next.rows, maximumQueryLength: 100 })[1]?.issues).toEqual([]);
+  });
+
+  it("returns the same state when the row to delete is not in the file", () => {
+    expect(reduce({ state: loaded, action: { type: "delete_row", rowNumber: 99 } })).toBe(loaded);
+  });
 });

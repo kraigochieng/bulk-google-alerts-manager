@@ -35,6 +35,7 @@ import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { RadioGroup } from "src/panel/ui/radio-group";
+import { ConfirmDialog } from "src/panel/components/confirm-dialog";
 import { RowEditor } from "src/panel/components/row-editor";
 import { SettingsForm } from "src/panel/components/settings-form";
 import type { SaveStatus } from "src/panel/use-autosave";
@@ -85,6 +86,7 @@ export function CreateView({
   );
   const { checkedRows, actionOverrides } = review;
   const [editingRow, setEditingRow] = useState<number | null>(null);
+  const [rowToDelete, setRowToDelete] = useState<number | null>(null);
   const liveAlerts: readonly LiveAlert[] | null = live.alerts;
   const [step, setStep] = useState<AddStep>("file");
   const [rowsState, setRowsState] = useTableState({ schema: ROWS_TABLE_SCHEMA });
@@ -283,6 +285,15 @@ export function CreateView({
                     >
                       {editingRow === row.sourceRowNumber ? "Close" : "Edit"}
                     </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Delete row ${String(row.sourceRowNumber)}`}
+                      onClick={() => { setRowToDelete(row.sourceRowNumber); }}
+                    >
+                      Delete
+                    </Button>
                     {editingRow === row.sourceRowNumber && draftRow !== undefined && (
                       <RowEditor
                         row={draftRow}
@@ -351,6 +362,20 @@ export function CreateView({
               },
             }}
             emptyMessage="No rows match."
+          />
+          <ConfirmDialog
+            open={rowToDelete !== null}
+            title={`Delete row ${String(rowToDelete ?? "")}?`}
+            description={`Remove row ${String(rowToDelete ?? "")} from this import:\n${draftRowsByNumber.get(rowToDelete ?? -1)?.query ?? ""}\nThe file on your computer does not change.`}
+            confirmLabel="Delete row"
+            keepLabel="Keep row"
+            onConfirm={() => {
+              if (rowToDelete === null) return;
+              dispatchReview({ type: "delete_row", rowNumber: rowToDelete });
+              if (editingRow === rowToDelete) setEditingRow(null);
+              setRowToDelete(null);
+            }}
+            onOpenChange={(open: boolean) => { if (!open) setRowToDelete(null); }}
           />
         </section>
       )}

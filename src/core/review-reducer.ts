@@ -21,6 +21,7 @@ export type ReviewAction =
   | { readonly type: "load"; readonly rows: readonly DraftRow[] }
   | { readonly type: "set_checked"; readonly rowNumbers: readonly number[]; readonly checked: boolean }
   | { readonly type: "set_action"; readonly rowNumber: number; readonly action: RowAction }
+  | { readonly type: "delete_row"; readonly rowNumber: number }
   | { readonly type: "edit_query"; readonly rowNumber: number; readonly query: string }
   | { readonly type: "edit_option"; readonly rowNumber: number; readonly field: OptionField; readonly text: string };
 
@@ -78,6 +79,15 @@ export function reviewReducer({
     return { ...state, actionOverrides: { ...state.actionOverrides, [action.rowNumber]: action.action } };
   }
   if (!state.rows.some((row: DraftRow) => row.sourceRowNumber === action.rowNumber)) return state;
+  if (action.type === "delete_row") {
+    const checkedRows: Set<number> = new Set(state.checkedRows);
+    checkedRows.delete(action.rowNumber);
+    const actionOverrides: Record<number, RowAction> = {};
+    for (const [key, choice] of Object.entries(state.actionOverrides)) {
+      if (Number(key) !== action.rowNumber) actionOverrides[Number(key)] = choice;
+    }
+    return { rows: state.rows.filter((row: DraftRow) => row.sourceRowNumber !== action.rowNumber), checkedRows, actionOverrides };
+  }
   if (action.type === "edit_query") {
     const rows: DraftRow[] = state.rows.map((row: DraftRow) =>
       row.sourceRowNumber === action.rowNumber ? { ...row, query: action.query } : row,
