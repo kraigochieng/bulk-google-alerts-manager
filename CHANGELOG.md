@@ -35,6 +35,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Edit and Delete of a review row are icon buttons in an "Actions" column. A click on a row opens the row editor.
 - The review step has groups with space between them. The "Discard draft" button moved to the header of the step. The Row column is narrow.
 - **Breaking:** the default alert options are the defaults of a new alert on the Google Alerts page: At most once a day, Automatic, English, Any Region, Only the best results, and Email. A user who saved other defaults keeps them.
 - The Clear, Export, and Delete buttons of the bar slide in when an alert is checked and slide out when none is checked. The animation stops when the user prefers reduced motion.
