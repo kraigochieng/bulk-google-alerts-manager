@@ -79,9 +79,9 @@ The files are in `docs/store-assets/`. They show the extension next to the Alert
 | `2-bar-with-checked-alerts.png` | The bar at the bottom of the page with three alerts checked, and the heading with the remaining count. |
 | `3-start-step.png` | The start step with the notice and the Start button. |
 | `4-delete-confirmation.png` | Delete with a confirmation dialog that names the alerts. |
-| `5-columns-step.png` | The columns step, with the step labels and the progress bar. |
+| `5-file-step.png` | File step: the template button and the file box. |
 
-Limit: the author made these files on a logged-out Alerts page. A script added the sample alert rows to the page. The extension dialogs and the bar are real. **Owner.** The store asks for screenshots that show the real product. Replace files 1, 2, and 4 with captures from a signed-in account before you submit. Use test queries.
+Limit: a script made these files on a logged-out Alerts page. A script added the sample alert rows to the page. The extension dialogs and the bar are real. **Owner.** The store asks for screenshots that show the real product. Replace files 1, 2, and 4 with captures from a signed-in account before you submit. Use test queries.
 
 ## Promo tiles
 

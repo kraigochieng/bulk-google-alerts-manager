@@ -37,6 +37,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The store screenshots and the marquee tile show the current app.
 - The start step shows the create, update, and skip counts first, then the cautions as a list.
 - The filters of the review table are chips with a count. The page buttons show only for more than one page, and the row count shows once.
 - Edit and Delete of a review row are icon buttons in an "Actions" column. A click on a row opens the row editor.
