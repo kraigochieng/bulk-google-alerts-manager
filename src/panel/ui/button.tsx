@@ -27,6 +27,7 @@ export function Button({
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   children?: ReactNode;
   "aria-label"?: string;
+  title?: string;
 }): JSX.Element {
   const handleClick = (event: MouseEvent<HTMLElement>): void => {
     if (!disabled) onClick?.(event);

@@ -45,6 +45,7 @@ import { FileDropzone } from "src/panel/ui/file-dropzone";
 import { RadioGroup } from "src/panel/ui/radio-group";
 import { ConfirmDialog } from "src/panel/components/confirm-dialog";
 import { RowEditor } from "src/panel/components/row-editor";
+import { RowActions } from "src/panel/components/row-actions";
 import { SettingsForm } from "src/panel/components/settings-form";
 import { useAutosave } from "src/panel/use-autosave";
 import type { SaveStatus } from "src/panel/use-autosave";
@@ -260,6 +261,14 @@ export function CreateView({
   const updateNotice: string | null = updateWarning({ updateCount });
   const canStart: boolean = gate.allowed && liveAlerts !== null;
 
+  const deleteRow = (rowNumber: number): void => {
+    const removed: DraftRow | undefined = draftRowsByNumber.get(rowNumber);
+    if (removed === undefined) return;
+    setDeletedRow({ row: removed, checked: checkedRows.has(rowNumber), actionChoice: actionOverrides[rowNumber] ?? null });
+    dispatchReview({ type: "delete_row", rowNumber });
+    if (editingRow === rowNumber) setEditingRow(null);
+  };
+
   const columns: readonly TableColumn<ImportRow>[] = [
     { key: "row", label: "Row", sortValue: (row) => row.sourceRowNumber, searchText: () => "" },
     { key: "query", label: "Query", sortValue: (row) => row.query.toLowerCase(), searchText: (row) => row.query },
@@ -269,6 +278,7 @@ export function CreateView({
       sortValue: (row) => row.issues.length + (matchesByRow.get(row.sourceRowNumber)?.length ?? 0),
       searchText: (row) => `${row.issues.join(" ")} ${matchesByRow.get(row.sourceRowNumber)?.map((match) => match.alert.query).join(" ") ?? ""}`,
     },
+    { key: "actions", label: "Actions", sortValue: () => 0, searchText: () => "" },
   ];
 
   const run = controller.run;
@@ -416,31 +426,16 @@ export function CreateView({
                     <p className="mt-1 text-xs text-muted-foreground">
                       {summariseRowOptions({ views: describeRowOptions({ row, defaults: settings.defaults }) })}
                     </p>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`Edit row ${String(row.sourceRowNumber)}`}
-                      onClick={() => { setEditingRow(row.sourceRowNumber); }}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      aria-label={`Delete row ${String(row.sourceRowNumber)}`}
-                      onClick={() => {
-                        const removed: DraftRow | undefined = draftRowsByNumber.get(row.sourceRowNumber);
-                        if (removed === undefined) return;
-                        setDeletedRow({ row: removed, checked: checkedRows.has(row.sourceRowNumber), actionChoice: actionOverrides[row.sourceRowNumber] ?? null });
-                        dispatchReview({ type: "delete_row", rowNumber: row.sourceRowNumber });
-                        if (editingRow === row.sourceRowNumber) setEditingRow(null);
-                      }}
-                    >
-                      Delete
-                    </Button>
                   </div>
+                );
+              }
+              if (columnKey === "actions") {
+                return (
+                  <RowActions
+                    rowNumber={row.sourceRowNumber}
+                    onEdit={() => { setEditingRow(row.sourceRowNumber); }}
+                    onDelete={() => { deleteRow(row.sourceRowNumber); }}
+                  />
                 );
               }
               const matches: AlertMatch[] = matchesByRow.get(row.sourceRowNumber) ?? [];
@@ -498,7 +493,8 @@ export function CreateView({
                 dispatchReview({ type: "set_checked", rowNumbers: keys, checked });
               },
             }}
-            columnClassNames={{ row: "w-14", notes: "w-1/3" }}
+            columnClassNames={{ row: "w-14", notes: "w-1/3", actions: "w-24" }}
+            onRowClick={(row) => { setEditingRow(row.sourceRowNumber); }}
             emptyMessage="No rows match."
           />
           {editingRow !== null && editingDraftRow !== undefined && (

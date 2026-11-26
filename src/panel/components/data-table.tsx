@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, X } from "lucide-react";
-import type { JSX, ReactNode } from "react";
+import type { JSX, MouseEvent, ReactNode } from "react";
 
 import { pageNumbers } from "src/core/page-numbers";
 import type { PageNumberItem } from "src/core/page-numbers";
@@ -31,6 +31,17 @@ export interface DataTableProps<Row, Key extends string | number> {
   readonly selection?: RowSelection<Key>;
   readonly columnClassNames?: Readonly<Record<string, string>>;
   readonly emptyMessage: string;
+  /** Run for a click on a row outside its controls. A row must also offer the same action as a control. */
+  readonly onRowClick?: (row: Row) => void;
+}
+
+const CONTROL_SELECTOR: string = "button, input, label, a, fieldset, md-icon-button, md-text-button, md-checkbox, md-radio";
+
+/** Decide whether a click started on a control of the row, also inside a shadow root. */
+function startsOnControl({ event }: { event: MouseEvent<HTMLTableRowElement> }): boolean {
+  return event.nativeEvent
+    .composedPath()
+    .some((target: EventTarget) => target instanceof Element && target.matches(CONTROL_SELECTOR));
 }
 
 /** Render a table with search, filter, sort, pagination and optional row selection. Pure: no state of its own. */
@@ -47,6 +58,7 @@ export function DataTable<Row, Key extends string | number>({
   selection,
   columnClassNames = {},
   emptyMessage,
+  onRowClick,
 }: DataTableProps<Row, Key>): JSX.Element {
   const page = queryTable({ rows, columns, state, filters, pageSize: DEFAULT_PAGE_SIZE });
   const matchingKeys: Key[] = rows
@@ -125,11 +137,15 @@ export function DataTable<Row, Key extends string | number>({
               )}
               {columns.map((column: TableColumn<Row>) => (
                 <TableHead key={column.key} className={`h-8 px-2 ${columnClassNames[column.key] ?? ""}`}>
+                  {!schema.sortKeys.includes(column.key) ? (
+                    <span className="px-1 text-xs font-semibold">{column.label}</span>
+                  ) : (
                   <Button type="button" variant="ghost" size="sm" onClick={() => { toggleSort(column.key); }} className="h-6 gap-0.5 px-1 text-xs font-semibold">
                     {column.label}
                     {state.sortKey === column.key &&
                       (state.sortDirection === "asc" ? <ChevronUp className="size-3" aria-label="sorted ascending" /> : <ChevronDown className="size-3" aria-label="sorted descending" />)}
                   </Button>
+                  )}
                 </TableHead>
               ))}
             </TableRow>
@@ -145,7 +161,13 @@ export function DataTable<Row, Key extends string | number>({
             {page.rows.map((row: Row) => {
               const key: Key = rowKey(row);
               return (
-                <TableRow key={key} className="align-top">
+                <TableRow
+                  key={key}
+                  className={onRowClick === undefined ? "align-top" : "cursor-pointer align-top"}
+                  onClick={(event: MouseEvent<HTMLTableRowElement>) => {
+                    if (!startsOnControl({ event })) onRowClick?.(row);
+                  }}
+                >
                   {selection !== undefined && (
                     <TableCell className="px-2 py-1">
                       <Checkbox
