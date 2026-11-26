@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from "react";
 
 import { Button } from "src/panel/ui/button";
+import { ModalSurface } from "src/panel/ui/modal-surface";
 
 /** Render a dialog over the page, with a dimmed layer behind it. Pure: state comes as props. */
 export function Modal({
@@ -16,13 +17,8 @@ export function Modal({
 }): JSX.Element | null {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-4">
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        className="@container max-h-full w-full max-w-3xl overflow-y-auto rounded-2xl border bg-background p-4 text-sm shadow-xl"
-      >
+    <ModalSurface label={title} onDismiss={onClose} className="bg-black/40">
+      <section className="@container max-h-full w-full max-w-3xl overflow-y-auto rounded-2xl border bg-background p-4 text-sm shadow-xl">
         <header className="flex items-center gap-3 px-1">
           <img src="/icons/icon-48.png" alt="" width={40} height={40} className="size-10 shrink-0" />
           <div className="min-w-0">
@@ -35,6 +31,6 @@ export function Modal({
         </header>
         {children}
       </section>
-    </div>
+    </ModalSurface>
   );
 }
