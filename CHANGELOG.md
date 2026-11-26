@@ -6,6 +6,8 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-11-27
+
 ### Fixed
 
 - The blue of the light theme is darker, so that blue text on the gray background is readable.
@@ -65,5 +67,6 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Delete of the checked alerts after a confirmation.
 - Step labels, a progress bar, and the counts of created and remaining alerts in the page heading.
 
-[Unreleased]: https://github.com/kraigochieng/bulk-google-alerts-manager/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/kraigochieng/bulk-google-alerts-manager/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/kraigochieng/bulk-google-alerts-manager/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/kraigochieng/bulk-google-alerts-manager/releases/tag/v1.0.0
