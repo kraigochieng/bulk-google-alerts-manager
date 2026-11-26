@@ -39,6 +39,7 @@ import type { TableColumn } from "src/core/table-query";
 import type { TableSchema } from "src/core/table-state";
 import type { Settings } from "src/core/settings";
 import { StepProgress } from "src/panel/components/step-progress";
+import { StartSummary } from "src/panel/components/start-summary";
 import { Banner } from "src/panel/components/banner";
 import { Button } from "src/panel/ui/button";
 import { FileDropzone } from "src/panel/ui/file-dropzone";
@@ -513,11 +514,7 @@ export function CreateView({
       {step === "start" && (
         <section aria-label="Start">
           <h2 className="mt-4 text-sm font-semibold">Read the notice and start</h2>
-          <Banner tone="warning">
-            This run creates {String(createCount)} alerts and updates {String(updateCount)} alerts. Google can slow, throttle, or show a bot check on large batches.
-            If that happens the run stops and asks you to solve it. Google allows {String(ALERT_CAP_PER_ACCOUNT)} alerts for each account, and you have{" "}
-            {String(liveCount)}. Keep the Alerts tab open and in the foreground.
-          </Banner>
+          <StartSummary createCount={createCount} updateCount={updateCount} skipCount={skipCount} liveCount={liveCount} />
           {updateNotice !== null && <Banner tone="warning">{updateNotice}</Banner>}
           {!gate.allowed && <p className="mt-1 text-xs text-destructive">{gate.reason}</p>}
           {gate.allowed && liveAlerts === null && <p className="mt-1 text-xs text-destructive">Wait until your existing alerts are read.</p>}
