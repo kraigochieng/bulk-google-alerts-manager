@@ -135,6 +135,9 @@ export function App(): JSX.Element {
           controller.begin(buildDeleteRun({ queries: checkedAlerts.map((alert) => alert.query) }));
         }}
         onOpenChange={setConfirmingDelete}
+        onExport={() => {
+          exporter.start({ alerts: checkedAlerts });
+        }}
       />
       {run !== null && runActive && (
         <RunOverlay
