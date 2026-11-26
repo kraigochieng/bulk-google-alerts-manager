@@ -20,7 +20,7 @@ export default defineConfig({
       },
       {
         extends: false,
-        plugins: [react()],
+        plugins: [react(), tailwindcss()],
         resolve: { alias: { src: resolve(__dirname, "src") } },
         test: {
           name: "browser",
