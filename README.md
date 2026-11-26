@@ -39,6 +39,7 @@ Google Alerts has no API and no bulk tools. This extension drives the Alerts pag
 - A row with the same query as an existing alert updates that alert. The review step warns about alerts that have the same words or look alike. For each such row, skip it or create it anyway.
 - The review step stops you when a run would pass the limit of 1000 alerts for each account.
 - A run that was interrupted comes back as paused.
+- After a run with failed rows, you can retry those rows or download them as a CSV file.
 - The tool never bypasses a bot check. It stops and asks you to solve the check.
 
 ## Limits

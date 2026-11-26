@@ -12,6 +12,7 @@ import { RunResultDialog } from "src/panel/components/run-result-dialog";
 import { FirstRunScreen } from "src/panel/components/first-run-screen";
 import { DeleteConfirm } from "src/panel/components/delete-confirm";
 import { copyTextToClipboard, downloadTextFile } from "src/panel/chrome-bridge";
+import { failedRowActions } from "src/panel/failed-row-actions";
 import { reportInteractive } from "src/panel/page-link";
 import { Snackbar } from "src/panel/ui/snackbar";
 import { useSnackbar } from "src/panel/use-snackbar";
@@ -144,7 +145,12 @@ export function App(): JSX.Element {
         />
       )}
       {run !== null && !runActive && (
-        <RunResultDialog open summary={buildRunSummary({ run })} onClose={controller.clear} />
+        <RunResultDialog
+          open
+          summary={buildRunSummary({ run })}
+          onClose={controller.clear}
+          actions={failedRowActions({ run, live, begin: controller.begin })}
+        />
       )}
       {exportActive && (
         <ExportOverlay

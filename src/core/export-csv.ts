@@ -13,7 +13,21 @@ export interface ExportEntry {
   readonly options: AlertOptions | null;
 }
 
-const EXPORT_HEADERS: readonly string[] = [...IMPORT_FIELDS.map((field: ImportField) => FIELD_HEADERS[field]), "RSS link"];
+/** The headers of the columns that an import reads, in template order. */
+export const EXPORT_HEADERS: readonly string[] = IMPORT_FIELDS.map((field: ImportField) => FIELD_HEADERS[field]);
+
+/** Write the option cells of one alert, in header order. Unread options give empty cells. */
+export function exportOptionCells({ options }: { options: AlertOptions | null }): string[] {
+  if (options === null) return ["", "", "", "", "", ""];
+  return [
+    HOW_OFTEN_LABELS[options.howOften],
+    options.sources,
+    options.language,
+    options.region,
+    HOW_MANY_LABELS[options.howMany],
+    DELIVER_TO_LABELS[options.deliverTo],
+  ];
+}
 
 /**
  * Write the export CSV. The Add flow imports it without a column change.
@@ -22,22 +36,13 @@ const EXPORT_HEADERS: readonly string[] = [...IMPORT_FIELDS.map((field: ImportFi
 export function buildExportCsv({ entries }: { entries: readonly ExportEntry[] }): string {
   return writeCsv({
     table: {
-      headers: EXPORT_HEADERS,
+      headers: [...EXPORT_HEADERS, "RSS link"],
       records: entries.map((entry: ExportEntry) => {
         const { alert, options } = entry;
-        if (options === null) {
-          return [alert.query, "", "", "", "", "", DELIVER_TO_LABELS[alert.feedUrl === null ? "email" : "rss"], alert.feedUrl ?? ""];
-        }
-        return [
-          alert.query,
-          HOW_OFTEN_LABELS[options.howOften],
-          options.sources,
-          options.language,
-          options.region,
-          HOW_MANY_LABELS[options.howMany],
-          DELIVER_TO_LABELS[options.deliverTo],
-          alert.feedUrl ?? "",
-        ];
+        const cells: string[] = exportOptionCells({ options });
+        // The feed link tells the delivery of an alert with unread options.
+        if (options === null) cells[cells.length - 1] = DELIVER_TO_LABELS[alert.feedUrl === null ? "email" : "rss"];
+        return [alert.query, ...cells, alert.feedUrl ?? ""];
       }),
     },
   });
