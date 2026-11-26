@@ -3,13 +3,13 @@ import type { JSX, MouseEvent, ReactNode } from "react";
 
 import { pageNumbers } from "src/core/page-numbers";
 import type { PageNumberItem } from "src/core/page-numbers";
-import { DEFAULT_PAGE_SIZE, pageRangeLabel, queryTable } from "src/core/table-query";
+import { countByFilter, DEFAULT_PAGE_SIZE, queryTable, tableCountLabel } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { SortDirection, TableSchema, TableState } from "src/core/table-state";
 import { Button } from "src/panel/ui/button";
 import { Checkbox } from "src/panel/ui/checkbox";
 import { TextField } from "src/panel/ui/text-field";
-import { RadioGroup } from "src/panel/ui/radio-group";
+import { FilterChips } from "src/panel/ui/filter-chips";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "src/panel/ui/table";
 
 export interface RowSelection<Key extends string | number> {
@@ -68,6 +68,8 @@ export function DataTable<Row, Key extends string | number>({
   const allSelected: boolean =
     selection !== undefined && selectableKeys.length > 0 && selectableKeys.every((key: Key) => selection.selected.has(key));
 
+  const filterCounts: Record<string, number> = countByFilter({ rows, filters });
+
   const change = (partial: Partial<TableState>): void => {
     onStateChange({ ...state, ...partial });
   };
@@ -78,7 +80,7 @@ export function DataTable<Row, Key extends string | number>({
 
   return (
     <div className="mt-2">
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <div className="relative">
           <TextField
             type="search"
@@ -106,19 +108,28 @@ export function DataTable<Row, Key extends string | number>({
           )}
         </div>
         {schema.filters.length > 1 && (
-          <RadioGroup
+          <FilterChips
             legend="Show"
             value={state.filter}
             onValueChange={(value: string) => {
               change({ filter: value, page: 0 });
             }}
-            choices={schema.filters.map((filter: string) => ({ value: filter, label: filterLabels[filter] ?? filter }))}
+            choices={schema.filters.map((filter: string) => ({
+              value: filter,
+              label: `${filterLabels[filter] ?? filter} (${String(filterCounts[filter] ?? 0)})`,
+            }))}
           />
         )}
       </div>
       <div className="mt-1 text-xs text-muted-foreground">
-        {String(page.totalMatching)} of {String(rows.length)} rows
-        {selection !== undefined && `, ${String(selection.selected.size)} selected`}
+        {tableCountLabel({
+          page: page.page,
+          pageCount: page.pageCount,
+          pageSize: DEFAULT_PAGE_SIZE,
+          totalMatching: page.totalMatching,
+          totalRows: rows.length,
+          selectedCount: selection === undefined ? null : selection.selected.size,
+        })}
       </div>
       <div className="mt-1 rounded-lg border bg-card">
         <Table className="text-xs">
@@ -191,34 +202,33 @@ export function DataTable<Row, Key extends string | number>({
           </TableBody>
         </Table>
       </div>
-      <p className="mt-1 text-center text-xs">
-        {pageRangeLabel({ page: page.page, pageSize: DEFAULT_PAGE_SIZE, totalMatching: page.totalMatching })}
-      </p>
-      <nav aria-label="Pages" className="mt-1 flex flex-wrap items-center justify-center gap-1 text-xs">
-        <Button type="button" variant="outline" size="sm" disabled={page.page === 0} onClick={() => { change({ page: page.page - 1 }); }}>
-          Previous
-        </Button>
-        {pageNumbers({ page: page.page, pageCount: page.pageCount }).map((item: PageNumberItem, position: number) =>
-          item === "gap" ? (
-            <span key={`gap-${String(position)}`} aria-hidden="true">…</span>
-          ) : (
-            <Button
-              key={item}
-              type="button"
-              size="sm"
-              variant={item === page.page ? "default" : "ghost"}
-              aria-label={`Page ${String(item + 1)}`}
-              aria-current={item === page.page ? "page" : undefined}
-              onClick={() => { change({ page: item }); }}
-            >
-              {String(item + 1)}
-            </Button>
-          ),
-        )}
-        <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }); }}>
-          Next
-        </Button>
-      </nav>
+      {page.pageCount > 1 && (
+        <nav aria-label="Pages" className="mt-1 flex flex-wrap items-center justify-center gap-1 text-xs">
+          <Button type="button" variant="outline" size="sm" disabled={page.page === 0} onClick={() => { change({ page: page.page - 1 }); }}>
+            Previous
+          </Button>
+          {pageNumbers({ page: page.page, pageCount: page.pageCount }).map((item: PageNumberItem, position: number) =>
+            item === "gap" ? (
+              <span key={`gap-${String(position)}`} aria-hidden="true">…</span>
+            ) : (
+              <Button
+                key={item}
+                type="button"
+                size="sm"
+                variant={item === page.page ? "default" : "ghost"}
+                aria-label={`Page ${String(item + 1)}`}
+                aria-current={item === page.page ? "page" : undefined}
+                onClick={() => { change({ page: item }); }}
+              >
+                {String(item + 1)}
+              </Button>
+            ),
+          )}
+          <Button type="button" variant="outline" size="sm" disabled={page.page >= page.pageCount - 1} onClick={() => { change({ page: page.page + 1 }); }}>
+            Next
+          </Button>
+        </nav>
+      )}
     </div>
   );
 }

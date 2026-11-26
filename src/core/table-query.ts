@@ -75,3 +75,39 @@ export function pageRangeLabel({
   const last: number = Math.min((page + 1) * pageSize, totalMatching);
   return `${String(first)}–${String(last)} of ${String(totalMatching)}`;
 }
+
+/** Count the rows that each filter keeps. A search does not change the counts. */
+export function countByFilter<Row>({
+  rows,
+  filters,
+}: {
+  rows: readonly Row[];
+  filters: Readonly<Record<string, (row: Row) => boolean>>;
+}): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(filters).map(([key, keeps]: [string, (row: Row) => boolean]): [string, number] => [key, rows.filter(keeps).length]),
+  );
+}
+
+/** Describe the rows that a table shows. A table with pages names the range of the page. */
+export function tableCountLabel({
+  page,
+  pageCount,
+  pageSize,
+  totalMatching,
+  totalRows,
+  selectedCount,
+}: {
+  page: number;
+  pageCount: number;
+  pageSize: number;
+  totalMatching: number;
+  totalRows: number;
+  selectedCount: number | null;
+}): string {
+  const shown: string =
+    pageCount > 1
+      ? `${pageRangeLabel({ page, pageSize, totalMatching })} rows`
+      : `${String(totalMatching)} of ${String(totalRows)} rows`;
+  return selectedCount === null ? shown : `${shown}, ${String(selectedCount)} selected`;
+}
