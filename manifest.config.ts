@@ -4,7 +4,7 @@ export default defineManifest({
   manifest_version: 3,
   minimum_chrome_version: "120",
   name: "Bulk Alerts Manager for Google Alerts",
-  version: "1.0.0",
+  version: "2.0.0",
   description:
     "Unofficial tool. Not affiliated with Google. Create and delete many alerts from CSV files.",
   permissions: ["storage"],
