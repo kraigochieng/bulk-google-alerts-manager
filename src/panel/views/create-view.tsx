@@ -330,7 +330,7 @@ export function CreateView({
         </section>
       )}
       {step === "review" && (
-        <section aria-label="Review" className="mt-4 space-y-4">
+        <section aria-label="Review" className="mt-4 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h2 className="text-base font-semibold">Check the rows</h2>
@@ -382,11 +382,13 @@ export function CreateView({
               </Button>
             </Banner>
           )}
-          <div className="space-y-3 rounded-lg border bg-card p-3">
-            <p role="status" className="text-sm font-medium">
-              {summariseReview({ createCount, updateCount, skipCount, problemCount })}
-            </p>
-            {liveAlerts !== null && <p className="text-xs text-muted-foreground">{String(liveAlerts.length)} alerts in your account.</p>}
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-card p-3">
+            <div className="min-w-0">
+              <p role="status" className="text-sm font-medium">
+                {summariseReview({ createCount, updateCount, skipCount, problemCount })}
+              </p>
+              {liveAlerts !== null && <p className="text-xs text-muted-foreground">{String(liveAlerts.length)} alerts in your account.</p>}
+            </div>
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"

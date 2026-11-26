@@ -54,6 +54,11 @@ interface MaterialDialogAttributes extends HTMLAttributes<HTMLElement> {
   open?: boolean;
 }
 
+interface MaterialFilterChipAttributes extends HTMLAttributes<HTMLElement> {
+  label?: string;
+  selected?: boolean;
+}
+
 declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
@@ -68,6 +73,8 @@ declare module "react" {
       "md-radio": DetailedHTMLProps<MaterialRadioAttributes, HTMLElement>;
       "md-tabs": DetailedHTMLProps<MaterialTabsAttributes, HTMLElement>;
       "md-primary-tab": DetailedHTMLProps<MaterialTabAttributes, HTMLElement>;
+      "md-chip-set": DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>;
+      "md-filter-chip": DetailedHTMLProps<MaterialFilterChipAttributes, HTMLElement>;
       "md-dialog": DetailedHTMLProps<MaterialDialogAttributes, HTMLElement>;
       "md-linear-progress": DetailedHTMLProps<MaterialProgressAttributes, HTMLElement>;
     }

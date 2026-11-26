@@ -35,6 +35,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- The filters of the review table are chips with a count. The page buttons show only for more than one page, and the row count shows once.
 - Edit and Delete of a review row are icon buttons in an "Actions" column. A click on a row opens the row editor.
 - The review step has groups with space between them. The "Discard draft" button moved to the header of the step. The Row column is narrow.
 - **Breaking:** the default alert options are the defaults of a new alert on the Google Alerts page: At most once a day, Automatic, English, Any Region, Only the best results, and Email. A user who saved other defaults keeps them.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { pageRangeLabel, queryTable } from "src/core/table-query";
+import { countByFilter, pageRangeLabel, queryTable, tableCountLabel } from "src/core/table-query";
 import type { TableColumn } from "src/core/table-query";
 import type { TableState } from "src/core/table-state";
 
@@ -62,5 +62,21 @@ describe("pageRangeLabel", () => {
     [0, 25, 0, "0 of 0"],
   ])("page %i with size %i and %i rows gives %s", (page: number, pageSize: number, totalMatching: number, expected: string) => {
     expect(pageRangeLabel({ page, pageSize, totalMatching })).toBe(expected);
+  });
+});
+
+describe("countByFilter", () => {
+  it("counts the rows of each filter", () => {
+    expect(countByFilter({ rows, filters })).toEqual({ all: 3, big: 2 });
+  });
+});
+
+describe("tableCountLabel", () => {
+  it("names the matching rows and all rows when there is one page", () => {
+    expect(tableCountLabel({ page: 0, pageCount: 1, pageSize: 25, totalMatching: 2, totalRows: 6, selectedCount: 4 })).toBe("2 of 6 rows, 4 selected");
+  });
+
+  it("names the range of the page when there are pages", () => {
+    expect(tableCountLabel({ page: 1, pageCount: 2, pageSize: 25, totalMatching: 40, totalRows: 60, selectedCount: null })).toBe("26–40 of 40 rows");
   });
 });

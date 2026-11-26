@@ -12,3 +12,5 @@ import "@material/web/radio/radio.js";
 import "@material/web/dialog/dialog.js";
 import "@material/web/tabs/primary-tab.js";
 import "@material/web/tabs/tabs.js";
+import "@material/web/chips/chip-set.js";
+import "@material/web/chips/filter-chip.js";
