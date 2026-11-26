@@ -14,6 +14,7 @@ export function ConfirmDialog({
   keepLabel,
   onConfirm,
   onOpenChange,
+  extraAction,
 }: {
   open: boolean;
   title: string;
@@ -22,6 +23,8 @@ export function ConfirmDialog({
   keepLabel: string;
   onConfirm: () => void;
   onOpenChange: (open: boolean) => void;
+  /** A safe action that closes the dialog without the destructive action. */
+  extraAction?: { readonly label: string; readonly onClick: () => void };
 }): JSX.Element {
   const dialogRef = useRef<HTMLElement | null>(null);
   useElementEvent({
@@ -36,6 +39,19 @@ export function ConfirmDialog({
       <div slot="headline">{title}</div>
       <div slot="content" className="whitespace-pre-line break-words">{description}</div>
       <div slot="actions">
+        {extraAction !== undefined && (
+          <Button
+            type="button"
+            variant="outline"
+            className="mr-auto"
+            onClick={() => {
+              onOpenChange(false);
+              extraAction.onClick();
+            }}
+          >
+            {extraAction.label}
+          </Button>
+        )}
         <Button
           type="button"
           variant="ghost"

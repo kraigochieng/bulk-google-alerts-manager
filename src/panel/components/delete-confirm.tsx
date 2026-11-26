@@ -12,11 +12,13 @@ export function DeleteConfirm({
   queries,
   onConfirm,
   onOpenChange,
+  onExport,
 }: {
   open: boolean;
   queries: readonly string[];
   onConfirm: () => void;
   onOpenChange: (open: boolean) => void;
+  onExport: () => void;
 }): JSX.Element {
   const confirmation = buildDeleteConfirmation({ queries, previewLimit: DELETE_PREVIEW_LIMIT });
   return (
@@ -28,6 +30,7 @@ export function DeleteConfirm({
       keepLabel="Keep"
       onConfirm={onConfirm}
       onOpenChange={onOpenChange}
+      extraAction={{ label: "Export first", onClick: onExport }}
     />
   );
 }
