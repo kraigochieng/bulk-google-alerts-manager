@@ -27,28 +27,28 @@ export function runIsFinished({ status }: { status: RunStatus }): boolean {
   return status === "completed" || status === "cancelled";
 }
 
+/** List one line for each result count of the rows that ran or were skipped. A count of 0 gets no line. */
+export function buildResultLines({ run }: { run: RunSnapshot }): string[] {
+  const counts = countByStatus({ run });
+  const candidates: readonly (readonly [string, number])[] = [
+    ["Created", counts.created],
+    ["Updated", counts.updated],
+    ["Deleted", counts.deleted],
+    ["Skipped", counts.skipped],
+    ["Failed", counts.failed],
+  ];
+  return candidates
+    .filter(([, count]: readonly [string, number]) => count > 0)
+    .map(([label, count]: readonly [string, number]) => `${label}: ${String(count)}`);
+}
+
 /** Build the title and the count lines of a finished run. A count of 0 gets no line. */
 export function buildRunSummary({ run }: { run: RunSnapshot }): RunSummary {
   const counts = countByStatus({ run });
   const cancelled: boolean = run.status === "cancelled";
   const isCreate: boolean = run.kind === "create";
-  const candidates: readonly (readonly [string, number])[] = isCreate
-    ? [
-        ["Created", counts.created],
-        ["Updated", counts.updated],
-        ["Skipped", counts.skipped],
-        ["Failed", counts.failed],
-        ["Not run", counts.pending],
-      ]
-    : [
-        ["Deleted", counts.deleted],
-        ["Skipped", counts.skipped],
-        ["Failed", counts.failed],
-        ["Not run", counts.pending],
-      ];
-  const lines: string[] = candidates
-    .filter(([, count]: readonly [string, number]) => count > 0)
-    .map(([label, count]: readonly [string, number]) => `${label}: ${String(count)}`);
+  const pendingLines: string[] = counts.pending > 0 ? [`Not run: ${String(counts.pending)}`] : [];
+  const lines: string[] = [...buildResultLines({ run }), ...pendingLines];
   const kindText: string = isCreate ? "The add run" : "The delete run";
   return {
     title: cancelled ? `${kindText} was cancelled` : `${kindText} is complete`,

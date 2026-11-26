@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { JSX } from "react";
 
 import { countByStatus } from "src/core/run-machine";
+import { describeRunProgress } from "src/core/run-progress";
+import type { RunProgress } from "src/core/run-progress";
 import { describeTimeLeft, estimateTimeLeft } from "src/core/time-left";
 import { Banner } from "src/panel/components/banner";
 import { ConfirmDialog } from "src/panel/components/confirm-dialog";
@@ -35,6 +37,7 @@ export function RunOverlay({
       ? estimateTimeLeft({ elapsedMilliseconds: now - start.at, finishedSinceStart: finished - start.finished, remaining: counts.pending })
       : null;
   const isCreate: boolean = run.kind === "create";
+  const progress: RunProgress = describeRunProgress({ run });
   const waitingText: string =
     run.status === "paused" ? "Paused." : run.status === "awaiting_captcha" ? "Waiting for you to solve a bot check." : "";
   return (
@@ -43,6 +46,14 @@ export function RunOverlay({
         {String(finished)} of {String(total)} done. {waitingText}
         {timeLeft !== null && ` Time left: ${describeTimeLeft({ milliseconds: timeLeft })} (an estimate).`}
       </p>
+      {progress.currentRow !== null && <p className="mt-2 break-words text-sm font-medium">{progress.currentRow}</p>}
+      {progress.countLines.length > 0 && (
+        <ul aria-label="Results so far" className="mt-1 flex list-none flex-wrap gap-x-3 p-0 text-xs text-muted-foreground">
+          {progress.countLines.map((line: string) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      )}
       {run.status === "running" && (
         <Banner tone="info">Keep the Alerts tab open and in the foreground. Browsers slow background tabs.</Banner>
       )}
