@@ -13,6 +13,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- A dark theme. The dialogs and the bar follow the theme of the system.
 - The run overlay shows the current query and the counts of the results so far.
 - An "Export first" button in the delete confirmation. It exports the checked alerts and deletes nothing.
 - "Retry failed" and "Download failed rows" buttons in the result dialog of a run with failed rows.

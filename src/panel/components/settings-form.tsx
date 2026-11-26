@@ -58,7 +58,7 @@ export function SettingsForm({
   return (
     <fieldset className="mt-3 rounded-lg border bg-card p-3" disabled={locked}>
       <legend className="px-1 text-xs font-semibold">Blank cells use</legend>
-      {locked && <p className="text-xs text-amber-800">Locked while a run is active.</p>}
+      {locked && <p className="text-xs text-warning">Locked while a run is active.</p>}
       <p className="text-xs text-muted-foreground">A value in the file overrides these values for its row.</p>
       <div className="mt-3 grid grid-cols-1 gap-3 @sm:grid-cols-2">
         <OptionChoice

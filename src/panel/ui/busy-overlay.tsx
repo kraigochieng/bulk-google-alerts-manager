@@ -20,7 +20,7 @@ export function BusyOverlay({
   children: ReactNode;
 }): JSX.Element {
   return (
-    <ModalSurface label={title} className="bg-white/55 backdrop-blur-md">
+    <ModalSurface label={title} className="bg-overlay backdrop-blur-md">
       <Progress
         value={progress ?? 0}
         indeterminate={progress === null}

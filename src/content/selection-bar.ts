@@ -28,6 +28,14 @@ const BAR_STYLE: string = `
   .reveal-inner { display: flex; align-items: center; gap: 4px; min-width: 0; overflow: hidden; }
   .reveal button:focus-visible { outline-offset: -2px; }
   @media (prefers-reduced-motion: reduce) { .reveal { transition: none; } }
+  @media (prefers-color-scheme: dark) {
+    .bar { background: #292a2d; color: #e8eaed; border-color: #5f6368; color-scheme: dark; }
+    input { accent-color: #8ab4f8; }
+    button { color: #8ab4f8; }
+    .actions { border-left-color: #5f6368; }
+    .actions button.primary { background: #8ab4f8; color: #202124; }
+    .actions button.danger { color: #f28b82; }
+  }
 `;
 
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg" as const;
