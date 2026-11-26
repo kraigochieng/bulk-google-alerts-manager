@@ -40,3 +40,4 @@ Use throwaway queries that start with `bam test`. Use your own account.
 35. Row actions: in the review step, expect an "Actions" column with an edit icon and a delete icon. Click the query text of a row and expect the editor. Click the checkbox and a radio button of a row and expect no editor.
 36. Toolbar: in the review step, expect four filter chips with counts. Click "Checked" and expect only the checked rows. Click the same chip again and expect it to stay selected. Import 25 rows or fewer and expect no page buttons. Import 26 rows and expect page buttons and a range such as "1–25 of 26 rows".
 37. Run progress: start a run with 5 rows. Expect the line "Now: <query>" and counts such as "Created: 2". Pause the run and expect "Next: <query>".
+38. Start step: go to step 3. Expect three counts (Create, Update, Skip) above a warning with a list of three cautions. Compare the counts with the summary line of step 2.
