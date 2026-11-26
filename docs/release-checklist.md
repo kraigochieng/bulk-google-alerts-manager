@@ -5,7 +5,7 @@ Field names in the dashboard can differ from the names here.
 
 ## Before the upload
 
-1. Run `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, and `npm run audit`. All must pass.
+1. Run `npm ci`, `npx playwright install chromium`, `npm run typecheck`, `npm run lint`, `npm test`, and `npm run audit`. All must pass.
 2. **Owner.** Run all steps of [manual-test-checklist.md](manual-test-checklist.md) on your own account. Record any failure as an issue.
 3. **Owner.** Choose the version number. Set the same number in `manifest.config.ts` and in `package.json`. The store rejects an upload with a version that is not higher than the last upload.
 4. Move the entries under "Unreleased" in `CHANGELOG.md` to a new heading with the version number and the date. Update the comparison links at the end of the file.

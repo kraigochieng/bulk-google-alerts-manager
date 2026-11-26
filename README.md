@@ -101,6 +101,7 @@ See `fixtures/sample-queries.csv` for a larger example.
 ## Development
 
 - `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`.
+- `npm test` runs `*.test.ts` files in Node and `*.browser.test.tsx` files in Chromium. Before the first run, run `npx playwright install chromium`.
 - `npm run package` builds the extension and writes `bulk-google-alerts-manager.zip`.
 - All page selectors and timing constants are in `src/content/selectors.ts`. A layout change is a fix in that file.
 - Notes on the page driver: [docs/spike-findings.md](docs/spike-findings.md).
