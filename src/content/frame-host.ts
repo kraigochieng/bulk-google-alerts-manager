@@ -7,7 +7,7 @@ import type { ContentReply } from "src/shared/messages";
 import type { LiveAlert } from "src/shared/models";
 
 const FRAME_BASE_STYLE: string =
-  "position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483000;background:transparent;color-scheme:light;";
+  "position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483000;background:transparent;color-scheme:light dark;";
 const FRAME_STYLES: Record<FrameLayout, string> = {
   passive: "pointer-events:none;",
   active: "pointer-events:auto;",

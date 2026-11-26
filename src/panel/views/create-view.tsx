@@ -62,10 +62,10 @@ import type { ImportRow, LiveAlert, RowIssue } from "src/shared/models";
 
 const BADGE_CLASSES: Record<RowBadgeKind, string> = {
   problem: "bg-destructive/10 text-destructive",
-  duplicate: "bg-amber-100 text-amber-900",
+  duplicate: "bg-warning-surface text-warning",
   skipped: "bg-muted text-muted-foreground",
-  updates: "bg-amber-100 text-amber-900",
-  similar: "bg-amber-100 text-amber-900",
+  updates: "bg-warning-surface text-warning",
+  similar: "bg-warning-surface text-warning",
   new: "bg-primary/10 text-primary",
 };
 
@@ -445,10 +445,10 @@ export function CreateView({
               return (
                 <div>
                   {row.issues.map((issue: RowIssue) => (
-                    <p key={issue} className={WARNING_ISSUES.includes(issue) ? "text-amber-800" : "text-destructive"}>{ISSUE_TEXT[issue]}</p>
+                    <p key={issue} className={WARNING_ISSUES.includes(issue) ? "text-warning" : "text-destructive"}>{ISSUE_TEXT[issue]}</p>
                   ))}
                   {matches.slice(0, 2).map((match: AlertMatch) => (
-                    <p key={match.alert.query} className="text-amber-800">
+                    <p key={match.alert.query} className="text-warning">
                       {match.similarity === "exact" ? "Already exists. The run replaces its options with the options shown" : match.similarity === "same_words" ? "Same words as" : "Similar to"}:{" "}
                       <span className="font-mono">{match.alert.query}</span>
                     </p>
