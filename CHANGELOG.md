@@ -6,6 +6,10 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- The export overlay no longer says that the CSV file downloads by itself.
+
 ### Added
 
 - The run overlay shows an estimate of the time left after 3 items finish.

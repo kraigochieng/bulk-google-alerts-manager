@@ -16,7 +16,7 @@ export function ExportOverlay({
   return (
     <BusyOverlay title="Exporting alerts" progress={(readCount / Math.max(total, 1)) * 100} working>
       <p className="mt-1 text-sm text-muted-foreground">
-        {String(readCount)} of {String(total)} alerts read. The CSV file downloads when the export ends.
+        {String(readCount)} of {String(total)} alerts read. When the export ends, you can copy or download the CSV file.
       </p>
       <div className="mt-4">
         <Button type="button" variant="ghost" fullWidth onClick={onCancel}>
