@@ -13,6 +13,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- "Retry failed" and "Download failed rows" buttons in the result dialog of a run with failed rows.
 - The run overlay shows an estimate of the time left after 3 items finish.
 - A summary line above the rows in the review step. It says how many alerts the run creates and updates, how many rows it skips, and how many rows have a problem.
 - Two buttons in the review step: "Skip all that update" and "Check only valid rows".
