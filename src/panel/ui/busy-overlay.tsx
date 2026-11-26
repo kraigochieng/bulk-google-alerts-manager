@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from "react";
 
+import { ModalSurface } from "src/panel/ui/modal-surface";
 import { Progress } from "src/panel/ui/progress";
 
 /**
@@ -19,12 +20,7 @@ export function BusyOverlay({
   children: ReactNode;
 }): JSX.Element {
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white/55 p-4 backdrop-blur-md"
-    >
+    <ModalSurface label={title} className="bg-white/55 backdrop-blur-md">
       <Progress
         value={progress ?? 0}
         indeterminate={progress === null}
@@ -36,6 +32,6 @@ export function BusyOverlay({
         {working && <Progress value={0} indeterminate className="mt-3 block w-full" aria-label="Waiting for Google" />}
         {children}
       </div>
-    </div>
+    </ModalSurface>
   );
 }

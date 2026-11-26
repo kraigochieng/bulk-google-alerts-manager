@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-import { useEffect } from "react";
 import type { JSX } from "react";
 
 import { parseDeliverTo, parseHowMany, parseHowOften } from "src/core/alert-options";
@@ -11,6 +10,7 @@ import { FIELD_HEADERS } from "src/core/template-columns";
 import { ListedOption } from "src/panel/components/listed-option";
 import { Button } from "src/panel/ui/button";
 import { Label } from "src/panel/ui/label";
+import { ModalSurface } from "src/panel/ui/modal-surface";
 import { RadioGroup } from "src/panel/ui/radio-group";
 import type { RadioChoice } from "src/panel/ui/radio-group";
 import { TextField } from "src/panel/ui/text-field";
@@ -41,7 +41,7 @@ function radioChoices({ labels, defaultLabel }: { labels: Readonly<Record<string
   ];
 }
 
-/** Render a dialog with the fields of one row so that the user can fix the query and the options. Side effect: listens for the Escape key. */
+/** Render a dialog with the fields of one row so that the user can fix the query and the options. Escape closes it. */
 export function RowEditor({
   row,
   defaults,
@@ -58,19 +58,9 @@ export function RowEditor({
   const finalDeliverTo: string = parseDeliverTo({ text: row.cells.deliverTo }) ?? defaults.deliverTo;
   const rssLocksHowOften: boolean = finalDeliverTo === "rss";
   const rowLabel: string = `row ${String(row.sourceRowNumber)}`;
-  useEffect(() => {
-    const closeOnEscape = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return (): void => { document.removeEventListener("keydown", closeOnEscape); };
-  }, [onClose]);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+    <ModalSurface label={`Edit ${rowLabel}`} onDismiss={onClose} className="bg-black/40">
     <section
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Edit ${rowLabel}`}
       className="@container max-h-full w-full max-w-2xl overflow-y-auto rounded-2xl border bg-background p-4 text-sm shadow-xl"
     >
       <h2 className="text-base font-medium">Edit {rowLabel}</h2>
@@ -145,6 +135,6 @@ export function RowEditor({
         </Button>
       </div>
     </section>
-    </div>
+    </ModalSurface>
   );
 }

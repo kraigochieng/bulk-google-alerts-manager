@@ -124,8 +124,9 @@ export function App(): JSX.Element {
         }}
       >
         <CreateView settings={settings} onSettingsChange={setSettings} saveStatus={saveStatus} controller={controller} live={live} onNotify={snackbar.show} />
+        <Snackbar message={snackbar.message} onDismiss={snackbar.dismiss} />
       </Modal>
-      <Snackbar message={snackbar.message} onDismiss={snackbar.dismiss} />
+      {!addOpen && <Snackbar message={snackbar.message} onDismiss={snackbar.dismiss} />}
       <DeleteConfirm
         open={confirmingDelete}
         queries={checkedAlerts.map((alert) => alert.query)}

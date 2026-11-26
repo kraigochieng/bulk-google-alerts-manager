@@ -14,6 +14,8 @@ const FRAME_STYLES: Record<FrameLayout, string> = {
 };
 
 let framePort: MessagePort | null = null;
+let focusBeforeApp: HTMLElement | null = null;
+let appIsInteractive: boolean = false;
 let checkedAlerts: readonly LiveAlert[] = [];
 
 /** Apply the layout to the frame. Side effect: changes the style of the frame. */
@@ -21,13 +23,45 @@ function applyLayout({ element, interactive }: { element: HTMLIFrameElement; int
   element.style.cssText = `${FRAME_BASE_STYLE}${FRAME_STYLES[chooseFrameLayout({ interactive })]}`;
 }
 
+/** Return the element of the page that has the focus, also inside an open shadow root. Reads the page. */
+function focusedPageElement(): HTMLElement | null {
+  const outer: Element | null = document.activeElement;
+  const inner: Element | null = outer?.shadowRoot?.activeElement ?? outer;
+  return inner instanceof HTMLElement ? inner : null;
+}
+
+/** Give the focus to the frame while the app is interactive, then give it back. Side effect: moves the focus. */
+function moveFocus({ element, interactive }: { element: HTMLIFrameElement; interactive: boolean }): void {
+  const changed: boolean = interactive !== appIsInteractive;
+  appIsInteractive = interactive;
+  if (!changed) return;
+  if (interactive) {
+    element.focus();
+    return;
+  }
+  element.blur();
+  window.focus();
+  focusBeforeApp?.focus();
+}
+
+/** Send a key press of the user on the page to the open app. Side effect: moves the focus. */
+function keepKeysInApp({ event, element }: { event: KeyboardEvent; element: HTMLIFrameElement }): void {
+  if (!appIsInteractive || !event.isTrusted) return;
+  event.preventDefault();
+  event.stopPropagation();
+  element.focus();
+}
+
 /** Answer the messages of the app frame. Side effect: drives the Alerts page. */
 function handleFrameMessage({ message, port, element }: { message: FrameToPage; port: MessagePort; element: HTMLIFrameElement }): void {
   if (message.kind === "interactive") {
     applyLayout({ element, interactive: message.interactive });
+    moveFocus({ element, interactive: message.interactive });
     return;
   }
   void dispatchPageRequest({ request: message.request }).then((reply: ContentReply) => {
+    // The page driver focuses controls of the page. Give the focus back to an open app.
+    if (appIsInteractive) element.focus();
     const answer: PageToFrame = { kind: "reply", id: message.id, reply };
     port.postMessage(answer);
   });
@@ -41,6 +75,8 @@ function sendCheckedAlerts(): void {
 
 /** Send a command of the bar to the app frame. Side effect: messages the frame. */
 export function sendCommand({ command }: { command: PageCommand }): void {
+  // Read the focus before the app opens, because a dialog in the frame can take it at once.
+  if (!appIsInteractive) focusBeforeApp = focusedPageElement();
   const message: PageToFrame = { kind: "command", command };
   framePort?.postMessage(message);
 }
@@ -69,5 +105,6 @@ export function addFrame(): void {
     sendCheckedAlerts();
   });
   applyLayout({ element, interactive: false });
+  document.addEventListener("keydown", (event: KeyboardEvent) => { keepKeysInApp({ event, element }); }, true);
   document.body.append(element);
 }

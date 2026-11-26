@@ -8,6 +8,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- The Add dialog, the row editor, and the loader keep the keyboard focus inside. Escape closes the Add dialog.
 - The export overlay no longer says that the CSV file downloads by itself.
 
 ### Added
